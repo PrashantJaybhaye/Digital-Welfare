@@ -137,49 +137,61 @@ export default function Navbar() {
 
         {/* Mobile Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-black/6 px-4 pt-3 pb-6 space-y-2 animate-fade-in shadow-xl">
+          <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-slate-200/90 px-4 pt-3 pb-6 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200 shadow-xl">
             <Link 
               href="/schemes" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:text-slate-950 hover:bg-slate-50 transition-colors flex items-center justify-between"
             >
-              Browse All Schemes
+              <span>Browse All Schemes</span>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">Directory</span>
             </Link>
+
             <Link 
               href="/eligibility-check" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-blue-600 hover:bg-blue-50"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:text-slate-950 hover:bg-slate-50 transition-colors flex items-center justify-between"
             >
-              Check My Eligibility
+              <span>Check Eligibility</span>
+              <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Calculator</span>
             </Link>
+
             <Link 
               href="/compare" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-indigo-600 hover:bg-indigo-50"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:text-slate-950 hover:bg-slate-50 transition-colors flex items-center justify-between"
             >
-              Compare Schemes
+              <span>Compare Schemes</span>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">Matrix</span>
             </Link>
+
             <button
               onClick={() => { setMobileMenuOpen(false); setAlertModalOpen(true); }}
-              className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-amber-700 hover:bg-amber-50 flex items-center gap-2"
+              className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:text-slate-950 hover:bg-slate-50 transition-colors flex items-center justify-between cursor-pointer"
             >
-              <Bell className="w-4 h-4 text-amber-600" /> Free Scheme Alerts
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-slate-500" />
+                <span>Scheme Alerts</span>
+              </div>
+              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">Free</span>
             </button>
+
             <Link 
               href="/admin" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50"
+              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-950 hover:bg-slate-50 transition-colors flex items-center justify-between"
             >
-              Admin Sync Portal
+              <span>Admin Operations</span>
+              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">Portal</span>
             </Link>
 
-            <div className="pt-3 border-t border-slate-100">
+            <div className="pt-3 border-t border-slate-100 mt-2">
               {user ? (
                 <div className="flex justify-between items-center px-3 pt-1">
-                  <span className="text-xs text-slate-500 font-semibold truncate max-w-45">{user.email}</span>
+                  <span className="text-xs text-slate-500 font-semibold truncate max-w-[180px]">{user.email}</span>
                   <button 
                     onClick={handleLogout}
-                    className="bg-slate-100 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700"
+                    className="bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 transition-colors"
                   >
                     Logout
                   </button>
@@ -188,7 +200,7 @@ export default function Navbar() {
                 <Link 
                   href="/eligibility-check" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-center py-3 bg-slate-950 text-white rounded-2xl text-xs font-bold shadow-sm"
+                  className="block text-center py-3 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
                 >
                   Check Eligibility Now
                 </Link>

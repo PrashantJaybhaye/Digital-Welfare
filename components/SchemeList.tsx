@@ -231,7 +231,7 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
 
                   {/* Title & Description */}
                   <Link href={`/schemes/${scheme.id}`} className="block">
-                    <h3 className="text-base font-bold text-slate-950 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1 leading-snug" title={scheme.title}>
+                    <h3 className="text-base font-bold text-slate-950 mb-1 leading-snug" title={scheme.title}>
                       {scheme.title}
                     </h3>
                   </Link>
@@ -262,9 +262,9 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-3">
                   <Link 
                     href={`/schemes/${scheme.id}`} 
-                    className="text-slate-950 font-bold text-xs hover:text-blue-600 flex items-center gap-1 transition-colors group-hover:translate-x-0.5"
+                    className="text-slate-950 font-bold text-xs hover:text-slate-700 flex items-center gap-1 transition-colors group-hover:translate-x-0.5"
                   >
-                    View Details <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600" />
+                    View Details <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-950" />
                   </Link>
 
                   <div className="flex items-center gap-1.5">
@@ -280,7 +280,7 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
                         href={scheme.applyLink} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="p-1 text-slate-400 hover:text-blue-600 transition-colors rounded-md hover:bg-slate-50" 
+                        className="p-1 text-slate-400 hover:text-slate-900 transition-colors rounded-md hover:bg-slate-50" 
                         title="Official Government Portal"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Bell, X, CheckCircle2, ShieldCheck, Send } from 'lucide-react';
+import { Bell, X, Check, MessageSquare, Mail, ChevronDown, ShieldCheck } from 'lucide-react';
 
 const ALERT_CATEGORIES = [
   'All New Government Schemes',
@@ -57,136 +57,164 @@ export default function SchemeAlertModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-fade-in">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-black/8 relative">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white/95 backdrop-blur-2xl border border-black/5 w-full max-w-[420px] rounded-[28px] p-6 sm:p-7 shadow-[0_25px_60px_rgba(0,0,0,0.12)] relative animate-in zoom-in-95 duration-200 ring-1 ring-black/5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* iOS Circular Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+          aria-label="Close"
+        >
+          <X className="w-3.5 h-3.5 stroke-[2.5]" />
+        </button>
 
-        {/* Header */}
-        <div className="p-7 bg-slate-950 text-white relative">
-          <button
-            onClick={onClose}
-            className="absolute top-5 right-5 p-2 text-slate-400 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-4">
-            <Bell className="w-5 h-5 text-amber-400" />
+        {/* Modal Header */}
+        <div className="flex items-center gap-3.5 mb-5 pr-6">
+          <div className="w-12 h-12 rounded-[22%] bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-xs border border-blue-100/60">
+            <Bell className="w-6 h-6 stroke-[2.2]" />
           </div>
-
-          <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">Public Welfare Alerts</h3>
-          <p className="text-xs text-slate-400 mt-1">
-            Receive direct updates on new subsidies, scholarship windows, and DBT disbursements.
-          </p>
+          <div>
+            <h3 className="font-bold text-lg text-slate-950 tracking-tight leading-tight">
+              Welfare Scheme Alerts
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Get notified when new subsidies open
+            </p>
+          </div>
         </div>
 
-        {/* Form Body */}
-        <div className="p-6 sm:p-8">
-          {submitted ? (
-            <div className="text-center py-6 animate-fade-in space-y-4">
-              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto border border-emerald-100">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-              <h4 className="text-lg font-bold text-slate-950">Subscription Confirmed</h4>
-              <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
-                You will receive alerts on <strong>{contact}</strong> as soon as matching official notifications are issued.
+        {/* Modal Body */}
+        {submitted ? (
+          <div className="text-center py-6 space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
+              <Check className="w-6 h-6 stroke-[2.5]" />
+            </div>
+            <div>
+              <h4 className="text-base font-bold text-slate-950">Subscription Confirmed</h4>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Alerts will be sent to <span className="font-semibold text-slate-900">{contact}</span> as soon as verified schemes are published.
               </p>
+            </div>
+            <button
+              onClick={() => { setSubmitted(false); onClose(); }}
+              className="mt-2 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-semibold transition-all cursor-pointer"
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+
+            {/* iOS Segmented Control */}
+            <div className="bg-slate-100/90 p-1 rounded-2xl grid grid-cols-2 gap-1 border border-slate-200/50">
               <button
-                onClick={() => { setSubmitted(false); onClose(); }}
-                className="mt-2 px-6 py-2.5 bg-slate-950 hover:bg-slate-800 text-white rounded-full text-xs font-bold transition-all shadow-sm"
+                type="button"
+                onClick={() => setChannel('WhatsApp')}
+                className={`py-1.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  channel === 'WhatsApp'
+                    ? 'bg-white text-slate-950 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
               >
-                Close
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                <span>WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setChannel('Email')}
+                className={`py-1.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  channel === 'Email'
+                    ? 'bg-white text-slate-950 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                <Mail className="w-3.5 h-3.5 text-blue-600" />
+                <span>Email</span>
               </button>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
 
-              {/* Segmented Control */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-                  Preferred Delivery Method
-                </label>
-                <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-2xl">
-                  <button
-                    type="button"
-                    onClick={() => setChannel('WhatsApp')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${channel === 'WhatsApp'
-                        ? 'bg-white text-slate-950 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                  >
-                    💬 WhatsApp
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setChannel('Email')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${channel === 'Email'
-                        ? 'bg-white text-slate-950 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                  >
-                    📧 Email
-                  </button>
-                </div>
-              </div>
-
-              {/* Contact Input */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  {channel === 'WhatsApp' ? 'WhatsApp Mobile Number *' : 'Email Address *'}
-                </label>
+            {/* Contact Input Field */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5 pl-0.5">
+                {channel === 'WhatsApp' ? 'Mobile Number' : 'Email Address'}
+              </label>
+              <div className="relative">
+                {channel === 'WhatsApp' && (
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400 pointer-events-none">
+                    +91
+                  </span>
+                )}
                 <input
                   type={channel === 'WhatsApp' ? 'tel' : 'email'}
                   required
-                  placeholder={channel === 'WhatsApp' ? 'e.g. 9876543210' : 'e.g. citizen@example.com'}
+                  placeholder={channel === 'WhatsApp' ? '98765 43210' : 'citizen@example.com'}
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50/70 border border-slate-200/80 rounded-xl text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                  className={`w-full py-2.5 pr-3.5 bg-slate-50/90 border border-slate-200/70 rounded-2xl text-xs sm:text-sm font-medium text-slate-950 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all ${
+                    channel === 'WhatsApp' ? 'pl-11' : 'pl-3.5'
+                  }`}
                 />
               </div>
+            </div>
 
-              {/* Category Preference */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Focus Sector
-                </label>
+            {/* Focus Sector Dropdown */}
+            <div>
+              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5 pl-0.5">
+                Scheme Category
+              </label>
+              <div className="relative">
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50/70 border border-slate-200/80 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer"
+                  className="w-full pl-3.5 pr-10 py-2.5 bg-slate-50/90 border border-slate-200/70 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer appearance-none"
                 >
                   {ALERT_CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
               </div>
+            </div>
 
-              {errorMsg && (
-                <p className="text-xs font-semibold text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-200">
-                  {errorMsg}
-                </p>
+            {errorMsg && (
+              <div className="text-xs font-medium text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-100">
+                {errorMsg}
+              </div>
+            )}
+
+            {/* Primary Action Button */}
+            <button
+              type="submit"
+              disabled={loading || !contact.trim()}
+              className="w-full mt-1 py-3 px-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Subscribing...</span>
+                </>
+              ) : (
+                <span>Subscribe for Alerts</span>
               )}
+            </button>
 
-              <button
-                type="submit"
-                disabled={loading || !contact.trim()}
-                className="w-full mt-2 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 active:scale-98"
-              >
-                {loading ? 'Subscribing...' : (
-                  <>
-                    <Send className="w-3.5 h-3.5" /> Subscribe to Verified Alerts
-                  </>
-                )}
-              </button>
+            {/* Apple Style Footer Info */}
+            <p className="text-[11px] text-slate-400 text-center flex items-center justify-center gap-1 font-medium pt-0.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+              <span>Official Notifications • No Spam Guarantee</span>
+            </p>
 
-              <p className="text-[11px] text-slate-400 text-center flex items-center justify-center gap-1 mt-2 font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> 100% Free Public Service • Zero Spam
-              </p>
-            </form>
-          )}
-        </div>
-
+          </form>
+        )}
       </div>
     </div>
   );
