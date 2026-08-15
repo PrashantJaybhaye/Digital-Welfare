@@ -58,7 +58,7 @@ export default function SchemeAlertModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-fade-in">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-black/[0.08] relative">
+      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-black/8 relative">
 
         {/* Header */}
         <div className="p-7 bg-slate-950 text-white relative">

@@ -137,7 +137,7 @@ export default function Navbar() {
 
         {/* Mobile Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-black/[0.06] px-4 pt-3 pb-6 space-y-2 animate-fade-in shadow-xl">
+          <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-black/6 px-4 pt-3 pb-6 space-y-2 animate-fade-in shadow-xl">
             <Link 
               href="/schemes" 
               onClick={() => setMobileMenuOpen(false)}
@@ -176,7 +176,7 @@ export default function Navbar() {
             <div className="pt-3 border-t border-slate-100">
               {user ? (
                 <div className="flex justify-between items-center px-3 pt-1">
-                  <span className="text-xs text-slate-500 font-semibold truncate max-w-[180px]">{user.email}</span>
+                  <span className="text-xs text-slate-500 font-semibold truncate max-w-45">{user.email}</span>
                   <button 
                     onClick={handleLogout}
                     className="bg-slate-100 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700"
