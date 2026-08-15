@@ -5,7 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Scheme, formatCategoryName, getEstimatedBenefit, getSchemeDocuments } from '@/types/scheme';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, ExternalLink, Scale, CheckCircle2, FileText, Plus, X, Building2, MapPin } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ExternalLink, Scale, Plus, X, Building2 } from 'lucide-react';
 
 export default function CompareSchemesPage() {
   const [allSchemes, setAllSchemes] = useState<Scheme[]>([]);

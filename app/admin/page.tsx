@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, LayoutDashboard, Settings, FileText, Users, ServerCrash } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getCountFromServer } from 'firebase/firestore';
@@ -10,7 +10,7 @@ export default function AdminDashboard() {
   const [syncResult, setSyncResult] = useState<{success: boolean, message: string} | null>(null);
   const [schemeCount, setSchemeCount] = useState<number | null>(null);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const coll = collection(db, 'schemes');
       const snapshot = await getCountFromServer(coll);
@@ -18,10 +18,25 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Failed to fetch stats", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchStats();
+    let mounted = true;
+    const loadStats = async () => {
+      try {
+        const coll = collection(db, 'schemes');
+        const snapshot = await getCountFromServer(coll);
+        if (mounted) {
+          setSchemeCount(snapshot.data().count);
+        }
+      } catch (error) {
+        console.error("Failed to fetch stats", error);
+      }
+    };
+    loadStats();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleSync = async () => {
@@ -41,10 +56,11 @@ export default function AdminDashboard() {
       // Refresh count after sync
       if (data.success) fetchStats();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An unexpected error occurred while syncing.';
       setSyncResult({
         success: false,
-        message: error.message || 'An unexpected error occurred while syncing.'
+        message
       });
     } finally {
       setSyncing(false);

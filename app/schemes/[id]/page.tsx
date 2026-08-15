@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import SchemeDetailView from '@/components/SchemeDetailView';
 
-export default async function SchemeDetailsPage({ params }: { params: { id: string } }) {
+export default async function SchemeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const docRef = adminDb.collection('schemes').doc(resolvedParams.id);
   const docSnap = await docRef.get();

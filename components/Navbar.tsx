@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { Sparkles, Scale, Search, Menu, X, ShieldCheck, Bookmark, Bell } from 'lucide-react';
+import { Scale, Search, Menu, X, Bell } from 'lucide-react';
 import SchemeAlertModal from '@/components/SchemeAlertModal';
 
 export default function Navbar() {

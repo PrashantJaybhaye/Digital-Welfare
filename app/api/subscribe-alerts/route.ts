@@ -25,8 +25,9 @@ export async function POST(req: Request) {
       success: true,
       message: 'Successfully subscribed to Scheme Alerts!'
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Subscription error:', err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    const error = err instanceof Error ? err.message : 'Internal server error';
+    return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }

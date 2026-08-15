@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { 
-  ArrowRight, CheckCircle2, XCircle, Search, ShieldCheck, 
-  Download, Share2, Sparkles, RefreshCw, Printer, ExternalLink,
-  Users, Building, Wallet, MapPin, Award
+  ArrowRight, CheckCircle2, XCircle, Search, 
+  Share2, Sparkles, RefreshCw, Printer,
+  Users, Award
 } from 'lucide-react';
 import { Scheme, formatCategoryName, getEstimatedBenefit } from '@/types/scheme';
 import Link from 'next/link';

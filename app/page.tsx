@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { 
   ArrowRight, Search, ShieldCheck, HeartPulse, GraduationCap, 
-  Sprout, Building, Users, Scale, FileCheck, CheckCircle2, 
-  Sparkles, HelpCircle, Share2, Wallet
+  Sprout, Building, Users, Scale, FileCheck, 
+  Sparkles, HelpCircle, Wallet
 } from 'lucide-react';
 
 export default function Home() {

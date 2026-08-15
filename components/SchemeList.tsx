@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Scheme, formatCategoryName, getEstimatedBenefit } from '@/types/scheme';
 import Link from 'next/link';
 import { 
   ArrowRight, ExternalLink, Search, Filter, Bookmark, 
-  BookmarkCheck, Scale, Sparkles, Sprout, HeartPulse, GraduationCap, 
-  Users, Building, ShieldCheck, Tag, Bell
+  BookmarkCheck, Scale, Sparkles, Bell
 } from 'lucide-react';
 import SchemeAlertModal from '@/components/SchemeAlertModal';
 
@@ -16,14 +15,16 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
   const [selectedTag, setSelectedTag] = useState<string>('All');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
-
-  useEffect(() => {
+  const [savedIds, setSavedIds] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = JSON.parse(localStorage.getItem('saved_schemes') || '[]');
-      setSavedIds(saved);
+      try {
+        return JSON.parse(localStorage.getItem('saved_schemes') || '[]');
+      } catch {
+        return [];
+      }
     }
-  }, []);
+    return [];
+  });
 
   const toggleBookmark = (schemeId: string, e: React.MouseEvent) => {
     e.preventDefault();

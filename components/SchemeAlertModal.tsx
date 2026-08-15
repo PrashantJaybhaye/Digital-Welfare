@@ -1,28 +1,28 @@
 "use client";
 
 import { useState } from 'react';
-import { Bell, X, CheckCircle2, ShieldCheck, Sparkles, Send } from 'lucide-react';
+import { Bell, X, CheckCircle2, ShieldCheck, Send } from 'lucide-react';
 
 const ALERT_CATEGORIES = [
-  '⚡ All New Government Schemes',
-  '🎓 Scholarships & Student Aid',
-  '🌾 Farmer Subsidies & Agriculture Grants',
-  '👩 Women & Child Welfare Schemes',
-  '💼 MSME, Business & Self-Employment Loans',
-  '🏥 Free Healthcare & Hospital Benefits'
+  'All New Government Schemes',
+  'Scholarships & Student Aid',
+  'Farmer Subsidies & Agriculture Grants',
+  'Women & Child Welfare Schemes',
+  'MSME, Business & Self-Employment Loans',
+  'Free Healthcare & Hospital Benefits'
 ];
 
-export default function SchemeAlertModal({ 
-  isOpen, 
-  onClose 
-}: { 
-  isOpen: boolean; 
-  onClose: () => void; 
+export default function SchemeAlertModal({
+  isOpen,
+  onClose
+}: {
+  isOpen: boolean;
+  onClose: () => void;
 }) {
   const [contact, setContact] = useState('');
   const [category, setCategory] = useState(ALERT_CATEGORIES[0]);
   const [channel, setChannel] = useState<'WhatsApp' | 'Email'>('WhatsApp');
-  const [state, setState] = useState('All India');
+  const [state] = useState('All India');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -49,7 +49,7 @@ export default function SchemeAlertModal({
       } else {
         setErrorMsg(data.error || 'Failed to subscribe. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setErrorMsg('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ export default function SchemeAlertModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-200 relative">
-        
+
         {/* Header */}
         <div className="p-6 bg-gradient-to-r from-primary-600 via-primary-700 to-indigo-700 text-white relative">
           <button
@@ -73,7 +73,7 @@ export default function SchemeAlertModal({
           <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-3 backdrop-blur-sm">
             <Bell className="w-6 h-6 text-white" />
           </div>
-          
+
           <h3 className="text-2xl font-black">Get Free Scheme Alerts</h3>
           <p className="text-xs text-primary-100 mt-1">
             Never miss new government subsidies, scholarship deadlines, or direct benefit launches.
@@ -100,7 +100,7 @@ export default function SchemeAlertModal({
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              
+
               {/* Channel Selector (WhatsApp / Email) */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
@@ -110,11 +110,10 @@ export default function SchemeAlertModal({
                   <button
                     type="button"
                     onClick={() => setChannel('WhatsApp')}
-                    className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 ${
-                      channel === 'WhatsApp'
+                    className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 ${channel === 'WhatsApp'
                         ? 'bg-emerald-50 border-emerald-500 text-emerald-700 ring-2 ring-emerald-500/20'
                         : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     💬 WhatsApp Alerts
                   </button>
@@ -122,11 +121,10 @@ export default function SchemeAlertModal({
                   <button
                     type="button"
                     onClick={() => setChannel('Email')}
-                    className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 ${
-                      channel === 'Email'
+                    className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 ${channel === 'Email'
                         ? 'bg-blue-50 border-blue-500 text-blue-700 ring-2 ring-blue-500/20'
                         : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     📧 Email Alerts
                   </button>

@@ -13,7 +13,7 @@ async function translateToEnglish(text: string): Promise<string> {
   }
 
   // Pre-clean boilerplate Marathi suffixes
-  let clean = text
+  const clean = text
     .replace(/पुढीलप्रमाणे/g, '')
     .replace(/\d+\s*योजना/g, '')
     .replace(/आम्हाला फॉलो करा.*/g, '')
@@ -28,7 +28,10 @@ async function translateToEnglish(text: string): Promise<string> {
 
     if (res.ok) {
       const data = await res.json();
-      let translated = data[0]?.map((item: any) => item[0]).join('') || clean;
+      const translatedRaw = Array.isArray(data?.[0]) 
+        ? data[0].map((item: unknown[]) => (Array.isArray(item) && item[0] ? String(item[0]) : '')).join('') 
+        : clean;
+      let translated = translatedRaw || clean;
 
       // Polish common terminology translations
       translated = translated
@@ -48,7 +51,7 @@ async function translateToEnglish(text: string): Promise<string> {
   return clean;
 }
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const scrapedSchemes: Scheme[] = [];
     const logs: string[] = [];
@@ -99,8 +102,9 @@ export async function POST(req: Request) {
         });
         logs.push(`Fetched ${scrapedSchemes.length} schemes from Central Wikipedia tables.`);
       }
-    } catch (wikiErr: any) {
-      logs.push(`Central Wikipedia scrape error: ${wikiErr.message}`);
+    } catch (wikiErr: unknown) {
+      const msg = wikiErr instanceof Error ? wikiErr.message : String(wikiErr);
+      logs.push(`Central Wikipedia scrape error: ${msg}`);
     }
 
     // =========================================================================
@@ -168,8 +172,9 @@ export async function POST(req: Request) {
                 }
               });
             }
-          } catch (err: any) {
-            logs.push(`Subcategory fetch error for ${cat.path}: ${err.message}`);
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            logs.push(`Subcategory fetch error for ${cat.path}: ${msg}`);
           }
         })
       );
@@ -203,8 +208,9 @@ export async function POST(req: Request) {
       }
 
       logs.push(`Completed live crawl and English translation of MahaDBT schemes.`);
-    } catch (mahaErr: any) {
-      logs.push(`MahaDBT crawl error: ${mahaErr.message}`);
+    } catch (mahaErr: unknown) {
+      const msg = mahaErr instanceof Error ? mahaErr.message : String(mahaErr);
+      logs.push(`MahaDBT crawl error: ${msg}`);
     }
 
     // =========================================================================
@@ -245,8 +251,9 @@ export async function POST(req: Request) {
           }
         });
       }
-    } catch (womenErr: any) {
-      logs.push(`Women schemes scrape error: ${womenErr.message}`);
+    } catch (womenErr: unknown) {
+      const msg = womenErr instanceof Error ? womenErr.message : String(womenErr);
+      logs.push(`Women schemes scrape error: ${msg}`);
     }
 
     // =========================================================================
@@ -278,7 +285,7 @@ export async function POST(req: Request) {
         await deleteBatch.commit();
         logs.push(`Cleaned up ${deleteCount} legacy non-English scheme records.`);
       }
-    } catch (cleanErr: any) {
+    } catch (cleanErr: unknown) {
       console.error('Error during cleanup:', cleanErr);
     }
 
@@ -308,11 +315,12 @@ export async function POST(req: Request) {
       preview: scrapedSchemes.slice(0, 5)
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Dynamic Live Crawl Error:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error during sync';
     return NextResponse.json({
       success: false,
-      error: error.message
+      error: message
     }, { status: 500 });
   }
 }
