@@ -115,23 +115,29 @@ export function getEstimatedBenefit(scheme: Scheme): { amount: number; label: st
   const combined = `${scheme.title.toLowerCase()} ${scheme.description.toLowerCase()}`;
 
   if (combined.includes('ayushman') || combined.includes('health insurance') || combined.includes('swasthya bima')) {
-    return { amount: 500000, label: '₹5,00,000 / year (Free Health Cover)' };
+    return { amount: 500000, label: '₹5,00,000 / Year (Free Health Cover)' };
   }
-  if (combined.includes('kisan') || combined.includes('pm-kisan')) {
-    return { amount: 6000, label: '₹6,000 / year (Direct Cash DBT)' };
+  if (combined.includes('kisan') || combined.includes('pm-kisan') || combined.includes('samman nidhi')) {
+    return { amount: 6000, label: '₹6,000 / Year (Direct DBT)' };
   }
-  if (combined.includes('scholarship') || combined.includes('fellowship')) {
-    return { amount: 25000, label: 'Up to ₹25,000 - ₹50,000 / year (Education Grant)' };
+  if (combined.includes('scholarship') || combined.includes('fellowship') || combined.includes('vidya') || combined.includes('pragati')) {
+    return { amount: 25000, label: 'Up to ₹25,000 - ₹50,000 / Year' };
   }
-  if (combined.includes('pmegp') || combined.includes('employment generation') || combined.includes('loan')) {
-    return { amount: 100000, label: 'Up to 35% Govt Subsidy on Business Project' };
+  if (combined.includes('pmegp') || combined.includes('mudra') || combined.includes('swanidhi') || combined.includes('business loan')) {
+    return { amount: 50000, label: 'Up to 35% Capital Subsidy' };
   }
-  if (combined.includes('awas') || combined.includes('housing')) {
-    return { amount: 120000, label: 'Up to ₹1,20,000 - ₹2,50,000 (Housing Subsidy)' };
+  if (combined.includes('awas') || combined.includes('housing') || combined.includes('pmay')) {
+    return { amount: 120000, label: 'Up to ₹1,20,000 (Housing Subsidy)' };
   }
-  if (combined.includes('nrega') || combined.includes('wage')) {
-    return { amount: 24000, label: 'Guaranteed 100 Days Wage (~₹24,000/yr)' };
+  if (combined.includes('pension') || combined.includes('vaya vandana') || combined.includes('old age')) {
+    return { amount: 12000, label: '₹1,000 - ₹3,000 / Month Pension' };
+  }
+  if (combined.includes('maternity') || combined.includes('matru') || combined.includes('janani')) {
+    return { amount: 6000, label: '₹5,000 - ₹6,000 Maternity Aid' };
+  }
+  if (combined.includes('ration') || combined.includes('anna yojana') || combined.includes('food security')) {
+    return { amount: 8000, label: 'Free Monthly Food Grains' };
   }
 
-  return { amount: 10000, label: 'Direct Public Welfare Benefit' };
+  return { amount: 5000, label: 'Direct Public Welfare Support' };
 }

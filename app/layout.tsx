@@ -45,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/svg+xml" href="/logo.svg" />
         <link rel="apple-touch-icon" href="/logo.svg" />
@@ -53,7 +53,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className="min-h-screen flex flex-col relative overflow-x-hidden bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-900">
+      <body className="min-h-screen flex flex-col relative overflow-x-hidden bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-900" suppressHydrationWarning>
         <Navbar />
 
         <main className="flex-1">
