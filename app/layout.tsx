@@ -53,16 +53,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className="min-h-screen flex flex-col relative overflow-x-hidden bg-[#fbfbfd] text-slate-900 selection:bg-blue-100 selection:text-blue-900">
-        {/* Apple-style Soft Ambient Lighting */}
-        <div className="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
-          <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-blue-100/60 via-indigo-50/30 to-transparent blur-[140px] rounded-full"></div>
-          <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] bg-emerald-50/40 blur-[160px] rounded-full"></div>
-        </div>
-
+      <body className="min-h-screen flex flex-col relative overflow-x-hidden bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-900">
         <Navbar />
 
-        <main className="grow">
+        <main className="flex-1">
           {children}
         </main>
 
