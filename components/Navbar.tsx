@@ -6,6 +6,7 @@ import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { Scale, Search, Menu, X, Bell } from 'lucide-react';
 import SchemeAlertModal from '@/components/SchemeAlertModal';
+import Logo from '@/components/Logo';
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -29,84 +30,81 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-black/[0.06] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             
-            {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-primary-600 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-primary-600/30 group-hover:scale-105 transition-transform">
-                🇮🇳
-              </div>
+            {/* Brand Logo & Gov Identity */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <Logo size={44} className="group-hover:scale-105 transition-transform" />
               <div className="flex flex-col">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900 leading-none">
-                  Digital<span className="text-primary-600">Welfare</span>
+                <span className="font-bold text-base tracking-tight text-slate-900 leading-none">
+                  Digital<span className="text-blue-600">Welfare</span>
                 </span>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Govt Scheme Guide
+                <span className="text-[10px] font-semibold text-slate-400 tracking-wider mt-0.5">
+                  Public Welfare Guide
                 </span>
               </div>
             </Link>
             
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex gap-5 items-center">
+            <div className="hidden md:flex gap-1.5 items-center">
               <Link 
                 href="/schemes" 
-                className="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors"
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3.5 py-2 rounded-full hover:bg-black/[0.04] transition-all"
               >
-                Browse Schemes
+                Browse Directory
               </Link>
 
               <Link 
                 href="/eligibility-check" 
-                className="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors flex items-center gap-1.5"
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3.5 py-2 rounded-full hover:bg-black/[0.04] transition-all flex items-center gap-1.5"
               >
-                <Search className="w-4 h-4 text-primary-500" />
-                Eligibility Check
+                <Search className="w-3.5 h-3.5 text-blue-600" />
+                Eligibility Engine
               </Link>
 
               <Link 
                 href="/compare" 
-                className="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors flex items-center gap-1.5"
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3.5 py-2 rounded-full hover:bg-black/[0.04] transition-all flex items-center gap-1.5"
               >
-                <Scale className="w-4 h-4 text-indigo-500" />
-                Compare
+                <Scale className="w-3.5 h-3.5 text-indigo-600" />
+                Compare Schemes
               </Link>
 
-              {/* Free Alerts Button */}
               <button
                 onClick={() => setAlertModalOpen(true)}
-                className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 transition-all flex items-center gap-1.5 shadow-sm"
+                className="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100/90 text-slate-700 hover:bg-slate-200/80 border border-black/[0.04] transition-all flex items-center gap-1.5 shadow-2xs ml-1"
               >
-                <Bell className="w-3.5 h-3.5 text-amber-600 animate-bounce" />
-                Get Alerts
+                <Bell className="w-3.5 h-3.5 text-amber-600" />
+                Alerts
               </button>
 
               <Link 
                 href="/admin" 
-                className="text-sm font-semibold text-slate-500 hover:text-primary-600 transition-colors"
+                className="text-xs font-semibold text-slate-400 hover:text-slate-700 px-3 py-2 rounded-full hover:bg-black/[0.04] transition-all"
               >
                 Admin Sync
               </Link>
               
               {user ? (
-                <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-                  <span className="text-xs font-semibold text-slate-500 truncate max-w-[130px]">
+                <div className="flex items-center gap-2 pl-3 ml-2 border-l border-slate-200">
+                  <span className="text-xs font-semibold text-slate-500 truncate max-w-32.5">
                     {user.email}
                   </span>
                   <button 
                     onClick={handleLogout}
-                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
                   >
                     Log Out
                   </button>
                 </div>
               ) : (
                 <Link 
-                  href="/login" 
-                  className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-primary-600/20"
+                  href="/eligibility-check" 
+                  className="ml-2 bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm active:scale-98"
                 >
-                  Admin Login
+                  Check Eligibility
                 </Link>
               )}
             </div>
@@ -115,7 +113,7 @@ export default function Navbar() {
             <div className="md:hidden flex items-center gap-2">
               <button
                 onClick={() => setAlertModalOpen(true)}
-                className="text-xs font-bold p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1"
+                className="p-2 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center"
                 aria-label="Alerts"
               >
                 <Bell className="w-4 h-4 text-amber-600" />
@@ -123,10 +121,10 @@ export default function Navbar() {
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100"
+                className="p-2 text-slate-700 hover:text-slate-950 rounded-full hover:bg-slate-100"
                 aria-label="Toggle Menu"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
 
@@ -135,66 +133,66 @@ export default function Navbar() {
 
         {/* Mobile Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-3 animate-fade-in shadow-xl">
+          <div className="md:hidden bg-white/95 backdrop-blur-2xl border-b border-black/[0.06] px-4 pt-3 pb-6 space-y-2 animate-fade-in shadow-xl">
             <Link 
               href="/schemes" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-bold text-slate-800"
+              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-50"
             >
               Browse All Schemes
             </Link>
             <Link 
               href="/eligibility-check" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-bold text-primary-600"
+              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-blue-600 hover:bg-blue-50"
             >
               Check My Eligibility
             </Link>
             <Link 
               href="/compare" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-bold text-indigo-600"
+              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-indigo-600 hover:bg-indigo-50"
             >
               Compare Schemes
             </Link>
             <button
               onClick={() => { setMobileMenuOpen(false); setAlertModalOpen(true); }}
-              className="w-full text-left py-2 text-sm font-bold text-amber-600 flex items-center gap-1.5"
+              className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-amber-700 hover:bg-amber-50 flex items-center gap-2"
             >
-              <Bell className="w-4 h-4" /> Subscribe to Scheme Alerts
+              <Bell className="w-4 h-4 text-amber-600" /> Free Scheme Alerts
             </button>
             <Link 
               href="/admin" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-sm font-semibold text-slate-600"
+              className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50"
             >
-              Admin Sync
+              Admin Sync Portal
             </Link>
 
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-3 border-t border-slate-100">
               {user ? (
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-xs text-slate-500 font-semibold">{user.email}</span>
+                <div className="flex justify-between items-center px-3 pt-1">
+                  <span className="text-xs text-slate-500 font-semibold truncate max-w-[180px]">{user.email}</span>
                   <button 
                     onClick={handleLogout}
-                    className="bg-slate-100 px-4 py-1.5 rounded-xl text-xs font-bold text-slate-700"
+                    className="bg-slate-100 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700"
                   >
                     Logout
                   </button>
                 </div>
               ) : (
                 <Link 
-                  href="/login" 
+                  href="/eligibility-check" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-center py-2.5 bg-primary-600 text-white rounded-xl text-xs font-bold"
+                  className="block text-center py-3 bg-slate-950 text-white rounded-2xl text-xs font-bold shadow-sm"
                 >
-                  Admin Sign In
+                  Check Eligibility Now
                 </Link>
               )}
             </div>
           </div>
         )}
-      </nav>
+      </header>
 
       {/* Scheme Alerts Modal */}
       <SchemeAlertModal

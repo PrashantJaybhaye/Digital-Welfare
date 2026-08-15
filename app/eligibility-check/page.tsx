@@ -312,7 +312,7 @@ export default function EligibilityChecker() {
         {/* Results Section */}
         <div className="lg:col-span-7 space-y-6">
           {!results && !loading && (
-            <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center flex flex-col items-center justify-center min-h-[420px]">
+            <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center flex flex-col items-center justify-center min-h-105">
               <div className="w-20 h-20 mb-5 rounded-3xl bg-primary-50 flex items-center justify-center text-primary-600 shadow-inner">
                 <Award className="w-10 h-10" />
               </div>
@@ -324,7 +324,7 @@ export default function EligibilityChecker() {
           )}
 
           {loading && (
-            <div className="bg-white p-16 rounded-3xl border border-slate-200 text-center flex flex-col items-center justify-center min-h-[420px]">
+            <div className="bg-white p-16 rounded-3xl border border-slate-200 text-center flex flex-col items-center justify-center min-h-105">
               <div className="w-14 h-14 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin mb-4"></div>
               <h4 className="text-lg font-bold text-slate-800 mb-1">Scanning Live Central & State Datasets...</h4>
               <p className="text-xs text-slate-500">Checking income ceilings, reservations, age limits & subsidy rules</p>
@@ -335,7 +335,7 @@ export default function EligibilityChecker() {
             <div className="space-y-6 animate-fade-in">
               
               {/* Financial Benefit Summary Banner */}
-              <div className="bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+              <div className="bg-linear-to-br from-primary-900 via-primary-800 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-6 mb-6">
                   <div>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-bold uppercase tracking-wider text-primary-100 mb-2">

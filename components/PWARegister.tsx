@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
 export default function PWARegister() {
@@ -14,30 +15,30 @@ export default function PWARegister() {
 
   useEffect(() => {
     // Register Service Worker
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
       window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then((reg) => {
-            console.log('Service Worker registered successfully:', reg.scope);
-          })
-          .catch((err) => {
-            console.warn('Service Worker registration error:', err);
-          });
+        navigator.serviceWorker.register('/sw.js').then(
+          (registration) => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          },
+          (err) => {
+            console.log('ServiceWorker registration failed: ', err);
+          }
+        );
       });
     }
 
-    // Capture install prompt
-    const handleBeforeInstall = (e: Event) => {
+    // Handle PWA install prompt
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowInstallBanner(true);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
 
@@ -55,9 +56,7 @@ export default function PWARegister() {
   return (
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-50 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between gap-3 animate-fade-in">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center font-bold text-lg">
-          🇮🇳
-        </div>
+        <Logo size={42} color="#ef4444" />
         <div>
           <h4 className="font-bold text-xs">Install Welfare Guide App</h4>
           <p className="text-[11px] text-slate-400">Access schemes and offline checklist anytime</p>

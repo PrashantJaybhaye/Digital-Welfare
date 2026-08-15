@@ -106,7 +106,7 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
 
       {/* Main Card Header */}
       <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden mb-8">
-        <div className="p-8 md:p-10 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-primary-50/30">
+        <div className="p-8 md:p-10 border-b border-slate-100 bg-linear-to-br from-slate-50 via-white to-primary-50/30">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary-100 text-primary-800">
               <Building2 className="w-3.5 h-3.5 mr-1.5" /> {formatCategoryName(scheme.category)}
@@ -253,7 +253,7 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
           <div className="space-y-6">
             
             {/* Quick Action Card */}
-            <div className="p-6 rounded-3xl bg-gradient-to-b from-primary-50 to-white border border-primary-100 shadow-sm text-center">
+            <div className="p-6 rounded-3xl bg-linear-to-b from-primary-50 to-white border border-primary-100 shadow-sm text-center">
               <h3 className="font-extrabold text-slate-900 text-lg mb-2">Ready to Apply?</h3>
               <p className="text-xs text-slate-600 mb-5">
                 Submit your application directly through the official Government portal.

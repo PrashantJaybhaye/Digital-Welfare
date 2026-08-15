@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="320 290 440 500" width="100%" height="100%">
+  <!-- Main Logo -->
+  <path
+    fill="#dc2626"
+    d="
+      M 546 301
+      L 332 644
+      L 425 644
+      L 425 778
+      L 515 689
+      L 605 779
+      L 605 607
+      L 721 606
+      L 747 546
+      L 679 506
+      L 640 443
+      L 546 417
+      Z
+    "
+  />
+
+  <!-- Right Ear -->
+  <path
+    fill="#dc2626"
+    d="
+      M 659 303
+      L 590 395
+      L 659 394
+      Z
+    "
+  />
+
+  <!-- Eye -->
+  <ellipse
+    cx="565.1"
+    cy="511"
+    rx="26.1"
+    ry="49.3"
+    fill="#FFFFFF"
+    transform="rotate(112.2 565.1 511)"
+  />
+</svg>
