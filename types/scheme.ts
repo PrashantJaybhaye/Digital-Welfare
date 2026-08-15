@@ -13,3 +13,16 @@ export interface Scheme {
   applyLink?: string | null;
   lastSyncedAt: string;
 }
+
+export const CATEGORY_MAP: Record<string, string> = {
+  'CS': 'Central Sector Scheme',
+  'CSS': 'Centrally Sponsored Scheme',
+  'CCP': 'Climate Change Programme',
+  '—': 'General',
+};
+
+export function formatCategoryName(category?: string | null): string {
+  if (!category || category === '—') return 'General';
+  return CATEGORY_MAP[category.trim()] || category;
+}
+
