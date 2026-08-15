@@ -16,6 +16,12 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  // Reset pagination when search or filters change
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [searchTerm, selectedCategory, selectedTag, showOnlySaved]);
 
   useEffect(() => {
     try {
@@ -169,7 +175,7 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
       {/* Results Meta Header */}
       <div className="mb-6 flex justify-between items-center text-xs font-semibold text-slate-500">
         <p>
-          Showing <span className="font-bold text-slate-950">{filteredSchemes.length}</span> verified welfare schemes
+          Showing <span className="font-bold text-slate-950">{Math.min(visibleCount, filteredSchemes.length)}</span> of <span className="font-bold text-slate-950">{filteredSchemes.length}</span> verified welfare schemes
           {showOnlySaved && <span className="text-amber-700 font-bold ml-1">(Saved Only)</span>}
         </p>
       </div>
@@ -190,8 +196,9 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredSchemes.map((scheme) => {
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredSchemes.slice(0, visibleCount).map((scheme) => {
             const isSaved = scheme.id ? savedIds.includes(scheme.id) : false;
             const benefit = getEstimatedBenefit(scheme);
 
@@ -286,6 +293,23 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
             );
           })}
         </div>
+
+        {/* Load More Pagination Button */}
+        {filteredSchemes.length > visibleCount && (
+          <div className="mt-10 text-center flex flex-col items-center">
+            <button
+              onClick={() => setVisibleCount(prev => prev + 12)}
+              className="px-6 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs tracking-wide transition-all shadow-sm active:scale-98 cursor-pointer flex items-center gap-2"
+            >
+              <span>Load More Schemes ({filteredSchemes.length - visibleCount} remaining)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <p className="text-[11px] text-slate-400 mt-2">
+              Viewing {visibleCount} of {filteredSchemes.length} total schemes
+            </p>
+          </div>
+        )}
+      </>
       )}
     </div>
   );

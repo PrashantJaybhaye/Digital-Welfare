@@ -2,6 +2,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { Scheme } from '@/types/scheme';
 import SchemeList from '@/components/SchemeList';
 
+// Revalidate cached schemes page every hour (ISR) for high speed and zero server overload
+export const revalidate = 3600;
+
 // This is a Server Component, meaning it fetches data directly from Firebase securely on the server!
 export default async function SchemesPage() {
   // Fetch schemes from Firestore

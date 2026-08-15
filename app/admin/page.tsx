@@ -5,9 +5,13 @@ import {
   RefreshCw, LayoutDashboard, Settings, FileText, Users, 
   ServerCrash, Plus, Search, Trash2, ExternalLink, 
   CheckCircle2, AlertCircle, ShieldAlert, Sparkles, 
-  Download, ArrowRight, Activity, Filter, Eye, Bell
+  Download, ArrowRight, Activity, Filter, Eye, EyeOff, Bell,
+  Lock, Key, LogOut, ShieldCheck
 } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
+import { 
+  signInWithEmailAndPassword, signOut, onAuthStateChanged, User 
+} from 'firebase/auth';
 import { 
   collection, getDocs, doc, deleteDoc, addDoc, 
   getCountFromServer, query, orderBy, limit 
@@ -41,6 +45,17 @@ export default function AdminDashboard() {
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{success: boolean, message: string} | null>(null);
   
+  // Admin Security & Authentication State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [authMethod, setAuthMethod] = useState<'passcode' | 'email'>('passcode');
+  const [passcode, setPasscode] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   // Data States
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
@@ -48,6 +63,72 @@ export default function AdminDashboard() {
   const [loadingSubscribers, setLoadingSubscribers] = useState(false);
   const [schemeSearch, setSchemeSearch] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
+
+  // Check existing session on load
+  useEffect(() => {
+    try {
+      const savedSession = sessionStorage.getItem('welfare_admin_auth');
+      if (savedSession === 'true') {
+        setIsAuthenticated(true);
+      }
+    } catch {
+      // Graceful fallback
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+      }
+      setIsCheckingAuth(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handlePasscodeLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+
+    const expectedSecret = process.env.NEXT_PUBLIC_ADMIN_SECRET || 'admin2026';
+
+    setTimeout(() => {
+      if (passcode.trim() === expectedSecret) {
+        setIsAuthenticated(true);
+        try {
+          sessionStorage.setItem('welfare_admin_auth', 'true');
+        } catch {}
+      } else {
+        setAuthError('Invalid Admin Access Key. Access Denied.');
+      }
+      setAuthLoading(false);
+    }, 400);
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+      setIsAuthenticated(true);
+      sessionStorage.setItem('welfare_admin_auth', 'true');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Admin authentication failed.';
+      setAuthError(msg);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    try {
+      await signOut(auth);
+      sessionStorage.removeItem('welfare_admin_auth');
+    } catch {}
+    setIsAuthenticated(false);
+    setPasscode('');
+  };
   
   // New Scheme Form State
   const [newScheme, setNewScheme] = useState<Partial<Scheme>>({
@@ -209,6 +290,131 @@ export default function AdminDashboard() {
     return matchesSearch && matchesCat;
   });
 
+  // -------------------------------------------------------------
+  // AUTHENTICATION CHECKING & LOCK SCREEN
+  // -------------------------------------------------------------
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs font-bold text-slate-500 tracking-wider uppercase">Verifying Admin Session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+        {/* Subtle background glow & GovTech grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#7eed9e]/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-md w-full bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-900/5">
+          
+          {/* Header Badge & Icon */}
+          <div className="text-center mb-7">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-[11px] font-bold tracking-wide uppercase mb-5 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#7eed9e] animate-pulse"></span>
+              GovTech • Secure Gateway
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight leading-tight mb-2">
+              Admin <span className="relative inline-block">
+                Operations
+                <svg 
+                  className="absolute -bottom-1 left-0 w-full h-2.5 text-slate-950 overflow-visible pointer-events-none" 
+                  viewBox="0 0 140 10" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M2 7.5C35 2.5 95 2.5 138 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </span>
+            </h2>
+            <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+              Restricted management console for public welfare datasets, real-time sync, and citizen services.
+            </p>
+          </div>
+
+          {authError && (
+            <div className="mb-5 bg-rose-50 border border-rose-200 text-rose-800 px-3.5 py-2.5 rounded-xl text-xs flex items-center gap-2.5 animate-shake">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span className="font-semibold">{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handlePasscodeLogin} className="space-y-4">
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="text-xs font-bold text-slate-800">
+                  Master Security Key
+                </label>
+                <span className="text-[10px] text-slate-400 font-semibold">
+                  Required for access
+                </span>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Key className="w-4 h-4" />
+                </div>
+
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoFocus
+                  value={passcode}
+                  onChange={(e) => setPasscode(e.target.value)}
+                  placeholder="Enter admin passcode..."
+                  className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200/90 rounded-2xl text-sm font-semibold text-slate-950 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 focus:border-transparent transition-all shadow-2xs"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={authLoading || !passcode.trim()}
+              className="w-full mt-2 py-3.5 px-4 bg-slate-950 hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+            >
+              {authLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Verifying Authorization...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4 text-[#7eed9e]" />
+                  <span>Unlock Admin Operations</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-950 transition-colors"
+            >
+              <span>← Return to Citizen Portal</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-10 pb-16 min-h-[calc(100vh-4rem)]">
       
@@ -273,6 +479,15 @@ export default function AdminDashboard() {
           >
             <RefreshCw className={`w-3.5 h-3.5 text-[#7eed9e] ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? 'Ingesting Gazette Data...' : 'Sync Live Portals'}
+          </button>
+
+          <button
+            onClick={handleAdminLogout}
+            className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            title="Lock Admin Session"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-600" />
+            <span>Lock</span>
           </button>
         </div>
       </div>
