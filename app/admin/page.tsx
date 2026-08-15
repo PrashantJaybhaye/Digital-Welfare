@@ -63,6 +63,8 @@ export default function AdminDashboard() {
   const [loadingSubscribers, setLoadingSubscribers] = useState(false);
   const [schemeSearch, setSchemeSearch] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
+  const [selectedSchemeIds, setSelectedSchemeIds] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   // Check existing session on load
   useEffect(() => {
@@ -209,15 +211,63 @@ export default function AdminDashboard() {
     }
   };
 
-  // Delete Scheme
+  // Delete Single Scheme (Instant optimistic removal + sync)
   const handleDeleteScheme = async (id: string, title: string) => {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    
+    // Instant state update across dashboard and schemes tab
+    setSchemes(prev => prev.filter(s => s.id !== id));
+    setSelectedSchemeIds(prev => prev.filter(itemId => itemId !== id));
+
     try {
       await deleteDoc(doc(db, 'schemes', id));
-      setSchemes(prev => prev.filter(s => s.id !== id));
+      await fetchSchemes();
     } catch (err) {
       console.error("Error deleting scheme:", err);
       alert("Failed to delete scheme. Check permissions.");
+      await fetchSchemes();
+    }
+  };
+
+  // Toggle Selection (Individual)
+  const toggleSelectScheme = (id: string) => {
+    setSelectedSchemeIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  // Toggle Selection (Select All Visible)
+  const toggleSelectAllSchemes = () => {
+    const visibleIds = filteredSchemes.map(s => s.id!).filter(Boolean);
+    if (visibleIds.length > 0 && visibleIds.every(id => selectedSchemeIds.includes(id))) {
+      setSelectedSchemeIds(prev => prev.filter(id => !visibleIds.includes(id)));
+    } else {
+      setSelectedSchemeIds(Array.from(new Set([...selectedSchemeIds, ...visibleIds])));
+    }
+  };
+
+  // Bulk Delete Selected Schemes (Instant optimistic removal + full sync)
+  const handleBulkDelete = async () => {
+    if (selectedSchemeIds.length === 0) return;
+    const count = selectedSchemeIds.length;
+    if (!confirm(`Are you sure you want to permanently delete ${count} selected scheme(s)?`)) return;
+
+    setIsBulkDeleting(true);
+    const idsToDelete = [...selectedSchemeIds];
+
+    // Instant state update across dashboard and schemes tab
+    setSchemes(prev => prev.filter(s => !idsToDelete.includes(s.id!)));
+    setSelectedSchemeIds([]);
+
+    try {
+      await Promise.all(idsToDelete.map(id => deleteDoc(doc(db, 'schemes', id))));
+      await fetchSchemes();
+    } catch (err) {
+      console.error("Error bulk deleting schemes:", err);
+      alert("Failed to delete some schemes. Please check your permissions.");
+      await fetchSchemes();
+    } finally {
+      setIsBulkDeleting(false);
     }
   };
 
@@ -732,7 +782,7 @@ export default function AdminDashboard() {
               />
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
               <select
                 value={selectedCategoryFilter}
                 onChange={(e) => setSelectedCategoryFilter(e.target.value)}
@@ -754,11 +804,58 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          {/* Bulk Selection Light-Mode Action Bar */}
+          {selectedSchemeIds.length > 0 && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-1 duration-150 shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <span className="px-2 py-0.5 bg-rose-600 text-white text-[11px] font-bold rounded-lg shadow-2xs">
+                  {selectedSchemeIds.length} Selected
+                </span>
+                <span className="text-xs font-semibold text-slate-700 hidden sm:inline">
+                  out of {filteredSchemes.length} schemes
+                </span>
+                <button
+                  onClick={() => setSelectedSchemeIds([])}
+                  className="text-xs font-semibold text-rose-700 hover:text-rose-900 underline ml-1 cursor-pointer transition-colors"
+                >
+                  Deselect all
+                </button>
+              </div>
+
+              <button
+                onClick={handleBulkDelete}
+                disabled={isBulkDeleting}
+                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 active:scale-98 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {isBulkDeleting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Selected ({selectedSchemeIds.length})</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
           {/* Scheme Inventory Table */}
           <div className="overflow-x-auto border border-slate-200/80 rounded-xl">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <th className="p-3 w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={filteredSchemes.length > 0 && filteredSchemes.every(s => s.id && selectedSchemeIds.includes(s.id))}
+                      onChange={toggleSelectAllSchemes}
+                      className="rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
+                      title="Select / Deselect all visible schemes"
+                    />
+                  </th>
                   <th className="p-3">Scheme Title</th>
                   <th className="p-3">Category</th>
                   <th className="p-3">State / Jurisdiction</th>
@@ -769,17 +866,32 @@ export default function AdminDashboard() {
               <tbody className="divide-y divide-slate-100">
                 {loadingSchemes ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">Loading scheme catalog...</td>
+                    <td colSpan={6} className="p-8 text-center text-slate-400">Loading scheme catalog...</td>
                   </tr>
                 ) : filteredSchemes.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">No schemes matched your search criteria.</td>
+                    <td colSpan={6} className="p-8 text-center text-slate-400">No schemes matched your search criteria.</td>
                   </tr>
                 ) : (
                   filteredSchemes.map((scheme) => {
                     const benefit = getEstimatedBenefit(scheme);
+                    const isSelected = scheme.id ? selectedSchemeIds.includes(scheme.id) : false;
+
                     return (
-                      <tr key={scheme.id} className="hover:bg-slate-50/60 transition-colors">
+                      <tr 
+                        key={scheme.id} 
+                        className={`transition-colors ${isSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/60'}`}
+                      >
+                        <td className="p-3 text-center">
+                          {scheme.id && (
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleSelectScheme(scheme.id!)}
+                              className="rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
+                            />
+                          )}
+                        </td>
                         <td className="p-3 font-bold text-slate-950 max-w-xs truncate">
                           {scheme.title}
                         </td>

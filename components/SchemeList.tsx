@@ -205,7 +205,7 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
             return (
               <div 
                 key={scheme.id} 
-                className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between group relative"
+                className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between relative"
               >
                 <div>
                   {/* Category Pill & Bookmark */}
@@ -262,9 +262,9 @@ export default function SchemeList({ initialSchemes }: { initialSchemes: Scheme[
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-3">
                   <Link 
                     href={`/schemes/${scheme.id}`} 
-                    className="text-slate-950 font-bold text-xs hover:text-slate-700 flex items-center gap-1 transition-colors group-hover:translate-x-0.5"
+                    className="text-slate-950 font-bold text-xs hover:underline flex items-center gap-1"
                   >
-                    View Details <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-950" />
+                    View Details <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
                   </Link>
 
                   <div className="flex items-center gap-1.5">
