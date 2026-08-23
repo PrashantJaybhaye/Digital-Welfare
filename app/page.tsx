@@ -107,13 +107,13 @@ export default function Home() {
             </p>
 
             {/* Monotree Input Capsule */}
-            <form onSubmit={handleHeroSearch} className="w-full max-w-md mb-8">
+            <form onSubmit={handleHeroSearch} className="w-full max-w-md mb-3">
               <div className="flex items-center bg-white rounded-2xl border border-slate-200/90 p-1.5 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] focus-within:border-slate-400 focus-within:ring-4 focus-within:ring-slate-100 transition-all">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Enter state or scheme (e.g. Kisan)..."
+                  placeholder="Enter state or scheme (e.g. Kisan, Ladki Bahin)..."
                   className="w-full px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 bg-transparent outline-none font-normal"
                 />
                 <button
@@ -124,6 +124,32 @@ export default function Home() {
                 </button>
               </div>
             </form>
+
+            {/* 1-Tap Citizen Persona Quick Filter Chips */}
+            <div className="w-full max-w-md mb-6">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Explore by Citizen Persona:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { emoji: '🌾', label: 'शेतकरी (Farmers)', query: 'Farmer' },
+                  { emoji: '👩', label: 'महिला (Women)', query: 'Women' },
+                  { emoji: '🎓', label: 'विद्यार्थी (Students)', query: 'Scholarship' },
+                  { emoji: '👵', label: 'ज्येष्ठ नागरिक (Seniors)', query: 'Senior' },
+                  { emoji: '💼', label: 'युवा (Youth & Skills)', query: 'Internship' },
+                  { emoji: '🏠', label: 'घरकुल (Housing)', query: 'Awas' },
+                  { emoji: '♿', label: 'दिव्यांग (Divyang)', query: 'Disability' }
+                ].map((chip) => (
+                  <button
+                    key={chip.query}
+                    type="button"
+                    onClick={() => router.push(`/schemes?search=${encodeURIComponent(chip.query)}`)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white hover:bg-slate-950 text-slate-700 hover:text-white border border-slate-200/80 hover:border-slate-950 text-[11px] font-semibold transition-all shadow-2xs cursor-pointer active:scale-95"
+                  >
+                    <span>{chip.emoji}</span>
+                    <span>{chip.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Exact Monotree Stats Section */}
             <div className="w-full max-w-sm">

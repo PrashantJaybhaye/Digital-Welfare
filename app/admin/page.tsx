@@ -339,7 +339,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 relative overflow-hidden">
         {/* Subtle background glow & GovTech grid */}
-        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px] opacity-40 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] bg-size-[20px_20px] opacity-40 pointer-events-none" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#7eed9e]/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-md w-full bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-900/5">
