@@ -11,6 +11,7 @@ import Link from 'next/link';
 import Logo from '@/components/Logo';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { getFallbackSchemes } from '@/lib/fallback-schemes';
 
 const INDIAN_STATES = [
   'All India', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -52,11 +53,21 @@ export default function EligibilityChecker() {
     setLoading(true);
     
     try {
-      const snapshot = await getDocs(collection(db, 'schemes'));
-      const allSchemes = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Scheme[];
+      let allSchemes: Scheme[] = [];
+      try {
+        const snapshot = await getDocs(collection(db, 'schemes'));
+        allSchemes = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Scheme[];
+      } catch (err) {
+        console.warn("Firestore fetch notice (using fallback schemes):", err);
+        allSchemes = getFallbackSchemes();
+      }
+
+      if (allSchemes.length === 0) {
+        allSchemes = getFallbackSchemes();
+      }
 
       const userAge = parseInt(formData.age) || 25;
       const userIncome = parseInt(formData.income) || 0;
@@ -76,7 +87,7 @@ export default function EligibilityChecker() {
 
       allSchemes.forEach(scheme => {
         let isEligible = true;
-        let score = 50; // Base score
+        let score = 50;
         const reasons: string[] = [];
 
         const title = (scheme.title || '').toLowerCase();
@@ -84,13 +95,11 @@ export default function EligibilityChecker() {
         const cat = (scheme.category || '').toLowerCase();
         const combined = `${title} ${desc} ${cat}`;
 
-        // 1. Strict Exclusion: Non-citizen / Infrastructure schemes
         if (combined.includes('redevelop existing railway') || combined.includes('infrastructure development') || combined.includes('railway station')) {
           notEligible.push(scheme);
           return;
         }
 
-        // 2. Check Age
         if (scheme.minAge !== null && scheme.minAge !== undefined && userAge < scheme.minAge) {
           isEligible = false;
         }
@@ -98,12 +107,10 @@ export default function EligibilityChecker() {
           isEligible = false;
         }
 
-        // 3. Check Income Cap
         if (scheme.maxIncome !== null && scheme.maxIncome !== undefined && userIncome > scheme.maxIncome) {
           isEligible = false;
         }
 
-        // 4. Check Gender Constraints
         const isWomenOnly = combined.includes('for women') || combined.includes('for girl') || combined.includes('pregnant') || combined.includes('lactating') || combined.includes('maternity') || combined.includes('widow') || combined.includes('mahila') || combined.includes('sukanya');
         if (userGender === 'Male' && (scheme.targetGender === 'Female' || isWomenOnly)) {
           isEligible = false;
@@ -113,7 +120,6 @@ export default function EligibilityChecker() {
           reasons.push('Empowerment for Women');
         }
 
-        // 5. Check State
         if (scheme.state && scheme.state !== 'All India' && userState !== 'All India') {
           if (scheme.state.toLowerCase() !== userState.toLowerCase()) {
             isEligible = false;
@@ -123,7 +129,6 @@ export default function EligibilityChecker() {
           }
         }
 
-        // 6. Domain & Occupation Relevance Engine
         if (userOccupation === 'student') {
           const isStudentScheme = combined.includes('scholarship') || combined.includes('student') || combined.includes('education') || combined.includes('school') || combined.includes('college') || combined.includes('fellowship') || combined.includes('tuition') || combined.includes('merit') || combined.includes('coaching') || combined.includes('internship') || combined.includes('skill') || combined.includes('youth') || combined.includes('pragati') || combined.includes('vidya');
           const isIrrelevantForStudent = (combined.includes('farmer') || combined.includes('kisan') || combined.includes('krishi') || combined.includes('old age pension') || combined.includes('senior citizen pension') || combined.includes('msme loan') || combined.includes('street vendor loan')) && !isStudentScheme;
@@ -164,7 +169,6 @@ export default function EligibilityChecker() {
           }
         }
 
-        // Universal Healthcare / Food Security (Applicable to low/moderate income)
         if (combined.includes('ayushman') || combined.includes('pmjay') || combined.includes('health insurance') || combined.includes('rashtriya swasthya') || combined.includes('ration') || combined.includes('food security') || combined.includes('anna yojana') || combined.includes('free grain')) {
           if (userIncome <= 300000) {
             score += 25;
@@ -172,7 +176,6 @@ export default function EligibilityChecker() {
           }
         }
 
-        // Social Category Reservations
         if (userSocial === 'SC/ST' && (combined.includes('sc/st') || combined.includes('scheduled caste') || combined.includes('tribal'))) {
           score += 25;
           reasons.push('SC/ST Welfare Quota');
@@ -191,11 +194,9 @@ export default function EligibilityChecker() {
         }
       });
 
-      // Sort by relevance score descending
       matchedList.sort((a, b) => b.score - a.score);
       const eligible = matchedList.map(item => item.scheme);
 
-      // Compute realistic, profile-calibrated benefit estimate
       let benefitLabel = 'Direct Welfare Aid';
       let healthCover = userIncome <= 300000;
 
@@ -224,7 +225,7 @@ export default function EligibilityChecker() {
 
     } catch (error) {
       console.error("Error evaluating eligibility:", error);
-      alert("Could not connect to database. Please ensure internet connectivity and try again.");
+      alert("Could not connect to database. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -243,17 +244,11 @@ export default function EligibilityChecker() {
 
   return (
     <>
-      {/* ========================================================
-          WEB / SCREEN INTERACTIVE VIEW (Hidden during print)
-      ======================================================== */}
       <div className="print:hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-10 pb-16 min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] flex flex-col justify-start">
-        
-        {/* Monotree-Style Header Banner - Medium Compact */}
         <div className="text-left mb-5">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight leading-tight mb-1.5">
             Check your scheme <span className="relative inline-block">
               eligibility.
-              {/* Hand-drawn Underline */}
               <svg 
                 className="absolute -bottom-1.5 left-0 w-full h-2.5 text-slate-950 overflow-visible pointer-events-none" 
                 viewBox="0 0 160 12" 
@@ -264,7 +259,7 @@ export default function EligibilityChecker() {
                   d="M2 8.5C40 2.5 110 2.5 158 7" 
                   stroke="currentColor" 
                   strokeWidth="2.8" 
-                  strokeLinecap="round"
+                  strokeLinecap="round" 
                 />
                 <path 
                   d="M18 10C60 5.5 115 5.5 146 9.5" 
@@ -282,16 +277,12 @@ export default function EligibilityChecker() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          
-          {/* Form Section - Medium Compact */}
           <div className="lg:col-span-5 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
             <h2 className="text-sm font-bold text-slate-950 mb-3 flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-slate-900" /> Enter Your Profile
             </h2>
 
             <form onSubmit={handleCheck} className="space-y-3">
-              
-              {/* Age & Gender */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">
@@ -326,7 +317,6 @@ export default function EligibilityChecker() {
                 </div>
               </div>
 
-              {/* State / UT */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   State / Union Territory *
@@ -342,7 +332,6 @@ export default function EligibilityChecker() {
                 </select>
               </div>
 
-              {/* Annual Income */}
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
@@ -358,7 +347,6 @@ export default function EligibilityChecker() {
                   className="w-full px-3 py-2 rounded-xl bg-slate-50/60 border border-slate-200/80 focus:ring-2 focus:ring-slate-200 focus:bg-white outline-none transition-all text-xs font-medium text-slate-900 mb-1.5"
                 />
 
-                {/* Quick Income Chips */}
                 <div className="flex flex-wrap gap-1">
                   {[
                     { label: '< ₹1L', val: 90000 },
@@ -378,7 +366,6 @@ export default function EligibilityChecker() {
                 </div>
               </div>
 
-              {/* Occupation / Status */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Primary Occupation / Student Status *
@@ -400,7 +387,6 @@ export default function EligibilityChecker() {
                 </select>
               </div>
 
-              {/* Social Category */}
               <div>
                 <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Social Category
@@ -436,7 +422,6 @@ export default function EligibilityChecker() {
             </form>
           </div>
 
-          {/* Results Section - Medium Compact */}
           <div className="lg:col-span-7 space-y-4 max-h-[calc(100vh-12rem)] overflow-y-auto no-scrollbar pr-1">
             {!results && !loading && (
               <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 text-center flex flex-col items-center justify-center min-h-75 shadow-2xs">
@@ -460,8 +445,6 @@ export default function EligibilityChecker() {
 
             {results && !loading && (
               <div className="space-y-4 animate-fade-in">
-                
-                {/* Financial Benefit Summary Banner */}
                 <div className="bg-slate-950 rounded-2xl p-4 sm:p-5 text-white shadow-2xs">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 border-b border-white/10 pb-3 mb-3">
                     <div>
@@ -473,7 +456,6 @@ export default function EligibilityChecker() {
                       </h3>
                     </div>
 
-                    {/* Share & Print Toolbar */}
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={handleShareWhatsApp}
@@ -507,7 +489,6 @@ export default function EligibilityChecker() {
                   </div>
                 </div>
 
-                {/* Eligible Schemes List */}
                 <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
                   <h4 className="text-sm font-bold text-slate-950 mb-3 flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> 
@@ -556,7 +537,6 @@ export default function EligibilityChecker() {
                   )}
                 </div>
 
-                {/* Ineligible List Accordion */}
                 {results.notEligible.length > 0 && (
                   <div className="bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80">
                     <h4 className="text-xs font-bold text-slate-500 mb-2 flex items-center gap-1.5">
@@ -575,167 +555,253 @@ export default function EligibilityChecker() {
                     </div>
                   </div>
                 )}
-
               </div>
             )}
           </div>
-
         </div>
       </div>
 
-      {/* ========================================================
-          EXECUTIVE PRINT DOSSIER (Visible only during print)
-      ======================================================== */}
       {results && (
-        <div className="hidden print:block bg-white text-slate-900 p-8 max-w-[210mm] mx-auto text-xs font-sans">
-          
-          {/* Official Document Header */}
-          <div className="border-b-2 border-slate-900 pb-4 mb-5 flex justify-between items-start">
-            <div className="flex items-center gap-3">
-              <Logo size={36} color="#020617" />
-              <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-600">
-                  National Public Welfare Portal • Government of India & States
-                </p>
-                <h1 className="text-xl font-extrabold text-slate-950 tracking-tight">
-                  Citizen Scheme Eligibility & Welfare Entitlement Dossier
-                </h1>
-                <p className="text-[11px] text-slate-600 mt-0.5">
-                  Official automated Direct Benefit Assessment & Document Verification Record
-                </p>
+        <div className="hidden print:block bg-white text-slate-900 max-w-[210mm] mx-auto text-xs font-sans">
+          <div className="print-page-1">
+            <div>
+              <div className="border-b-2 border-slate-900 pb-3 mb-3.5 flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <Logo size={36} color="#020617" />
+                  <div>
+                    <p className="text-[9.5px] font-extrabold uppercase tracking-widest text-slate-600 leading-none">
+                      National Public Welfare Portal • Government of India & States
+                    </p>
+                    <h1 className="text-base font-extrabold text-slate-950 tracking-tight mt-1 leading-tight">
+                      Citizen Scheme Eligibility & Welfare Entitlement Dossier
+                    </h1>
+                    <p className="text-[10px] text-slate-600">
+                      Official Automated Direct Benefit Assessment & Verification Record
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right text-[9.5px]">
+                  <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[9px] font-bold">
+                    REF: DWG/{formData.age || '0'}{formData.gender?.[0] || 'X'}-{Date.now().toString().slice(-6)}
+                  </span>
+                  <p className="text-[9.5px] text-slate-500 mt-0.5">
+                    Date: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </p>
+                  <p className="text-[8.5px] font-bold text-emerald-800 uppercase">
+                    ● Status: Scanned & Qualified
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-3.5">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-1.5">
+                  1. Citizen Demographic & Socio-Economic Assessment
+                </h2>
+                <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[10px]">
+                  <div>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Applicant Age</span>
+                    <span className="font-bold text-slate-900">{formData.age ? `${formData.age} Years` : 'Not Specified'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Gender</span>
+                    <span className="font-bold text-slate-900">{formData.gender || 'Any'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">State of Residence</span>
+                    <span className="font-bold text-slate-900">{formData.state || 'All India'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Annual Family Income</span>
+                    <span className="font-bold text-slate-900">
+                      {formData.income ? `₹${Number(formData.income).toLocaleString('en-IN')}` : 'Below Benchmark'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Occupation Profile</span>
+                    <span className="font-bold text-slate-900">{formData.occupation || 'General Citizen'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Social Category</span>
+                    <span className="font-bold text-slate-900">{formData.socialCategory || 'General / All'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-3.5">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-1.5">
+                  2. Executive Welfare & Subsidy Potential Summary
+                </h2>
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="p-2.5 rounded-lg border border-slate-900 bg-slate-950 text-white">
+                    <p className="text-[8.5px] font-bold uppercase tracking-wider text-slate-300">Total Matching Schemes</p>
+                    <p className="text-base font-extrabold text-[#7eed9e] mt-0.5">{results.eligible.length} Programs</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                    <p className="text-[8.5px] font-bold uppercase tracking-wider text-slate-500">Est. Direct Scheme Entitlement</p>
+                    <p className="text-[12px] font-extrabold text-slate-950 mt-0.5">{results.estimatedBenefitLabel}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50">
+                    <p className="text-[8.5px] font-bold uppercase tracking-wider text-slate-500">Healthcare Protection</p>
+                    <p className="text-[12px] font-extrabold text-slate-950 mt-0.5">
+                      {results.hasHealthInsuranceCover ? '₹5 Lakh Health Cover' : 'Hospital & OPD Cover'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-3.5">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-1.5">
+                  3. Priority Qualified Welfare Programs (Part 1)
+                </h2>
+
+                <table className="w-full text-left border-collapse border border-slate-200 text-[10px]">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-900 border-b border-slate-200 text-[9px] font-extrabold uppercase tracking-wider">
+                      <th className="p-1.5 border-r border-slate-200 w-7 text-center">#</th>
+                      <th className="p-1.5 border-r border-slate-200 w-1/3">Scheme Name & Classification</th>
+                      <th className="p-1.5 border-r border-slate-200 w-1/4">Key Benefit / Grant</th>
+                      <th className="p-1.5">Mandatory Verification Checklist</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.eligible.slice(0, 4).map((scheme, idx) => {
+                      const benefit = getEstimatedBenefit(scheme);
+                      const docs = getSchemeDocuments(scheme).slice(0, 2);
+                      return (
+                        <tr key={scheme.id || idx} className="border-b border-slate-200 even:bg-slate-50/50">
+                          <td className="p-1.5 border-r border-slate-200 font-bold text-center align-top">{idx + 1}</td>
+                          <td className="p-1.5 border-r border-slate-200 align-top">
+                            <p className="font-extrabold text-slate-950 text-[10.5px] leading-tight">{scheme.title}</p>
+                            <span className="inline-block text-[8.5px] font-bold text-slate-600 mt-0.5">
+                              {formatCategoryName(scheme.category)} • {scheme.state || 'All India'}
+                            </span>
+                          </td>
+                          <td className="p-1.5 border-r border-slate-200 align-top font-bold text-slate-900">
+                            {benefit.label}
+                          </td>
+                          <td className="p-1.5 align-top text-[9.5px] text-slate-600">
+                            <ul className="list-disc list-inside space-y-0.5">
+                              {docs.map((doc, dIdx) => (
+                                <li key={dIdx} className="leading-tight">{doc}</li>
+                              ))}
+                            </ul>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
-            <div className="text-right">
-              <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[10px] font-bold">
-                REF: DWG/{formData.age || '0'}{formData.gender?.[0] || 'X'}-{Date.now().toString().slice(-6)}
-              </span>
-              <p className="text-[10px] text-slate-500 mt-1">
-                Generated: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-              </p>
-              <p className="text-[9px] font-bold text-emerald-800 uppercase mt-0.5">
-                ● Status: Profile Scanned & Verified
-              </p>
+
+            <div className="border-t border-slate-300 pt-2 flex justify-between items-center text-[9px] text-slate-500 font-medium">
+              <span>National Welfare Facilitation Record • Ref: DWG/{formData.age || '0'}-{Date.now().toString().slice(-6)}</span>
+              <span className="font-bold text-slate-900">Page 1 of 2 • (See Page 2 for Additional Schemes & Application Steps)</span>
             </div>
           </div>
 
-          {/* 1. Citizen Profile Matrix */}
-          <div className="mb-5">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-2">
-              1. Citizen Demographic & Socio-Economic Assessment
-            </h2>
-            <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs">
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Applicant Age</span>
-                <span className="font-bold text-slate-900">{formData.age ? `${formData.age} Years` : 'Not Specified'}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Gender</span>
-                <span className="font-bold text-slate-900">{formData.gender || 'Any'}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">State of Residence</span>
-                <span className="font-bold text-slate-900">{formData.state || 'All India'}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Annual Family Income</span>
-                <span className="font-bold text-slate-900">
-                  {formData.income ? `₹${Number(formData.income).toLocaleString('en-IN')}` : 'Below Benchmark'}
+          <div className="print-page-2">
+            <div>
+              <div className="border-b-2 border-slate-900 pb-2.5 mb-3 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Logo size={24} color="#020617" />
+                  <span className="text-[11px] font-black text-slate-950 uppercase tracking-tight">
+                    Citizen Entitlement Record • Additional Qualified Programs & Verification (Page 2 of 2)
+                  </span>
+                </div>
+                <span className="text-[9.5px] font-bold text-slate-600">
+                  Citizen: {formData.occupation || 'General'} ({formData.state || 'All India'})
                 </span>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Occupation Profile</span>
-                <span className="font-bold text-slate-900">{formData.occupation || 'General Citizen'}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Social Category</span>
-                <span className="font-bold text-slate-900">{formData.socialCategory || 'General / All'}</span>
-              </div>
-            </div>
-          </div>
 
-          {/* 2. Executive Entitlement Summary */}
-          <div className="mb-5">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-2">
-              2. Executive Welfare & Subsidy Potential Summary
-            </h2>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg border border-slate-900 bg-slate-950 text-white">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-300">Total Matching Schemes</p>
-                <p className="text-lg font-extrabold text-[#7eed9e] mt-0.5">{results.eligible.length} Programs</p>
-              </div>
-              <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Est. Direct Scheme Entitlement</p>
-                <p className="text-sm font-extrabold text-slate-950 mt-0.5">{results.estimatedBenefitLabel}</p>
-              </div>
-              <div className="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Healthcare Protection</p>
-                <p className="text-sm font-extrabold text-slate-950 mt-0.5">
-                  {results.hasHealthInsuranceCover ? '₹5 Lakh Health Cover' : 'Hospital & OPD Cover'}
-                </p>
-              </div>
-            </div>
-          </div>
+              <div className="mb-3">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-1.5">
+                  4. Additional Qualified Welfare Programs & Grants (Part 2)
+                </h2>
 
-          {/* 3. Qualified Schemes Table */}
-          <div className="mb-5">
-            <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-2">
-              3. Priority Qualified Welfare Programs & Document Checklist
-            </h2>
-
-            <table className="w-full text-left border-collapse border border-slate-200 text-[11px]">
-              <thead>
-                <tr className="bg-slate-100 text-slate-900 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider">
-                  <th className="p-2 border-r border-slate-200 w-8">#</th>
-                  <th className="p-2 border-r border-slate-200 w-1/3">Scheme Name & Classification</th>
-                  <th className="p-2 border-r border-slate-200 w-1/4">Key Financial / In-kind Benefit</th>
-                  <th className="p-2">Mandatory Verification Checklist</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.eligible.slice(0, 10).map((scheme, idx) => {
-                  const benefit = getEstimatedBenefit(scheme);
-                  const docs = getSchemeDocuments(scheme).slice(0, 3);
-                  return (
-                    <tr key={scheme.id || idx} className="border-b border-slate-200 even:bg-slate-50/50">
-                      <td className="p-2 border-r border-slate-200 font-bold text-center align-top">{idx + 1}</td>
-                      <td className="p-2 border-r border-slate-200 align-top">
-                        <p className="font-extrabold text-slate-950 text-[11px] leading-tight">{scheme.title}</p>
-                        <span className="inline-block text-[9px] font-bold text-slate-600 mt-0.5">
-                          {formatCategoryName(scheme.category)} • {scheme.state || 'All India'}
-                        </span>
-                      </td>
-                      <td className="p-2 border-r border-slate-200 align-top font-bold text-slate-900">
-                        {benefit.label}
-                      </td>
-                      <td className="p-2 align-top text-[10px] text-slate-600">
-                        <ul className="list-disc list-inside space-y-0.5">
-                          {docs.map((doc, dIdx) => (
-                            <li key={dIdx} className="leading-snug">{doc}</li>
-                          ))}
-                        </ul>
-                      </td>
+                <table className="w-full text-left border-collapse border border-slate-200 text-[10px]">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-900 border-b border-slate-200 text-[9px] font-extrabold uppercase tracking-wider">
+                      <th className="p-1.5 border-r border-slate-200 w-7 text-center">#</th>
+                      <th className="p-1.5 border-r border-slate-200 w-1/3">Scheme Name & Classification</th>
+                      <th className="p-1.5 border-r border-slate-200 w-1/4">Key Benefit / Grant</th>
+                      <th className="p-1.5">Required Proof / Documents</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {(results.eligible.length > 4 ? results.eligible.slice(4, 9) : results.eligible.slice(0, 4)).map((scheme, idx) => {
+                      const benefit = getEstimatedBenefit(scheme);
+                      const docs = getSchemeDocuments(scheme).slice(0, 2);
+                      const displayIdx = results.eligible.length > 4 ? idx + 5 : idx + 1;
+                      return (
+                        <tr key={scheme.id || idx} className="border-b border-slate-200 even:bg-slate-50/50">
+                          <td className="p-1.5 border-r border-slate-200 font-bold text-center align-top">{displayIdx}</td>
+                          <td className="p-1.5 border-r border-slate-200 align-top">
+                            <p className="font-extrabold text-slate-950 text-[10.5px] leading-tight">{scheme.title}</p>
+                            <span className="inline-block text-[8.5px] font-bold text-slate-600 mt-0.5">
+                              {formatCategoryName(scheme.category)} • {scheme.state || 'All India'}
+                            </span>
+                          </td>
+                          <td className="p-1.5 border-r border-slate-200 align-top font-bold text-slate-900">
+                            {benefit.label}
+                          </td>
+                          <td className="p-1.5 align-top text-[9.5px] text-slate-600">
+                            <ul className="list-disc list-inside space-y-0.5">
+                              {docs.map((doc, dIdx) => (
+                                <li key={dIdx} className="leading-tight">{doc}</li>
+                              ))}
+                            </ul>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-          {/* 4. Action Plan & Official Notes */}
-          <div className="border-t border-slate-200 pt-3 text-[10px] text-slate-600 space-y-1.5">
-            <p className="font-bold text-slate-900 uppercase tracking-wider text-[10px]">
-              Application Procedure & Compliance Guidelines:
-            </p>
-            <ol className="list-decimal list-inside space-y-0.5 leading-normal">
-              <li>Keep DigiLocker e-verified digital copies of your Aadhaar Card, Income Certificate, and Bank Passbook ready.</li>
-              <li>Ensure your active Bank Account is seeded with your Aadhaar number for Direct Benefit Transfer (DBT/PFMS).</li>
-              <li>Submit applications online via the official scheme portal or visit your nearest Common Service Centre (CSC) / Citizen Seva Kendra.</li>
-            </ol>
-            <p className="text-[9px] text-slate-400 pt-2 border-t border-slate-100">
-              Disclaimer: This dossier is a computer-generated entitlement guidance document prepared in accordance with current Central & State guidelines. Final financial sanction and disbursement are subject to physical/e-KYC verification by the respective implementing Ministry.
-            </p>
-          </div>
+              <div className="mb-3">
+                <h2 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-200 pb-1 mb-1.5">
+                  5. Mandatory Compliance & Step-by-Step Filing Procedure
+                </h2>
+                <div className="grid grid-cols-2 gap-2 text-[9.5px]">
+                  <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span className="font-bold text-slate-900 block mb-0.5">1. Digital Proofs & DigiLocker:</span>
+                    <p className="text-slate-600 leading-tight">
+                      Fetch verified e-Aadhaar, Income Certificate, and Caste Certificate from DigiLocker for instant zero-rejection filing.
+                    </p>
+                  </div>
+                  <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                    <span className="font-bold text-slate-900 block mb-0.5">2. DBT Bank Account NPCI Seeding:</span>
+                    <p className="text-slate-600 leading-tight">
+                      Visit your bank branch to ensure your account is seeded with Aadhaar for Direct Benefit Transfer (PFMS / NPCI).
+                    </p>
+                  </div>
+                </div>
+              </div>
 
+              <div className="p-2.5 bg-slate-50 border border-slate-300 rounded-lg mb-3">
+                <span className="text-[9px] font-extrabold uppercase text-slate-700 block mb-1">
+                  Common Service Centre (CSC) / Citizen Seva Kendra Acknowledgement & Verification Seal:
+                </span>
+                <div className="grid grid-cols-3 gap-2 text-[8.5px] text-slate-600 pt-1">
+                  <div>
+                    <span>VLE / Operator ID: ________________</span>
+                  </div>
+                  <div>
+                    <span>Operator Signature: ________________</span>
+                  </div>
+                  <div className="text-right">
+                    <span>Center Stamp / Seal: [ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-slate-300 pt-1.5 text-[8.5px] text-slate-500 flex justify-between items-center">
+              <span>Disclaimer: Computer-generated entitlement report. Final approval subject to physical/biometric verification by implementing authority.</span>
+              <span className="font-bold text-slate-900 shrink-0 ml-2">Page 2 of 2 • End of Document</span>
+            </div>
+          </div>
         </div>
       )}
     </>

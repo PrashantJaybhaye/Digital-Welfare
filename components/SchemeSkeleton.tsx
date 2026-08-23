@@ -4,7 +4,6 @@ export function SchemeCardSkeleton() {
   return (
     <div className="bg-white rounded-[20px] border border-slate-200/80 p-4 sm:p-4.5 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col justify-between animate-pulse">
       <div>
-        {/* Header: Category Pill + Tag + Clean Action Icons */}
         <div className="flex justify-between items-center mb-2.5">
           <div className="flex items-center gap-1.5">
             <div className="h-5 w-24 bg-slate-200 rounded-full" />
@@ -17,16 +16,13 @@ export function SchemeCardSkeleton() {
           </div>
         </div>
 
-        {/* Title */}
         <div className="h-4.5 w-4/5 bg-slate-200 rounded mb-1.5" />
 
-        {/* Description */}
         <div className="space-y-1 mb-2.5">
           <div className="h-3 w-full bg-slate-100 rounded" />
           <div className="h-3 w-3/4 bg-slate-100 rounded" />
         </div>
 
-        {/* iOS Inset Grouped Section Placeholder */}
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 space-y-2 mb-2.5">
           <div className="flex items-center justify-between">
             <div className="h-4 w-28 bg-[#7eed9e]/30 rounded" />
@@ -38,11 +34,9 @@ export function SchemeCardSkeleton() {
           </div>
         </div>
 
-        {/* Highlight bullet placeholder */}
         <div className="h-3 w-2/3 bg-slate-100 rounded mb-2.5" />
       </div>
 
-      {/* Footer / Buttons Placeholder */}
       <div className="pt-2.5 border-t border-slate-100/90 flex items-center justify-between mt-0.5">
         <div className="h-7 w-24 bg-slate-900/80 rounded-full" />
         <div className="flex items-center gap-1.5">

@@ -27,7 +27,6 @@ export interface ValidationResult {
   sanitized?: RawSchemeInput;
 }
 
-// Patterns of generic headings or placeholder scrapings to discard
 const INVALID_TITLE_PATTERNS = [
   /^\d+\s*schemes?$/i,
   /^(other|list of other)\s*\d*\s*schemes?$/i,
@@ -51,10 +50,9 @@ export function validateRawScheme(input: RawSchemeInput): ValidationResult {
     return { isValid: false, reason: 'Title is missing or too short (< 4 chars)' };
   }
 
-  // Check invalid title patterns
   for (const pattern of INVALID_TITLE_PATTERNS) {
     if (pattern.test(rawTitle)) {
-      return { isValid: false, reason: `Title matched invalid generic pattern: ${pattern.toString()}` };
+      return { isValid: false, reason: `Title matched generic placeholder pattern: ${pattern.toString()}` };
     }
   }
 
@@ -63,10 +61,9 @@ export function validateRawScheme(input: RawSchemeInput): ValidationResult {
     return { isValid: false, reason: 'Description is missing or too brief (< 10 chars)' };
   }
 
-  // Discard pure error pages or 404 text
   const lowerDesc = rawDesc.toLowerCase();
   if (lowerDesc.includes('page not found') || lowerDesc.includes('404 error') || lowerDesc.includes('access denied')) {
-    return { isValid: false, reason: 'Description contains error/404 content' };
+    return { isValid: false, reason: 'Description contains error or 404 text' };
   }
 
   return {

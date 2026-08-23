@@ -448,10 +448,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-10 pb-16 min-h-[calc(100vh-4rem)]">
-      
-      {/* ========================================================
-          HEADER & STATUS BANNER
-      ======================================================== */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 sm:mb-8 pb-5 border-b border-slate-200/80">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -542,9 +538,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ========================================================
-          NAVIGATION TABS
-      ======================================================== */}
+      {/* Navigation tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-6 border-b border-slate-200/80 no-scrollbar">
         {[
           { id: 'overview', label: 'Overview & Metrics', icon: LayoutDashboard },
@@ -572,9 +566,7 @@ export default function AdminDashboard() {
         })}
       </div>
 
-      {/* ========================================================
-          TAB 1: OVERVIEW & METRICS
-      ======================================================== */}
+      {/* Overview tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6 animate-fade-in">
           
@@ -744,9 +736,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ========================================================
-          TAB 2: SCHEME INVENTORY & MANAGER
-      ======================================================== */}
+      {/* Scheme inventory tab */}
       {activeTab === 'schemes' && (
         <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-4 animate-fade-in">
           
@@ -918,9 +908,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ========================================================
-          TAB 3: CREATE / ADD SCHEME FORM
-      ======================================================== */}
+      {/* Add scheme tab */}
       {activeTab === 'create' && (
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-2xs max-w-3xl mx-auto animate-fade-in">
           <div className="border-b border-slate-200 pb-3 mb-4">
@@ -1095,9 +1083,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ========================================================
-          TAB 4: CITIZEN SUBSCRIBERS
-      ======================================================== */}
+      {/* Citizen subscribers tab */}
       {activeTab === 'subscribers' && (
         <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-4 animate-fade-in">
           <div className="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -1159,9 +1145,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ========================================================
-          TAB 5: SYSTEM DIAGNOSTICS & LOGS
-      ======================================================== */}
+      {/* System diagnostics tab */}
       {activeTab === 'system' && (
         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-2xs space-y-5 animate-fade-in">
           <div>

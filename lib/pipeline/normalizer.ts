@@ -1,6 +1,5 @@
 import { RawSchemeInput } from './validator';
 
-// Standard Taxonomy Map
 const CATEGORY_NORMALIZATION_MAP: Record<string, string> = {
   'CS': 'Central Sector Scheme',
   'CSS': 'Centrally Sponsored Scheme',
@@ -23,13 +22,11 @@ const CATEGORY_NORMALIZATION_MAP: Record<string, string> = {
   '—': 'General Welfare'
 };
 
-// Automatic Translation Helper (Marathi / Hindi to clean English)
 export async function translateDevanagariToEnglish(text: string): Promise<string> {
   if (!text || !/[\u0900-\u097F]/.test(text)) {
     return text.trim();
   }
 
-  // Pre-clean boilerplate Marathi suffixes
   const clean = text
     .replace(/पुढीलप्रमाणे/g, '')
     .replace(/\d+\s*योजना/g, '')
@@ -59,7 +56,6 @@ export async function translateDevanagariToEnglish(text: string): Promise<string
       }
       let translated = translatedRaw || clean;
 
-      // Polish common terminology translations
       translated = translated
         .replace(/\bPlans\b/gi, 'Schemes')
         .replace(/\bPlan\b/gi, 'Scheme')
@@ -71,7 +67,7 @@ export async function translateDevanagariToEnglish(text: string): Promise<string
       return translated;
     }
   } catch (err) {
-    console.error('Translation notice:', err);
+    console.warn('Translation request error:', err);
   }
 
   return clean;
@@ -101,7 +97,6 @@ export async function normalizeRawScheme(scheme: RawSchemeInput): Promise<RawSch
   let title = (scheme.title || '').trim();
   let description = (scheme.description || '').trim();
 
-  // Translate Devanagari if present
   if (/[\u0900-\u097F]/.test(title)) {
     title = await translateDevanagariToEnglish(title);
   }
@@ -109,17 +104,14 @@ export async function normalizeRawScheme(scheme: RawSchemeInput): Promise<RawSch
     description = await translateDevanagariToEnglish(description);
   }
 
-  // Clean redundant whitespace
   title = title.replace(/\s+/g, ' ').trim();
   description = description.replace(/\s+/g, ' ').trim();
 
-  // Standardize state
   let state = (scheme.state || 'Maharashtra').trim();
   if (state.toLowerCase() === 'all' || state.toLowerCase() === 'central' || state.toLowerCase() === 'india') {
     state = 'All India';
   }
 
-  // Standardize apply link
   let applyLink = scheme.applyLink?.trim() || null;
   if (!applyLink) {
     applyLink = `https://www.google.com/search?q=${encodeURIComponent(title + " official portal apply")}`;

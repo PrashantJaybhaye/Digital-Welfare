@@ -1,15 +1,28 @@
 "use client";
 
-import { useState } from 'react';
-import { Bell, X, Check, MessageSquare, Mail, ChevronDown, ShieldCheck } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Check, MessageSquare, Mail, ChevronDown } from 'lucide-react';
+import Logo from '@/components/Logo';
 
-const ALERT_CATEGORIES = [
-  'All New Government Schemes',
-  'Scholarships & Student Aid',
-  'Farmer Subsidies & Agriculture Grants',
-  'Women & Child Welfare Schemes',
-  'MSME, Business & Self-Employment Loans',
-  'Free Healthcare & Hospital Benefits'
+const CATEGORIES = [
+  'All Government Schemes',
+  'Scholarships & Higher Education',
+  'Farmer Subsidies & Agriculture',
+  'Women & Child Welfare',
+  'MSME & Startup Loans',
+  'Free Healthcare & Medical'
+];
+
+const STATES = [
+  'All India (Central + States)',
+  'Maharashtra',
+  'Delhi',
+  'Karnataka',
+  'Uttar Pradesh',
+  'Gujarat',
+  'Tamil Nadu',
+  'Rajasthan',
+  'Madhya Pradesh'
 ];
 
 export default function SchemeAlertModal({
@@ -20,12 +33,24 @@ export default function SchemeAlertModal({
   onClose: () => void;
 }) {
   const [contact, setContact] = useState('');
-  const [category, setCategory] = useState(ALERT_CATEGORIES[0]);
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [state, setState] = useState(STATES[0]);
   const [channel, setChannel] = useState<'WhatsApp' | 'Email'>('WhatsApp');
-  const [state] = useState('All India');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -40,17 +65,22 @@ export default function SchemeAlertModal({
       const res = await fetch('/api/subscribe-alerts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact, category, state, channel })
+        body: JSON.stringify({ 
+          contact: contact.trim(), 
+          category, 
+          state, 
+          channel 
+        })
       });
 
       const data = await res.json();
       if (data.success) {
         setSubmitted(true);
       } else {
-        setErrorMsg(data.error || 'Failed to subscribe. Please try again.');
+        setErrorMsg(data.error || 'Unable to register alert. Please try again.');
       }
     } catch {
-      setErrorMsg('Network error. Please try again.');
+      setErrorMsg('Connection error. Please check your network.');
     } finally {
       setLoading(false);
     }
@@ -58,161 +88,179 @@ export default function SchemeAlertModal({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div 
-        className="bg-white/95 backdrop-blur-2xl border border-black/5 w-full max-w-[420px] rounded-[28px] p-6 sm:p-7 shadow-[0_25px_60px_rgba(0,0,0,0.12)] relative animate-in zoom-in-95 duration-200 ring-1 ring-black/5"
+        className="bg-[#F2F2F7] border border-[#E5E5EA] w-full max-w-[360px] rounded-[24px] p-4.5 sm:p-5 shadow-[0_16px_40px_rgba(0,0,0,0.14)] relative animate-in zoom-in-[0.98] duration-150 text-[#000000]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* iOS Circular Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+          className="absolute top-3.5 right-3.5 w-6.5 h-6.5 rounded-full bg-[#E5E5EA] hover:bg-[#D1D1D6] text-[#8E8E93] hover:text-[#000000] flex items-center justify-center transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X className="w-3.5 h-3.5 stroke-[2.5]" />
         </button>
 
-        {/* Modal Header */}
-        <div className="flex items-center gap-3.5 mb-5 pr-6">
-          <div className="w-12 h-12 rounded-[22%] bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-xs border border-blue-100/60">
-            <Bell className="w-6 h-6 stroke-[2.2]" />
+        <div className="flex items-center gap-3 mb-4 pr-6">
+          <div className="w-10 h-10 rounded-[20%] bg-white border border-[#E5E5EA] flex items-center justify-center shrink-0 shadow-[0_2px_6px_rgba(0,0,0,0.05)]">
+            <Logo size={24} color="#000000" />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-slate-950 tracking-tight leading-tight">
-              Welfare Scheme Alerts
+            <h3 className="font-semibold text-[16px] text-[#000000] tracking-tight leading-tight">
+              Scheme Alerts
             </h3>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Get notified when new subsidies open
+            <p className="text-[12px] text-[#8E8E93] font-normal">
+              DigitalWelfare Push Service
             </p>
           </div>
         </div>
 
-        {/* Modal Body */}
         {submitted ? (
-          <div className="text-center py-6 space-y-3.5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-100">
-              <Check className="w-6 h-6 stroke-[2.5]" />
+          <div className="text-center py-4 space-y-3.5 animate-in fade-in duration-200">
+            <div className="w-12 h-12 bg-[#34C759]/10 text-[#34C759] rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-6 h-6 stroke-[3]" />
             </div>
-            <div>
-              <h4 className="text-base font-bold text-slate-950">Subscription Confirmed</h4>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Alerts will be sent to <span className="font-semibold text-slate-900">{contact}</span> as soon as verified schemes are published.
+
+            <div className="space-y-0.5">
+              <h4 className="text-[16px] font-semibold text-[#000000]">
+                Alerts Enabled
+              </h4>
+              <p className="text-[12px] text-[#6E6E73] max-w-[260px] mx-auto leading-relaxed">
+                You will receive instant updates for <span className="font-medium text-[#000000]">{category}</span> on <span className="font-medium text-[#000000]">{contact}</span>.
               </p>
             </div>
+
             <button
               onClick={() => { setSubmitted(false); onClose(); }}
-              className="mt-2 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-semibold transition-all cursor-pointer"
+              className="w-full py-2.5 bg-[#007AFF] hover:bg-[#0066D6] text-white rounded-[12px] text-[14px] font-semibold transition-colors cursor-pointer active:scale-[0.98]"
             >
               Done
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* iOS Segmented Control */}
-            <div className="bg-slate-100/90 p-1 rounded-2xl grid grid-cols-2 gap-1 border border-slate-200/50">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div className="bg-[#E5E5EA] p-[2.5px] rounded-[9px] grid grid-cols-2 gap-1">
               <button
                 type="button"
                 onClick={() => setChannel('WhatsApp')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-1.5 px-2.5 rounded-[7px] text-[12.5px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   channel === 'WhatsApp'
-                    ? 'bg-white text-slate-950 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900'
+                    ? 'bg-white text-[#000000] shadow-[0_1px_2px_rgba(0,0,0,0.12)] font-semibold'
+                    : 'text-[#6E6E73] hover:text-[#000000]'
                 }`}
               >
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                <MessageSquare className="w-3.5 h-3.5 text-[#34C759]" />
                 <span>WhatsApp</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setChannel('Email')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`py-1.5 px-2.5 rounded-[7px] text-[12.5px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   channel === 'Email'
-                    ? 'bg-white text-slate-950 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900'
+                    ? 'bg-white text-[#000000] shadow-[0_1px_2px_rgba(0,0,0,0.12)] font-semibold'
+                    : 'text-[#6E6E73] hover:text-[#000000]'
                 }`}
               >
-                <Mail className="w-3.5 h-3.5 text-blue-600" />
+                <Mail className="w-3.5 h-3.5 text-[#007AFF]" />
                 <span>Email</span>
               </button>
             </div>
 
-            {/* Contact Input Field */}
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5 pl-0.5">
-                {channel === 'WhatsApp' ? 'Mobile Number' : 'Email Address'}
-              </label>
-              <div className="relative">
+            <div className="bg-white rounded-[14px] border border-[#E5E5EA] divide-y divide-[#E5E5EA] overflow-hidden shadow-2xs">
+              <div className="px-3 py-2 flex items-center gap-2">
+                <span className="text-[12px] font-medium text-[#8E8E93] w-12 shrink-0">
+                  {channel === 'WhatsApp' ? 'Mobile' : 'Email'}
+                </span>
                 {channel === 'WhatsApp' && (
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-semibold text-slate-400 pointer-events-none">
+                  <span className="text-[13px] font-medium text-[#000000] shrink-0">
                     +91
                   </span>
                 )}
                 <input
+                  ref={inputRef}
                   type={channel === 'WhatsApp' ? 'tel' : 'email'}
                   required
-                  placeholder={channel === 'WhatsApp' ? '98765 43210' : 'citizen@example.com'}
+                  placeholder={channel === 'WhatsApp' ? '98765 43210' : 'name@example.com'}
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  className={`w-full py-2.5 pr-3.5 bg-slate-50/90 border border-slate-200/70 rounded-2xl text-xs sm:text-sm font-medium text-slate-950 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all ${
-                    channel === 'WhatsApp' ? 'pl-11' : 'pl-3.5'
-                  }`}
+                  className="flex-1 bg-transparent text-[13px] font-normal text-[#000000] placeholder:text-[#C7C7CC] focus:outline-none min-w-0"
                 />
+                {contact && (
+                  <button
+                    type="button"
+                    onClick={() => setContact('')}
+                    className="w-3.5 h-3.5 rounded-full bg-[#C7C7CC] text-white flex items-center justify-center text-[9px] shrink-0 hover:bg-[#8E8E93]"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
-            </div>
 
-            {/* Focus Sector Dropdown */}
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5 pl-0.5">
-                Scheme Category
-              </label>
-              <div className="relative">
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full pl-3.5 pr-10 py-2.5 bg-slate-50/90 border border-slate-200/70 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer appearance-none"
-                >
-                  {ALERT_CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                  <ChevronDown className="w-4 h-4" />
+              <div className="px-3 py-2 relative flex flex-col justify-center">
+                <span className="text-[10.5px] font-medium text-[#8E8E93] uppercase tracking-wide leading-none mb-0.5">
+                  Scheme Category
+                </span>
+                <div className="relative">
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-transparent text-[13px] font-medium text-[#000000] text-left focus:outline-none cursor-pointer appearance-none pr-6 truncate"
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat} className="text-[#000000] bg-white">
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8E8E93] absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="px-3 py-2 relative flex flex-col justify-center">
+                <span className="text-[10.5px] font-medium text-[#8E8E93] uppercase tracking-wide leading-none mb-0.5">
+                  State / Region
+                </span>
+                <div className="relative">
+                  <select
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    className="w-full bg-transparent text-[13px] font-medium text-[#000000] text-left focus:outline-none cursor-pointer appearance-none pr-6 truncate"
+                  >
+                    {STATES.map((st) => (
+                      <option key={st} value={st} className="text-[#000000] bg-white">
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8E8E93] absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {errorMsg && (
-              <div className="text-xs font-medium text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-100">
+              <div className="p-2 rounded-[9px] bg-[#FF3B30]/10 text-[#FF3B30] text-[11.5px] text-center font-medium">
                 {errorMsg}
               </div>
             )}
 
-            {/* Primary Action Button */}
             <button
               type="submit"
               disabled={loading || !contact.trim()}
-              className="w-full mt-1 py-3 px-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold text-xs sm:text-sm rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+              className="w-full py-2.5 bg-[#007AFF] hover:bg-[#0066D6] disabled:opacity-40 text-white font-semibold text-[14px] rounded-[12px] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Subscribing...</span>
-                </>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <span>Subscribe for Alerts</span>
               )}
             </button>
 
-            {/* Apple Style Footer Info */}
-            <p className="text-[11px] text-slate-400 text-center flex items-center justify-center gap-1 font-medium pt-0.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-              <span>Official Notifications • No Spam Guarantee</span>
+            <p className="text-[10.5px] text-[#8E8E93] text-center font-normal">
+              Official notifications only. Unsubscribe anytime.
             </p>
-
           </form>
         )}
       </div>

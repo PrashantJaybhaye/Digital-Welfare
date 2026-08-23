@@ -52,19 +52,14 @@ export class GovTechSchemePipeline {
   }
 
   public async runPipeline(): Promise<PipelineRunResult> {
-    this.log('🚀 Initiating 10-Stage Automated GovTech Scheme Intelligence Pipeline...');
+    this.log('Initiating Automated GovTech Scheme Pipeline...');
 
-    // -------------------------------------------------------------
-    // STAGE 1 & 2: HARVEST RAW DATA FROM SOURCES
-    // -------------------------------------------------------------
-    this.updateStage(0, 0, 'running', 'Fetching feeds from MahaDBT, MP-SIMS & Central Gazette...');
+    this.updateStage(0, 0, 'running', 'Fetching feeds from MahaDBT, MP-SIMS and Central Gazette...');
     const rawIngestedList: RawSchemeInput[] = [];
 
-    // 1. Official State & National Master Feed
-    this.log(`Ingesting ${MAHARASHTRA_OFFICIAL_RAW_SCHEMES.length} official Maharashtra & National schemes (MahaDBT / MP-SIMS / Central)...`);
+    this.log(`Ingesting ${MAHARASHTRA_OFFICIAL_RAW_SCHEMES.length} official Maharashtra & National schemes...`);
     rawIngestedList.push(...MAHARASHTRA_OFFICIAL_RAW_SCHEMES);
 
-    // 3. Live Web Scraper (Central Govt Scheme Index)
     try {
       this.log('Harvesting live tables from National Schemes directory...');
       const wikiRes = await fetch('https://en.wikipedia.org/wiki/List_of_government_schemes_in_India', {
@@ -98,17 +93,14 @@ export class GovTechSchemePipeline {
         });
         this.log(`Live crawl harvested ${liveCount} central records.`);
       }
-    } catch (crawlerErr: unknown) {
+    } catch (crawlerErr) {
       const msg = crawlerErr instanceof Error ? crawlerErr.message : String(crawlerErr);
       this.log(`Live crawler notice: ${msg}`);
     }
 
-    this.updateStage(0, 3, 'completed', 'Connected to MahaDBT, MP-SIMS & Central Portals');
+    this.updateStage(0, 3, 'completed', 'Connected to MahaDBT, MP-SIMS and Central Portals');
     this.updateStage(1, rawIngestedList.length, 'completed', `Ingested ${rawIngestedList.length} raw scheme inputs`);
 
-    // -------------------------------------------------------------
-    // STAGE 3: VALIDATION & JUNK FILTERING
-    // -------------------------------------------------------------
     this.updateStage(2, 0, 'running', 'Filtering invalid headlines and malformed payloads...');
     const validatedList: RawSchemeInput[] = [];
     let discardedCount = 0;
@@ -125,9 +117,6 @@ export class GovTechSchemePipeline {
     this.log(`Validation passed: ${validatedList.length} schemes (${discardedCount} discarded).`);
     this.updateStage(2, validatedList.length, 'completed', `Discarded ${discardedCount} invalid/placeholder headers`);
 
-    // -------------------------------------------------------------
-    // STAGE 4: NORMALIZATION & TRANSLATION
-    // -------------------------------------------------------------
     this.updateStage(3, 0, 'running', 'Translating Devanagari and standardizing department taxonomy...');
     const normalizedList: RawSchemeInput[] = [];
 
@@ -139,9 +128,6 @@ export class GovTechSchemePipeline {
     this.log(`Normalized ${normalizedList.length} schemes.`);
     this.updateStage(3, normalizedList.length, 'completed', 'Normalized titles, states, and category taxonomy');
 
-    // -------------------------------------------------------------
-    // STAGE 5, 6, 7 & 8: RULE, DOC, BENEFIT EXTRACTION & SYNTHESIS
-    // -------------------------------------------------------------
     this.updateStage(4, 0, 'running', 'Extracting age, income, caste and gender criteria...');
     this.updateStage(5, 0, 'running', 'Generating verified required document checklists...');
     this.updateStage(6, 0, 'running', 'Computing DBT values, fee waivers, and subsidies...');
@@ -151,16 +137,10 @@ export class GovTechSchemePipeline {
     const now = new Date().toISOString();
 
     for (const norm of normalizedList) {
-      // Stage 5: Rule Extraction
       const rules = extractEligibilityRules(norm);
-
-      // Stage 6: Doc Extraction
       const requiredDocuments = extractRequiredDocuments(norm);
-
-      // Stage 7: Benefit Extraction
       const benefitData = extractBenefits(norm);
 
-      // Standard application steps
       const stepsToApply = norm.stepsToApply && norm.stepsToApply.length > 0
         ? norm.stepsToApply
         : [
@@ -190,7 +170,6 @@ export class GovTechSchemePipeline {
         lastSyncedAt: now
       };
 
-      // Deduplicate by clean slug
       const slug = synthesizedScheme.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
@@ -204,12 +183,12 @@ export class GovTechSchemePipeline {
 
     const finalSchemes = Array.from(finalSchemesMap.values());
 
-    this.updateStage(4, finalSchemes.length, 'completed', 'Age, income, caste & occupation tagged');
-    this.updateStage(5, finalSchemes.length, 'completed', '7/12, caste validity & proofs generated');
-    this.updateStage(6, finalSchemes.length, 'completed', 'DBT cash, tuition & health values extracted');
+    this.updateStage(4, finalSchemes.length, 'completed', 'Age, income, caste and occupation criteria extracted');
+    this.updateStage(5, finalSchemes.length, 'completed', 'Land records, domicile and proofs generated');
+    this.updateStage(6, finalSchemes.length, 'completed', 'DBT cash, tuition and health benefits calculated');
     this.updateStage(7, finalSchemes.length, 'completed', `Synthesized ${finalSchemes.length} unique enriched schemes`);
 
-    this.log(`🎉 Pipeline complete! Generated ${finalSchemes.length} fully structured, verified welfare schemes.`);
+    this.log(`Pipeline complete. Generated ${finalSchemes.length} verified welfare schemes.`);
 
     return {
       success: true,

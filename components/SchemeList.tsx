@@ -3,11 +3,7 @@
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Scheme, formatCategoryName } from '@/types/scheme';
-import Link from 'next/link';
-import { 
-  ArrowRight, Search, Bookmark, 
-  Bell
-} from 'lucide-react';
+import { ArrowRight, Search, Bookmark, Bell } from 'lucide-react';
 import SchemeAlertModal from '@/components/SchemeAlertModal';
 import SchemeCard from '@/components/SchemeCard';
 
@@ -24,7 +20,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
 
-  // Sync URL search params when changed externally
   useEffect(() => {
     const q = searchParams.get('search');
     if (q !== null) setSearchTerm(q);
@@ -32,7 +27,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
     if (cat !== null) setSelectedCategory(cat);
   }, [searchParams]);
 
-  // Reset pagination when search or filters change
   useEffect(() => {
     setVisibleCount(12);
   }, [searchTerm, selectedCategory, selectedTag, showOnlySaved]);
@@ -44,7 +38,7 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
         setSavedIds(JSON.parse(stored));
       }
     } catch {
-      // Graceful fallback
+      // Ignore storage read errors
     }
   }, []);
 
@@ -72,7 +66,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  // Extract unique categories for filter dropdown
   const categories = useMemo(() => {
     const cats = new Set(
       initialSchemes
@@ -82,7 +75,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
     return ['All', ...Array.from(cats)].sort();
   }, [initialSchemes]);
 
-  // Filter schemes based on search term, category, tag, and bookmarks
   const filteredSchemes = useMemo(() => {
     return initialSchemes.filter(scheme => {
       const matchesSearch = scheme.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -104,10 +96,7 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Monotree-Style Filter & Search Bar */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-        
-        {/* Search Capsule Input */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -127,9 +116,7 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
           )}
         </div>
 
-        {/* Filter Controls */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Category Dropdown */}
           <div className="relative">
             <select
               value={selectedCategory}
@@ -149,7 +136,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
             </div>
           </div>
 
-          {/* Bookmarked Filter Pill */}
           <button
             onClick={() => setShowOnlySaved(!showOnlySaved)}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold border transition-all cursor-pointer shadow-2xs ${
@@ -162,7 +148,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
             <span>Saved ({savedIds.length})</span>
           </button>
 
-          {/* Alert Subscription Button */}
           <button
             onClick={() => setShowAlertModal(true)}
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold bg-[#7eed9e] hover:bg-[#68e48d] text-slate-950 transition-all cursor-pointer shadow-2xs active:scale-98"
@@ -174,7 +159,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
         </div>
       </div>
 
-      {/* Results Header Count */}
       <div className="flex items-center justify-between text-xs text-slate-500 font-medium px-1">
         <p>
           Showing <span className="font-bold text-slate-900">{Math.min(visibleCount, filteredSchemes.length)}</span> of <span className="font-bold text-slate-900">{filteredSchemes.length}</span> schemes
@@ -189,7 +173,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
         )}
       </div>
 
-      {/* Schemes Grid */}
       {filteredSchemes.length === 0 ? (
         <div className="text-center py-16 bg-white border border-slate-200/90 rounded-2xl shadow-2xs">
           <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3 text-slate-400">
@@ -218,7 +201,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
             ))}
           </div>
 
-          {/* Load More Pagination Button */}
           {filteredSchemes.length > visibleCount && (
             <div className="mt-10 text-center flex flex-col items-center">
               <button
@@ -236,7 +218,6 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
         </>
       )}
 
-      {/* Scheme Alert Subscription Modal */}
       <SchemeAlertModal
         isOpen={showAlertModal}
         onClose={() => setShowAlertModal(false)}

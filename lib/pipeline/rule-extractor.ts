@@ -12,31 +12,26 @@ export interface ExtractedRules {
 export function extractEligibilityRules(scheme: RawSchemeInput): ExtractedRules {
   const text = `${scheme.title || ''} ${scheme.description || ''} ${scheme.category || ''}`.toLowerCase();
 
-  // 1. AGE EXTRACTION
   let minAge = scheme.minAge !== undefined ? scheme.minAge : null;
   let maxAge = scheme.maxAge !== undefined ? scheme.maxAge : null;
 
   if (minAge === null && maxAge === null) {
-    // Pattern: "aged X to Y" / "between X and Y years" / "X - Y years"
     const rangeMatch = text.match(/(?:aged|between|age group of|age)\s+(\d{1,2})\s*(?:to|-|and)\s*(\d{1,2})\s*(?:years|yrs)?/i);
     if (rangeMatch) {
       minAge = parseInt(rangeMatch[1], 10);
       maxAge = parseInt(rangeMatch[2], 10);
     } else {
-      // Pattern: "above X years" / "age X+" / "X years and above" / "minimum age X"
       const minMatch = text.match(/(?:above|minimum age of|at least|age|attaining)\s+(\d{1,2})\s*(?:years|yrs)?\s*(?:and above|\+)?/i);
       if (minMatch && (text.includes('above') || text.includes('minimum') || text.includes('+'))) {
         minAge = parseInt(minMatch[1], 10);
       }
 
-      // Pattern: "up to X years" / "maximum age X" / "below X years"
       const maxMatch = text.match(/(?:up to|maximum age|below|under)\s+(\d{1,2})\s*(?:years|yrs)?/i);
       if (maxMatch) {
         maxAge = parseInt(maxMatch[1], 10);
       }
     }
 
-    // Heuristics for common GovTech profiles
     if (text.includes('senior citizen') || text.includes('old age') || text.includes('vridha') || text.includes('vayoshree') || text.includes('shravanbal')) {
       minAge = minAge || 60;
     } else if (text.includes('ladki bahin') || text.includes('majhi ladki')) {
@@ -54,7 +49,6 @@ export function extractEligibilityRules(scheme: RawSchemeInput): ExtractedRules 
     }
   }
 
-  // 2. INCOME CEILING EXTRACTION
   let maxIncome = scheme.maxIncome !== undefined ? scheme.maxIncome : null;
   if (maxIncome === null) {
     if (text.includes('8 lakh') || text.includes('8,00,000') || text.includes('800000') || text.includes('ebc')) {
@@ -70,7 +64,6 @@ export function extractEligibilityRules(scheme: RawSchemeInput): ExtractedRules 
     }
   }
 
-  // 3. SOCIAL CATEGORY EXTRACTION
   let socialCategory: 'All' | 'SC/ST' | 'OBC' | 'VJNT' | 'SBC' | 'General' | 'EWS' | 'Minority' | null = scheme.socialCategory || null;
   if (!socialCategory) {
     if (text.includes('sc/st') || (text.includes('scheduled caste') && text.includes('scheduled tribe'))) {
@@ -92,7 +85,6 @@ export function extractEligibilityRules(scheme: RawSchemeInput): ExtractedRules 
     }
   }
 
-  // 4. GENDER EXTRACTION
   let targetGender: 'Male' | 'Female' | 'Any' = scheme.targetGender || 'Any';
   if (targetGender === 'Any') {
     if (
@@ -104,7 +96,6 @@ export function extractEligibilityRules(scheme: RawSchemeInput): ExtractedRules 
     }
   }
 
-  // 5. OCCUPATION / PROFILE EXTRACTION
   let targetOccupation = scheme.targetOccupation || 'All Citizens';
   if (targetOccupation === 'All Citizens' || !targetOccupation) {
     if (text.includes('farmer') || text.includes('krishi') || text.includes('kisan') || text.includes('shetkari') || text.includes('irrigation') || text.includes('cultivator')) {

@@ -11,12 +11,10 @@ export function extractRequiredDocuments(scheme: RawSchemeInput): string[] {
     'Bank Account Passbook (Linked to Aadhaar & NPCI for Direct DBT)'
   ];
 
-  // State Domicile
   if ((scheme.state || 'Maharashtra').toLowerCase().includes('maharashtra')) {
     docs.push('Maharashtra State Domicile Certificate (or Ration Card proving 15-year residence)');
   }
 
-  // Farmer / Krishi Documents
   if (
     text.includes('farmer') || text.includes('krishi') || text.includes('kisan') || 
     text.includes('shetkari') || text.includes('irrigation') || text.includes('tractor') || 
@@ -25,10 +23,7 @@ export function extractRequiredDocuments(scheme: RawSchemeInput): string[] {
     docs.push('7/12 Land Ownership Record (Satbara Utara) & 8-A Extract');
     docs.push('Aadhaar e-KYC Verification on MahaDBT / PM-KISAN Portal');
     docs.push('Crop Sowing Self-Declaration (E-Pik Pahani)');
-  }
-
-  // Education / Scholarship Documents
-  else if (
+  } else if (
     text.includes('scholarship') || text.includes('freeship') || text.includes('education') || 
     text.includes('student') || text.includes('fellowship') || text.includes('dhe') || 
     text.includes('dte') || text.includes('dmer')
@@ -43,54 +38,33 @@ export function extractRequiredDocuments(scheme: RawSchemeInput): string[] {
     if (text.includes('obc') || text.includes('vjnt') || text.includes('sbc')) {
       docs.push('Valid Non-Creamy Layer (NCL) Certificate');
     }
-  }
-
-  // Women Welfare Documents (Ladki Bahin / Lek Ladki / Annapurna)
-  else if (text.includes('ladki bahin') || text.includes('lek ladki') || text.includes('women') || text.includes('mahila')) {
+  } else if (text.includes('ladki bahin') || text.includes('lek ladki') || text.includes('women') || text.includes('mahila')) {
     docs.push('Family Ration Card (Yellow / Orange / Antyodaya)');
     docs.push('Income Certificate (Family annual income up to ₹2.5 Lakh) or Yellow/Orange Ration Card');
     docs.push('Applicant Self-Declaration (Hamipatra)');
     if (text.includes('annapurna') || text.includes('lpg') || text.includes('cylinder')) {
       docs.push('Domestic LPG Gas Consumer Passbook (IOCL / BPCL / HPCL)');
     }
-  }
-
-  // Health / Hospital Cover Documents
-  else if (text.includes('health') || text.includes('swasthya') || text.includes('jan arogya') || text.includes('ayushman') || text.includes('mjpjay')) {
+  } else if (text.includes('health') || text.includes('swasthya') || text.includes('jan arogya') || text.includes('ayushman') || text.includes('mjpjay')) {
     docs.push('Ration Card (Yellow, Orange, or White Ration Card)');
     docs.push('Ayushman Bharat / MJPJAY Health Card');
     docs.push('Treating Doctor Referral / Diagnostic Reports');
-  }
-
-  // Skill / Internship / Employment Documents
-  else if (text.includes('internship') || text.includes('yuva karya') || text.includes('mahaswayam') || text.includes('maps') || text.includes('employment')) {
+  } else if (text.includes('internship') || text.includes('yuva karya') || text.includes('mahaswayam') || text.includes('maps') || text.includes('employment')) {
     docs.push('Educational Qualification Certificates (12th / ITI / Diploma / Degree)');
     docs.push('MahaSwayam Employment Registration Number (rojgar.mahaswayam.gov.in)');
     docs.push('Passport Sized Photographs');
-  }
-
-  // Housing / Gharkul Documents
-  else if (text.includes('housing') || text.includes('awas') || text.includes('gharkul')) {
+  } else if (text.includes('housing') || text.includes('awas') || text.includes('gharkul')) {
     docs.push('Gram Panchayat / Municipal Property Assessment (Namuna 8 / Property Tax Receipt)');
     docs.push('BPL / SECC 2011 Survey Inclusion Proof');
     docs.push('Affidavit confirming no existing pucca house in India');
-  }
-
-  // Divyang / Disability Documents
-  else if (text.includes('disability') || text.includes('divyang') || text.includes('handicapped') || text.includes('pwd')) {
+  } else if (text.includes('disability') || text.includes('divyang') || text.includes('handicapped') || text.includes('pwd')) {
     docs.push('Unique Disability ID (UDID Card) or Civil Surgeon Disability Certificate (40%+ disability)');
     docs.push('Income Certificate');
-  }
-
-  // Senior Citizens
-  else if (text.includes('senior citizen') || text.includes('shravanbal') || text.includes('vayoshree') || text.includes('pension')) {
+  } else if (text.includes('senior citizen') || text.includes('shravanbal') || text.includes('vayoshree') || text.includes('pension')) {
     docs.push('Age Proof Certificate (Birth Certificate / School Leaving / Voter ID)');
     docs.push('Income Certificate issued by Tehsildar (Family income up to ₹21,000 to ₹50,000/yr)');
     docs.push('Medical Fitness Certificate (for assistive aid)');
-  }
-
-  // General fallback
-  else {
+  } else {
     docs.push('Income Certificate from Competent Authority (Tehsildar / SDO)');
     docs.push('Recent Passport-Sized Photographs');
   }

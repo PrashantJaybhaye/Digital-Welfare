@@ -14,16 +14,14 @@ export default function PWARegister() {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   useEffect(() => {
-    // 1. Register Service Worker
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch((err) => {
-          console.log('PWA ServiceWorker notice: ', err);
+          console.warn('PWA registration notice:', err);
         });
       });
     }
 
-    // 2. Handle PWA install prompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -31,17 +29,13 @@ export default function PWARegister() {
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to install: ${outcome}`);
+    await deferredPrompt.userChoice;
     setDeferredPrompt(null);
     setShowInstallBanner(false);
   };
@@ -59,13 +53,10 @@ export default function PWARegister() {
       className="fixed bottom-5 right-5 left-5 sm:left-auto z-50 animate-in fade-in slide-in-from-bottom-3 duration-200"
     >
       <div className="flex items-center gap-3 bg-white border border-slate-200/90 shadow-xl shadow-slate-900/5 rounded-2xl p-2.5 sm:p-3 sm:max-w-sm">
-        
-        {/* Red Brand Icon */}
         <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
           <Logo size={22} color="#dc2626" eyeColor="#ffffff" />
         </div>
 
-        {/* Minimal Text */}
         <div className="min-w-0 flex-1">
           <h4 className="font-bold text-xs text-slate-950 leading-tight">
             DigitalWelfare
@@ -75,7 +66,6 @@ export default function PWARegister() {
           </p>
         </div>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleInstall}
@@ -93,7 +83,6 @@ export default function PWARegister() {
             <X className="w-4 h-4" />
           </button>
         </div>
-
       </div>
     </aside>
   );

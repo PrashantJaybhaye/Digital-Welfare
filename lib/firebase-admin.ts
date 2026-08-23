@@ -16,14 +16,11 @@ if (!getApps().length) {
         }),
       });
     } else {
-      // Default initialization fallback
       initializeApp();
     }
-  } catch (error: unknown) {
+  } catch (error) {
     if (error instanceof Error) {
-      console.error('Firebase admin initialization notice:', error.message);
-    } else {
-      console.error('Firebase admin initialization notice:', error);
+      console.warn('Firebase Admin init warning:', error.message);
     }
   }
 }

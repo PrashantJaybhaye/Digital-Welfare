@@ -4,7 +4,6 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { GovTechSchemePipeline } from '../lib/pipeline/pipeline';
 
-// Load .env.local manually if not in process.env
 function loadEnv() {
   const envPath = path.resolve(process.cwd(), '.env.local');
   if (fs.existsSync(envPath)) {
@@ -47,7 +46,7 @@ const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
 if (!projectId || !clientEmail || !privateKey) {
-  console.error('❌ Missing Firebase Admin credentials in .env.local');
+  console.error('Missing Firebase Admin credentials in .env.local');
   process.exit(1);
 }
 
@@ -64,18 +63,14 @@ if (!getApps().length) {
 const db = getFirestore();
 
 async function runPipelineAndPush() {
-  console.log(`=======================================================`);
-  console.log(`🏛️ 10-STAGE AUTOMATED GOVTECH SCHEME INTELLIGENCE PIPELINE`);
-  console.log(`=======================================================\n`);
-  console.log(`📁 Target Project: ${projectId}`);
-  console.log(`📑 Collection: schemes\n`);
+  console.log(`Starting scheme sync for project: ${projectId}`);
 
   const pipeline = new GovTechSchemePipeline();
   const result = await pipeline.runPipeline();
 
-  console.log('\n--- PIPELINE EXECUTION STAGES ---');
+  console.log('Pipeline stages completed:');
   result.stages.forEach((st) => {
-    console.log(`[${st.status.toUpperCase()}] ${st.stage} -> ${st.count} items (${st.details || ''})`);
+    console.log(`- [${st.status}] ${st.stage}: ${st.count} items (${st.details || ''})`);
   });
 
   const schemesRef = db.collection('schemes');
@@ -101,17 +96,17 @@ async function runPipelineAndPush() {
     });
 
     await batch.commit();
-    console.log(`\n💾 Batch committed: ${pushedCount}/${result.schemes.length} schemes into Firestore`);
+    console.log(`Committed batch: ${pushedCount}/${result.schemes.length} schemes`);
   }
 
   const totalSnap = await schemesRef.count().get();
-  console.log(`\n🎉 PIPELINE SUCCESS: ${result.schemes.length} schemes fully enriched & stored!`);
-  console.log(`📊 Total schemes in Firestore database: ${totalSnap.data().count}`);
+  console.log(`Pipeline finished: ${result.schemes.length} schemes updated.`);
+  console.log(`Total schemes in Firestore: ${totalSnap.data().count}`);
 }
 
 runPipelineAndPush()
   .then(() => process.exit(0))
   .catch((err) => {
-    console.error('❌ Pipeline failed:', err);
+    console.error('Pipeline failed:', err);
     process.exit(1);
   });

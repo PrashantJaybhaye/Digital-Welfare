@@ -1,9 +1,7 @@
 import { RawSchemeInput } from './validator';
 
 export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
-  // =========================================================================
-  // 1. WOMEN & CHILD DEVELOPMENT DEPARTMENT (MAHARASHTRA)
-  // =========================================================================
+  // Women & Child Development
   {
     title: 'Mukhyamantri Majhi Ladki Bahin Yojana',
     description: 'Flagship economic empowerment scheme by the Government of Maharashtra providing direct monthly financial assistance of ₹1,500 to women aged 21 to 65 years with annual family income up to ₹2.5 Lakh.',
@@ -69,9 +67,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 2. AGRICULTURE & FARMER WELFARE (MAHADBT KRISHI & MP-SIMS)
-  // =========================================================================
+  // Agriculture & Farmer Welfare
   {
     title: 'Namo Shetkari Maha Samman Nidhi Yojana',
     description: 'Maharashtra state government farmer income support providing ₹6,000 annually in 3 installments of ₹2,000, paid directly via DBT on top of the Central PM-KISAN scheme for a total of ₹12,000/year.',
@@ -217,9 +213,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 3. HIGHER & TECHNICAL EDUCATION (DHE, DTE, DMER SCHOLARSHIPS ON MAHADBT)
-  // =========================================================================
+  // Higher & Technical Education
   {
     title: 'Rajarshi Chhatrapati Shahu Maharaj Shikshan Shulkh Shishyavrutti Yojna (EBC)',
     description: 'Flagship higher education fee concession scheme on MahaDBT offering 50% tuition and exam fee reimbursement for Economically Backward Class (EBC) open and general category students with annual family income up to ₹8 Lakh.',
@@ -301,9 +295,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 4. SOCIAL JUSTICE & SPECIAL ASSISTANCE (SJSA MAHADBT)
-  // =========================================================================
+  // Social Justice & Special Assistance
   {
     title: 'Government of India Post-Matric Scholarship for SC Students (MahaDBT)',
     description: '100% complete tuition fee waiver, examination fee refund, and monthly maintenance allowance paid via DBT for Scheduled Caste and Nav-Bouddha students in 11th, 12th, Diploma, Degree, and PG courses.',
@@ -385,9 +377,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 5. TRIBAL DEVELOPMENT DEPARTMENT (TDD MAHADBT)
-  // =========================================================================
+  // Tribal Development
   {
     title: 'Government of India Post-Matric Scholarship for ST Students (MahaDBT)',
     description: '100% tuition, exam fee waiver and monthly maintenance support for Scheduled Tribe (ST) students in higher secondary, graduation, post-graduation, and medical/engineering colleges.',
@@ -437,9 +427,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 6. VJNT, OBC AND SBC WELFARE DEPARTMENT (MAHADBT)
-  // =========================================================================
+  // VJNT, OBC and SBC Welfare
   {
     title: 'Post-Matric Scholarship for VJNT, OBC and SBC Students',
     description: 'Tuition and exam fee reimbursement along with maintenance allowances for Vimukta Jatis, Nomadic Tribes, Other Backward Classes, and Special Backward Category students with family income up to ₹1.5 Lakh.',
@@ -505,9 +493,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 7. SKILL DEVELOPMENT & EMPLOYMENT (MAHASWAYAM)
-  // =========================================================================
+  // Skill Development & Employment
   {
     title: 'Mukhyamantri Yuva Karya Prashikshan Yojana (CM Youth Internship)',
     description: 'Massive youth skill internship program in Maharashtra offering 6 months on-the-job industrial apprenticeship with monthly government stipends of ₹6,000 (12th Pass), ₹8,000 (ITI/Diploma), and ₹10,000 (Graduates/PG).',
@@ -557,9 +543,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 8. PUBLIC HEALTH & CASHLESS HOSPITALIZATION
-  // =========================================================================
+  // Public Health & Healthcare
   {
     title: 'Mahatma Jyotirao Phule Jan Arogya Yojana (MJPJAY Universal)',
     description: 'Universal state health insurance scheme providing up to ₹5,00,000 cashless hospital treatment per family per year covering 1,356 medical/surgical procedures across 1,000+ empanelled government and private network hospitals.',
@@ -577,9 +561,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 9. LABOUR WELFARE (BOCW CONSTRUCTION WORKERS)
-  // =========================================================================
+  // Labour & Construction Workers
   {
     title: 'Maharashtra BOCW Bandhkam Kamgar Welfare Schemes',
     description: 'Comprehensive welfare umbrella for registered construction workers providing free essential safety kits, ₹5,000 to ₹1,00,000 children education scholarships, ₹75,000 marriage grant, and ₹5 hot cooked meals under Atal Aahar.',
@@ -597,9 +579,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 10. SENIOR CITIZENS & DIVYANG WELFARE
-  // =========================================================================
+  // Senior Citizens & Divyang Welfare
   {
     title: 'Chief Minister Vayoshree Yojana',
     description: 'State assistance scheme providing ₹3,000 one-time financial grant directly via DBT into bank accounts of senior citizens aged 65 years and above to purchase physical assistive devices (wheelchairs, spectacles, hearing aids).',
@@ -633,9 +613,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'MahaDBT'
   },
 
-  // =========================================================================
-  // 11. NATIONAL FLAGSHIP WELFARE PROGRAMS (CENTRAL & CENTRALLY SPONSORED)
-  // =========================================================================
+  // National Welfare Programs
   {
     title: 'Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)',
     description: 'Central sector income support scheme providing ₹6,000 per year in three 4-monthly installments of ₹2,000 directly into the bank accounts of all landholding farmer families across India.',
@@ -797,4 +775,3 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     sourceType: 'Central-Portal'
   }
 ];
-

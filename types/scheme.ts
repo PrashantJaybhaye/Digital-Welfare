@@ -13,7 +13,7 @@ export interface Scheme {
   benefits: string[];
   requiredDocuments?: string[];
   stepsToApply?: string[];
-  estimatedBenefitAmount?: number | null; // Estimated annual value in INR
+  estimatedBenefitAmount?: number | null;
   financialBenefitText?: string | null;
   tags?: string[];
   applyLink?: string | null;
@@ -32,7 +32,6 @@ export function formatCategoryName(category?: string | null): string {
   return CATEGORY_MAP[category.trim()] || category;
 }
 
-// Generate sensible document checklists for Indian schemes if none provided
 export function getSchemeDocuments(scheme: Scheme): string[] {
   if (scheme.requiredDocuments && scheme.requiredDocuments.length > 0) {
     return scheme.requiredDocuments;
@@ -44,25 +43,23 @@ export function getSchemeDocuments(scheme: Scheme): string[] {
     'Recent Passport-Sized Photographs'
   ];
 
-  const lowerTitle = scheme.title.toLowerCase();
-  const lowerDesc = scheme.description.toLowerCase();
-  const combined = `${lowerTitle} ${lowerDesc}`;
+  const text = `${scheme.title} ${scheme.description}`.toLowerCase();
 
-  if (combined.includes('farmer') || combined.includes('krishi') || combined.includes('kisan') || combined.includes('agriculture')) {
+  if (text.includes('farmer') || text.includes('krishi') || text.includes('kisan') || text.includes('agriculture')) {
     docs.push('Land Ownership Record (7/12 extract / RoR) or Kisan Credit Card');
     docs.push('Income Certificate issued by Revenue Authority');
-  } else if (combined.includes('scholarship') || combined.includes('education') || combined.includes('student') || combined.includes('fellowship')) {
+  } else if (text.includes('scholarship') || text.includes('education') || text.includes('student') || text.includes('fellowship')) {
     docs.push('Previous Year Educational Marksheet / Degree Certificate');
     docs.push('Current College / School Enrollment ID & Fee Receipt');
     docs.push('Family Annual Income Certificate');
-  } else if (combined.includes('health') || combined.includes('swasthya') || combined.includes('bima') || combined.includes('ayushman') || combined.includes('insurance')) {
+  } else if (text.includes('health') || text.includes('swasthya') || text.includes('bima') || text.includes('ayushman') || text.includes('insurance')) {
     docs.push('Ration Card (BPL / Antyodaya / Priority Household)');
     docs.push('Medical Certificate / Health Condition Card (if applicable)');
-  } else if (combined.includes('employment') || combined.includes('rozgar') || combined.includes('msme') || combined.includes('business') || combined.includes('pmegp')) {
+  } else if (text.includes('employment') || text.includes('rozgar') || text.includes('msme') || text.includes('business') || text.includes('pmegp')) {
     docs.push('Educational Qualification Certificate (8th/10th/Degree)');
     docs.push('Detailed Project Report (DPR) / Business Proposal');
     docs.push('Caste / Category Certificate (for special subsidy reservations)');
-  } else if (combined.includes('housing') || combined.includes('awas')) {
+  } else if (text.includes('housing') || text.includes('awas')) {
     docs.push('Ration Card / BPL Card');
     docs.push('Affidavit of not owning a pucca house in India');
     docs.push('Income Certificate');
@@ -74,7 +71,6 @@ export function getSchemeDocuments(scheme: Scheme): string[] {
   return docs;
 }
 
-// Generate application step guide
 export function getSchemeApplicationSteps(scheme: Scheme): { title: string; desc: string }[] {
   if (scheme.stepsToApply && scheme.stepsToApply.length > 0) {
     return scheme.stepsToApply.map((step, idx) => ({
@@ -103,7 +99,6 @@ export function getSchemeApplicationSteps(scheme: Scheme): { title: string; desc
   ];
 }
 
-// Estimate benefit amount in INR for calculation
 export function getEstimatedBenefit(scheme: Scheme): { amount: number; label: string } {
   if (scheme.estimatedBenefitAmount) {
     return {
@@ -112,30 +107,30 @@ export function getEstimatedBenefit(scheme: Scheme): { amount: number; label: st
     };
   }
 
-  const combined = `${scheme.title.toLowerCase()} ${scheme.description.toLowerCase()}`;
+  const text = `${scheme.title} ${scheme.description}`.toLowerCase();
 
-  if (combined.includes('ayushman') || combined.includes('health insurance') || combined.includes('swasthya bima')) {
+  if (text.includes('ayushman') || text.includes('health insurance') || text.includes('swasthya bima')) {
     return { amount: 500000, label: '₹5,00,000 / Year (Free Health Cover)' };
   }
-  if (combined.includes('kisan') || combined.includes('pm-kisan') || combined.includes('samman nidhi')) {
+  if (text.includes('kisan') || text.includes('pm-kisan') || text.includes('samman nidhi')) {
     return { amount: 6000, label: '₹6,000 / Year (Direct DBT)' };
   }
-  if (combined.includes('scholarship') || combined.includes('fellowship') || combined.includes('vidya') || combined.includes('pragati')) {
+  if (text.includes('scholarship') || text.includes('fellowship') || text.includes('vidya') || text.includes('pragati')) {
     return { amount: 25000, label: 'Up to ₹25,000 - ₹50,000 / Year' };
   }
-  if (combined.includes('pmegp') || combined.includes('mudra') || combined.includes('swanidhi') || combined.includes('business loan')) {
+  if (text.includes('pmegp') || text.includes('mudra') || text.includes('swanidhi') || text.includes('business loan')) {
     return { amount: 50000, label: 'Up to 35% Capital Subsidy' };
   }
-  if (combined.includes('awas') || combined.includes('housing') || combined.includes('pmay')) {
+  if (text.includes('awas') || text.includes('housing') || text.includes('pmay')) {
     return { amount: 120000, label: 'Up to ₹1,20,000 (Housing Subsidy)' };
   }
-  if (combined.includes('pension') || combined.includes('vaya vandana') || combined.includes('old age')) {
+  if (text.includes('pension') || text.includes('vaya vandana') || text.includes('old age')) {
     return { amount: 12000, label: '₹1,000 - ₹3,000 / Month Pension' };
   }
-  if (combined.includes('maternity') || combined.includes('matru') || combined.includes('janani')) {
+  if (text.includes('maternity') || text.includes('matru') || text.includes('janani')) {
     return { amount: 6000, label: '₹5,000 - ₹6,000 Maternity Aid' };
   }
-  if (combined.includes('ration') || combined.includes('anna yojana') || combined.includes('food security')) {
+  if (text.includes('ration') || text.includes('anna yojana') || text.includes('food security')) {
     return { amount: 8000, label: 'Free Monthly Food Grains' };
   }
 
