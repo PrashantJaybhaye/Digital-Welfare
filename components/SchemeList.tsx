@@ -2,13 +2,14 @@
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Scheme, formatCategoryName, getEstimatedBenefit } from '@/types/scheme';
+import { Scheme, formatCategoryName } from '@/types/scheme';
 import Link from 'next/link';
 import { 
-  ArrowRight, ExternalLink, Search, Bookmark, 
-  BookmarkCheck, Sparkles, Bell, Share2
+  ArrowRight, Search, Bookmark, 
+  Bell
 } from 'lucide-react';
 import SchemeAlertModal from '@/components/SchemeAlertModal';
+import SchemeCard from '@/components/SchemeCard';
 
 function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
   const searchParams = useSearchParams();
@@ -205,113 +206,16 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredSchemes.slice(0, visibleCount).map((scheme) => {
-              const isSaved = scheme.id ? savedIds.includes(scheme.id) : false;
-              const benefit = getEstimatedBenefit(scheme);
-
-              return (
-                <div 
-                  key={scheme.id} 
-                  className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs flex flex-col justify-between relative hover:border-slate-300 transition-all"
-                >
-                  <div>
-                    {/* Category Pill & Bookmark */}
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-200/60 line-clamp-1 max-w-[75%]">
-                        {formatCategoryName(scheme.category)}
-                      </span>
-
-                      <div className="flex items-center gap-1">
-                        {/* 1-Click WhatsApp Share */}
-                        <button
-                          onClick={(e) => handleShareWhatsApp(scheme, e)}
-                          className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-md hover:bg-emerald-50 transition-colors cursor-pointer"
-                          title="Share on WhatsApp"
-                        >
-                          <Share2 className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Bookmark */}
-                        {scheme.id && (
-                          <button
-                            onClick={(e) => toggleBookmark(scheme.id!, e)}
-                            className="p-1.5 text-slate-400 hover:text-amber-500 rounded-md hover:bg-slate-50 transition-colors cursor-pointer"
-                            title={isSaved ? "Remove from saved" : "Save scheme"}
-                          >
-                            {isSaved ? (
-                              <BookmarkCheck className="w-4 h-4 text-amber-500" />
-                            ) : (
-                              <Bookmark className="w-4 h-4 text-slate-400 hover:text-amber-500" />
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Title & Description */}
-                    <Link href={`/schemes/${scheme.id}`} className="block">
-                      <h3 className="text-base font-bold text-slate-950 mb-1.5 leading-snug hover:text-slate-700 transition-colors" title={scheme.title}>
-                        {scheme.title}
-                      </h3>
-                    </Link>
-
-                    <p className="text-slate-500 text-xs leading-relaxed line-clamp-2 mb-3" title={scheme.description}>
-                      {scheme.description}
-                    </p>
-
-                    {/* Financial Benefit Capsule */}
-                    <div className="mb-3 px-2.5 py-1.5 rounded-lg bg-[#7eed9e]/20 border border-[#7eed9e]/50 text-slate-950 text-xs font-bold flex items-center gap-1.5 w-fit max-w-full">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                      <span className="truncate">{benefit.label}</span>
-                    </div>
-
-                    {/* Key Highlights */}
-                    {scheme.benefits && scheme.benefits.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-1">
-                        {scheme.benefits.slice(0, 2).map((b, i) => (
-                          <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-50 text-slate-600 border border-slate-100">
-                            ✓ {b}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer Action Links */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-3">
-                    <Link 
-                      href={`/schemes/${scheme.id}`} 
-                      className="text-slate-950 font-bold text-xs hover:underline flex items-center gap-1"
-                    >
-                      View Details <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                    </Link>
-
-                    <div className="flex items-center gap-1.5">
-                      <Link
-                        href="/compare"
-                        className="text-xs text-slate-500 hover:text-slate-950 font-semibold px-2 py-1 rounded-md hover:bg-slate-50 transition-colors"
-                        title="Compare scheme"
-                      >
-                        Compare
-                      </Link>
-                      {scheme.applyLink && (
-                        <a 
-                          href={scheme.applyLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="p-1 text-slate-400 hover:text-slate-900 transition-colors rounded-md hover:bg-slate-50" 
-                          title="Official Government Portal"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4.5 lg:gap-5">
+            {filteredSchemes.slice(0, visibleCount).map((scheme) => (
+              <SchemeCard
+                key={scheme.id}
+                scheme={scheme}
+                isSaved={scheme.id ? savedIds.includes(scheme.id) : false}
+                onToggleBookmark={toggleBookmark}
+                onShareWhatsApp={handleShareWhatsApp}
+              />
+            ))}
           </div>
 
           {/* Load More Pagination Button */}
