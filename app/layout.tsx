@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/svg+xml" href="/logo.svg" />
         <link rel="apple-touch-icon" href="/logo.svg" />

@@ -17,7 +17,7 @@ function loadEnv() {
       if (multilineKey) {
         multilineVal.push(line);
         if (line.includes('-----END PRIVATE KEY-----') || line.endsWith('"')) {
-          process.env[multilineKey] = multilineVal.join('\n').replace(/^"/, '').replace(/"\s*$/, '').replace(/\\n/g, '\n');
+          process.env[multilineKey] = (multilineVal || []).join('\n').replace(/^"/, '').replace(/"\s*$/, '').replace(/\\n/g, '\n');
           multilineKey = null;
           multilineVal = [];
         }

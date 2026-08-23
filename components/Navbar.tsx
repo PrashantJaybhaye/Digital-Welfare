@@ -188,7 +188,7 @@ export default function Navbar() {
             <div className="pt-3 border-t border-slate-100 mt-2">
               {user ? (
                 <div className="flex justify-between items-center px-3 pt-1">
-                  <span className="text-xs text-slate-500 font-semibold truncate max-w-[180px]">{user.email}</span>
+                  <span className="text-xs text-slate-500 font-semibold truncate max-w-45">{user.email}</span>
                   <button 
                     onClick={handleLogout}
                     className="bg-slate-100 hover:bg-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 transition-colors"

@@ -45,9 +45,18 @@ export async function translateDevanagariToEnglish(text: string): Promise<string
 
     if (res.ok) {
       const data = await res.json();
-      const translatedRaw = Array.isArray(data?.[0]) 
-        ? data[0].map((item: unknown[]) => (Array.isArray(item) && item[0] ? String(item[0]) : '')).join('') 
-        : clean;
+      let translatedRaw = clean;
+      if (Array.isArray(data) && Array.isArray(data[0])) {
+        const parts: string[] = [];
+        for (const item of data[0]) {
+          if (Array.isArray(item) && item[0]) {
+            parts.push(String(item[0]));
+          }
+        }
+        if (parts.length > 0) {
+          translatedRaw = parts.join('');
+        }
+      }
       let translated = translatedRaw || clean;
 
       // Polish common terminology translations

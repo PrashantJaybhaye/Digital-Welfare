@@ -231,8 +231,8 @@ export default function EligibilityChecker() {
   };
 
   const handleShareWhatsApp = () => {
-    if (!results) return;
-    const top3 = results.eligible.slice(0, 4).map((s, i) => `${i + 1}. *${s.title}*`).join('\n');
+    if (!results || !results.eligible) return;
+    const top3 = (results.eligible || []).slice(0, 4).map((s, i) => `${i + 1}. *${s.title}*`).join('\n');
     const text = `🇮🇳 *My Welfare Schemes Report*\nI checked my eligibility on Digital Welfare Guide and found *${results.eligible.length} government schemes* available for me:\n\n${top3}\n\nCheck yours here: ${window.location.origin}/eligibility-check`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
   };
