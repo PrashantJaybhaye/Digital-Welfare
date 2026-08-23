@@ -4,18 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { 
   RefreshCw, LayoutDashboard, Settings, FileText, Users, 
   ServerCrash, Plus, Search, Trash2, ExternalLink, 
-  CheckCircle2, AlertCircle, ShieldAlert, Sparkles, 
-  Download, ArrowRight, Activity, Filter, Eye, EyeOff, Bell,
-  Lock, Key, LogOut, ShieldCheck
+  CheckCircle2, AlertCircle, Sparkles, 
+  Download, ArrowRight, Activity, Eye, EyeOff, Bell,
+  Key, LogOut, ShieldCheck
 } from 'lucide-react';
 import { db, auth } from '@/lib/firebase';
-import { 
-  signInWithEmailAndPassword, signOut, onAuthStateChanged, User 
-} from 'firebase/auth';
-import { 
-  collection, getDocs, doc, deleteDoc, addDoc, 
-  getCountFromServer, query, orderBy, limit 
-} from 'firebase/firestore';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { collection, getDocs, doc, deleteDoc, addDoc } from 'firebase/firestore';
 import { Scheme, formatCategoryName, getEstimatedBenefit } from '@/types/scheme';
 import Link from 'next/link';
 
@@ -50,10 +45,7 @@ export default function AdminDashboard() {
   // Admin Security & Authentication State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authMethod, setAuthMethod] = useState<'passcode' | 'email'>('passcode');
   const [passcode, setPasscode] = useState('');
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -107,22 +99,6 @@ export default function AdminDashboard() {
       }
       setAuthLoading(false);
     }, 400);
-  };
-
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError('');
-    setAuthLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-      setIsAuthenticated(true);
-      sessionStorage.setItem('welfare_admin_auth', 'true');
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Admin authentication failed.';
-      setAuthError(msg);
-    } finally {
-      setAuthLoading(false);
-    }
   };
 
   const handleAdminLogout = async () => {

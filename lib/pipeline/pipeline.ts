@@ -5,7 +5,6 @@ import { extractEligibilityRules } from './rule-extractor';
 import { extractRequiredDocuments } from './doc-extractor';
 import { extractBenefits } from './benefit-extractor';
 import { MAHARASHTRA_OFFICIAL_RAW_SCHEMES } from './mahadbt-catalog';
-import { CURATED_SCHEMES } from '../curated-schemes';
 import * as cheerio from 'cheerio';
 
 export interface PipelineStageMetric {
@@ -61,33 +60,9 @@ export class GovTechSchemePipeline {
     this.updateStage(0, 0, 'running', 'Fetching feeds from MahaDBT, MP-SIMS & Central Gazette...');
     const rawIngestedList: RawSchemeInput[] = [];
 
-    // 1. MahaDBT Official 15 Department Master Feed
-    this.log(`Ingesting ${MAHARASHTRA_OFFICIAL_RAW_SCHEMES.length} official Maharashtra departmental schemes (MahaDBT / MP-SIMS)...`);
+    // 1. Official State & National Master Feed
+    this.log(`Ingesting ${MAHARASHTRA_OFFICIAL_RAW_SCHEMES.length} official Maharashtra & National schemes (MahaDBT / MP-SIMS / Central)...`);
     rawIngestedList.push(...MAHARASHTRA_OFFICIAL_RAW_SCHEMES);
-
-    // 2. Verified Curated Flagship Schemes
-    this.log(`Ingesting ${CURATED_SCHEMES.length} curated Central and State programs...`);
-    for (const cur of CURATED_SCHEMES) {
-      rawIngestedList.push({
-        title: cur.title,
-        description: cur.description,
-        category: cur.category,
-        state: cur.state,
-        minAge: cur.minAge,
-        maxAge: cur.maxAge,
-        maxIncome: cur.maxIncome,
-        targetGender: cur.targetGender,
-        targetOccupation: cur.targetOccupation,
-        socialCategory: cur.socialCategory,
-        benefits: cur.benefits,
-        requiredDocuments: cur.requiredDocuments,
-        stepsToApply: cur.stepsToApply,
-        estimatedBenefitAmount: cur.estimatedBenefitAmount,
-        financialBenefitText: cur.financialBenefitText,
-        applyLink: cur.applyLink,
-        sourceType: 'Curated'
-      });
-    }
 
     // 3. Live Web Scraper (Central Govt Scheme Index)
     try {
