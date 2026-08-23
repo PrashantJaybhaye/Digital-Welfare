@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "WelfareGuide"
+  },
+  other: {
+    'strix-verification': 'strix-verify-5b1c30903681f51f2e7174b147339f72'
   }
 };
 
@@ -52,6 +55,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="strix-verification" content="strix-verify-5b1c30903681f51f2e7174b147339f72" />
       </head>
       <body className="min-h-screen flex flex-col relative overflow-x-hidden bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-900" suppressHydrationWarning>
         <Navbar />
