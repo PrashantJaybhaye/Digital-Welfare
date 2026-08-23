@@ -21,7 +21,13 @@ export default async function SchemeDetailsPage({ params }: { params: Promise<{ 
     );
   }
 
-  const scheme = { id: docSnap.id, ...docSnap.data() } as Scheme;
+  const data = docSnap.data();
+  const sanitized = JSON.parse(JSON.stringify(data));
+  const scheme = { 
+    id: docSnap.id, 
+    ...sanitized,
+    lastSyncedAt: sanitized.lastSyncedAt?.toString() || new Date().toISOString()
+  } as Scheme;
 
   return <SchemeDetailView scheme={scheme} />;
 }

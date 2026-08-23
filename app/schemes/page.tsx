@@ -11,10 +11,15 @@ export default async function SchemesPage() {
   let schemes: Scheme[] = [];
   try {
     const snapshot = await adminDb.collection('schemes').orderBy('title').get();
-    schemes = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Scheme[];
+    schemes = snapshot.docs.map(doc => {
+      const data = doc.data();
+      const sanitized = JSON.parse(JSON.stringify(data));
+      return {
+        id: doc.id,
+        ...sanitized,
+        lastSyncedAt: sanitized.lastSyncedAt?.toString() || new Date().toISOString()
+      };
+    }) as Scheme[];
   } catch (error) {
     console.error("Failed to fetch schemes from Firebase:", error);
     // If Firebase isn't fully configured yet, we will show an empty state gracefully.

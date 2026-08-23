@@ -128,9 +128,9 @@ export default function SchemeCard({
         </div>
 
         {/* Scheme Title */}
-        <Link href={`/schemes/${scheme.id}`} className="block focus:outline-none group/title">
+        <Link href={`/schemes/${scheme.id}`} className="block focus:outline-none">
           <h3 
-            className="text-[14.5px] sm:text-[15px] font-semibold text-slate-900 leading-snug tracking-tight mb-1 group-hover/title:text-blue-600 transition-colors line-clamp-2"
+            className="text-[14.5px] sm:text-[15px] font-semibold text-slate-900 leading-snug tracking-tight mb-1 hover:text-slate-700 transition-colors line-clamp-2"
             title={scheme.title}
           >
             {scheme.title}
