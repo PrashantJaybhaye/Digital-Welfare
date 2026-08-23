@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:seed": "npx tsx scripts/push-curated-schemes.ts",
+    "push:schemes": "npx tsx scripts/push-curated-schemes.ts"
   },
   "dependencies": {
     "cheerio": "^1.2.0",

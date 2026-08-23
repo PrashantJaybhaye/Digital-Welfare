@@ -159,6 +159,15 @@ d:/aayush/
 │   └── SchemeSkeleton.tsx              # Pulse skeleton card & grid loaders for CLS-free loading states
 │
 ├── lib/                                # Core Utility & SDK Libraries
+│   ├── pipeline/                       # 10-Stage GovTech Scheme Intelligence Pipeline
+│   │   ├── validator.ts                # Stage 4: Input validation & junk filtering
+│   │   ├── normalizer.ts               # Stage 5: Devanagari translation & category taxonomy
+│   │   ├── rule-extractor.ts           # Stage 6: Age, income, caste, gender & occupation extraction
+│   │   ├── doc-extractor.ts            # Stage 7: Smart required document generation
+│   │   ├── benefit-extractor.ts        # Stage 8: Financial valuation & badge synthesis
+│   │   ├── mahadbt-catalog.ts          # Official feeds for 15+ Maharashtra departments
+│   │   └── pipeline.ts                 # Master 10-Stage Pipeline Orchestrator
+│   ├── curated-schemes.ts              # Verified flagship state and central dataset
 │   ├── firebase.ts                     # Client-side Firebase App, Auth, Firestore & Storage initialization
 │   └── firebase-admin.ts               # Server-side privileged Firebase Admin SDK singleton
 │
@@ -325,11 +334,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `npm run build` | Compiles optimized production bundle and checks TypeScript types |
 | `npm run start` | Boots the production server |
 | `npm run lint` | Runs ESLint analysis across the codebase |
+| `npm run push:schemes` | Executes the 10-Stage GovTech Scheme Intelligence Pipeline and seeds Firestore |
+| `npm run db:seed` | Alias for `push:schemes` |
 
 ---
 
 ## 📚 Documentation Index
 
+- **[10-Stage Pipeline Architecture](file:///d:/aayush/PIPELINE_ARCHITECTURE.md)**: End-to-end technical specification of the automated GovTech Ingestion, Validation, Normalization, Rule Extraction, and Benefit Valuation Engine.
 - **[Project Synopsis & Technical Analysis](file:///d:/aayush/PROJECT_SYNOPSIS.md)**: In-depth academic & technical analysis, algorithmic formulations, and social problem statement.
 - **[Tools, Libraries & Tech Stack](file:///d:/aayush/TOOLS_AND_TECH_STACK.md)**: Exhaustive breakdown of every library, API, and architectural pattern used in this project.
 

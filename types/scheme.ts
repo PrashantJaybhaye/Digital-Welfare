@@ -9,7 +9,7 @@ export interface Scheme {
   maxIncome?: number | null;
   targetGender?: 'Male' | 'Female' | 'Any' | null;
   targetOccupation?: string | null;
-  socialCategory?: 'All' | 'SC/ST' | 'OBC' | 'General' | 'EWS' | 'Minority' | null;
+  socialCategory?: 'All' | 'SC/ST' | 'OBC' | 'VJNT' | 'SBC' | 'General' | 'EWS' | 'Minority' | null;
   benefits: string[];
   requiredDocuments?: string[];
   stepsToApply?: string[];
