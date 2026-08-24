@@ -14,7 +14,25 @@ export default function PWARegister() {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    const isDev = process.env.NODE_ENV !== 'production' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (isDev) {
+      // In development, unregister any existing service worker and clear caches to prevent Turbopack/RSC stream corruptions
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const reg of registrations) {
+          reg.unregister();
+        }
+      });
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          for (const key of keys) {
+            caches.delete(key);
+          }
+        });
+      }
+    } else if (window.location.protocol === 'https:') {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch((err) => {
           console.warn('PWA registration notice:', err);

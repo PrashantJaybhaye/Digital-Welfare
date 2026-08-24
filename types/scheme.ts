@@ -43,7 +43,7 @@ export function getSchemeDocuments(scheme: Scheme): string[] {
     'Recent Passport-Sized Photographs'
   ];
 
-  const text = `${scheme.title} ${scheme.description}`.toLowerCase();
+  const text = `${scheme?.title || ''} ${scheme?.description || ''}`.toLowerCase();
 
   if (text.includes('farmer') || text.includes('krishi') || text.includes('kisan') || text.includes('agriculture')) {
     docs.push('Land Ownership Record (7/12 extract / RoR) or Kisan Credit Card');
@@ -107,7 +107,7 @@ export function getEstimatedBenefit(scheme: Scheme): { amount: number; label: st
     };
   }
 
-  const text = `${scheme.title} ${scheme.description}`.toLowerCase();
+  const text = `${scheme?.title || ''} ${scheme?.description || ''}`.toLowerCase();
 
   if (text.includes('ayushman') || text.includes('health insurance') || text.includes('swasthya bima')) {
     return { amount: 500000, label: '₹5,00,000 / Year (Free Health Cover)' };
