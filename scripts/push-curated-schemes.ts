@@ -1,69 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
 import { GovTechSchemePipeline } from '../lib/pipeline/pipeline';
+import { generateSlug } from '../types/scheme';
 
-function loadEnv() {
-  const envPath = path.resolve(process.cwd(), '.env.local');
-  if (fs.existsSync(envPath)) {
-    const envContent = fs.readFileSync(envPath, 'utf8');
-    const lines = envContent.split('\n');
-    let multilineKey: string | null = null;
-    let multilineVal: string[] = [];
-
-    for (const line of lines) {
-      if (multilineKey) {
-        multilineVal.push(line);
-        if (line.includes('-----END PRIVATE KEY-----') || line.endsWith('"')) {
-          process.env[multilineKey] = (multilineVal || []).join('\n').replace(/^"/, '').replace(/"\s*$/, '').replace(/\\n/g, '\n');
-          multilineKey = null;
-          multilineVal = [];
-        }
-        continue;
-      }
-
-      const match = line.match(/^([^=]+)=(.*)$/);
-      if (match) {
-        const key = match[1].trim();
-        const rawValue = match[2].trim();
-
-        if (rawValue.startsWith('"') && !rawValue.endsWith('"')) {
-          multilineKey = key;
-          multilineVal = [rawValue];
-        } else {
-          process.env[key] = rawValue.replace(/^"(.*)"$/, '$1').replace(/\\n/g, '\n');
-        }
-      }
-    }
-  }
+try {
+  process.loadEnvFile('.env.local');
+} catch {
+  // Continue if .env.local does not exist or env vars already loaded
 }
-
-loadEnv();
-
-const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-if (!projectId || !clientEmail || !privateKey) {
-  console.error('Missing Firebase Admin credentials in .env.local');
-  process.exit(1);
-}
-
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-  });
-}
-
-const db = getFirestore();
 
 async function runPipelineAndPush() {
-  console.log(`Starting scheme sync for project: ${projectId}`);
+  const { adminDb: db } = await import('../lib/firebase-admin');
+
+  console.log('Starting automated GovTech scheme sync...');
 
   const pipeline = new GovTechSchemePipeline();
   const result = await pipeline.runPipeline();
@@ -82,11 +29,7 @@ async function runPipelineAndPush() {
     const batch = db.batch();
 
     chunk.forEach((scheme) => {
-      const docId = scheme.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '')
-        .substring(0, 100);
+      const docId = generateSlug(scheme.title);
 
       if (docId) {
         const docRef = schemesRef.doc(docId);

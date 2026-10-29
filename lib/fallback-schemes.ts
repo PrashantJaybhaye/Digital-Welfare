@@ -1,16 +1,8 @@
-import { Scheme } from '@/types/scheme';
+import { Scheme, generateSlug } from '@/types/scheme';
 import { MAHARASHTRA_OFFICIAL_RAW_SCHEMES } from './pipeline/mahadbt-catalog';
 import { extractEligibilityRules } from './pipeline/rule-extractor';
 import { extractRequiredDocuments } from './pipeline/doc-extractor';
 import { extractBenefits } from './pipeline/benefit-extractor';
-
-function generateSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '')
-    .substring(0, 100);
-}
 
 export const FALLBACK_SCHEMES: Scheme[] = MAHARASHTRA_OFFICIAL_RAW_SCHEMES.map((raw, idx) => {
   const rules = extractEligibilityRules(raw);

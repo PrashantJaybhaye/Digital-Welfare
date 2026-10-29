@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import { Scheme, formatCategoryName, getEstimatedBenefit, getSchemeDocuments } from '@/types/scheme';
 import Link from 'next/link';
 import { 
@@ -16,16 +14,19 @@ export default function CompareSchemesPage() {
   const [allSchemes, setAllSchemes] = useState<Scheme[]>([]);
   const [selectedSchemeIds, setSelectedSchemeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [printDate, setPrintDate] = useState('');
 
   useEffect(() => {
     async function loadSchemes() {
       try {
         let list: Scheme[] = [];
         try {
-          const snap = await getDocs(collection(db, 'schemes'));
-          list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Scheme[];
-        } catch (err) {
-          console.warn('Firestore fetch notice (using fallback schemes):', err);
+          const res = await fetch('/api/schemes');
+          if (res.ok) {
+            const data = await res.json();
+            list = data.schemes || [];
+          }
+        } catch {
           list = getFallbackSchemes();
         }
 
@@ -82,6 +83,7 @@ export default function CompareSchemesPage() {
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
+      setPrintDate(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }));
       window.print();
     }
   };
@@ -425,10 +427,10 @@ export default function CompareSchemesPage() {
                 </div>
                 <div className="text-right text-[9.5px]">
                   <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[9px] font-bold">
-                    REF: DW-COMP/{Date.now().toString().slice(-6)}
+                    REF: DW-COMP/{selectedSchemeIds.map(id => id.slice(0, 3).toUpperCase()).join('-') || 'ANALYSIS'}
                   </span>
                   <p className="text-[9.5px] text-slate-500 mt-0.5">
-                    Date: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    Date: {printDate || 'Live'}
                   </p>
                   <p className="text-[8.5px] font-bold text-emerald-800 uppercase">
                     ● Status: Comparative Audit
@@ -509,7 +511,7 @@ export default function CompareSchemesPage() {
             </div>
 
             <div className="border-t border-slate-300 pt-2 flex justify-between items-center text-[9px] text-slate-500 font-medium">
-              <span>National Welfare Comparative Analysis • Ref: DW-COMP/{Date.now().toString().slice(-6)}</span>
+              <span>National Welfare Comparative Analysis • Ref: DW-COMP/{selectedSchemeIds.map(id => id.slice(0, 3).toUpperCase()).join('-') || 'ANALYSIS'}</span>
               <span className="font-bold text-slate-900">Page 1 of 2 • (See Page 2 for Document Matrix & Facilitation Seal)</span>
             </div>
           </div>

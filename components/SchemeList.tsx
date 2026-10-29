@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Scheme, formatCategoryName } from '@/types/scheme';
 import { ArrowRight, Search, Bookmark, Bell } from 'lucide-react';
@@ -14,33 +14,39 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [selectedTag, setSelectedTag] = useState<string>('All');
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [savedIds, setSavedIds] = useState<string[]>([]);
-  const [visibleCount, setVisibleCount] = useState(12);
-
-  useEffect(() => {
-    const q = searchParams.get('search');
-    if (q !== null) setSearchTerm(q);
-    const cat = searchParams.get('category');
-    if (cat !== null) setSelectedCategory(cat);
-  }, [searchParams]);
-
-  useEffect(() => {
-    setVisibleCount(12);
-  }, [searchTerm, selectedCategory, selectedTag, showOnlySaved]);
-
-  useEffect(() => {
+  const [savedIds, setSavedIds] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem('saved_schemes');
-      if (stored) {
-        setSavedIds(JSON.parse(stored));
-      }
+      return stored ? JSON.parse(stored) : [];
     } catch {
-      // Ignore storage read errors
+      return [];
     }
-  }, []);
+  });
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  const [prevParams, setPrevParams] = useState({ search: initialSearch, category: initialCategory });
+  const currentSearch = searchParams.get('search') || '';
+  const currentCategory = searchParams.get('category') || 'All';
+
+  if (prevParams.search !== currentSearch || prevParams.category !== currentCategory) {
+    setPrevParams({ search: currentSearch, category: currentCategory });
+    setSearchTerm(currentSearch);
+    setSelectedCategory(currentCategory);
+    setVisibleCount(12);
+  }
+
+  const [prevFilter, setPrevFilter] = useState({ searchTerm, selectedCategory, showOnlySaved });
+  if (
+    prevFilter.searchTerm !== searchTerm ||
+    prevFilter.selectedCategory !== selectedCategory ||
+    prevFilter.showOnlySaved !== showOnlySaved
+  ) {
+    setPrevFilter({ searchTerm, selectedCategory, showOnlySaved });
+    setVisibleCount(12);
+  }
 
   const toggleBookmark = (schemeId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -87,12 +93,11 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
                               formattedCat === selectedCategory ||
                               (scheme.category || '').toLowerCase().includes(selectedCategory.toLowerCase());
       
-      const matchesTag = selectedTag === 'All' || (scheme.tags && scheme.tags.includes(selectedTag));
       const matchesSaved = !showOnlySaved || (scheme.id ? savedIds.includes(scheme.id) : false);
 
-      return matchesSearch && matchesCategory && matchesTag && matchesSaved;
+      return matchesSearch && matchesCategory && matchesSaved;
     });
-  }, [initialSchemes, searchTerm, selectedCategory, selectedTag, showOnlySaved, savedIds]);
+  }, [initialSchemes, searchTerm, selectedCategory, showOnlySaved, savedIds]);
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -181,7 +186,7 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
           <h3 className="text-base font-bold text-slate-900 mb-1">No schemes found</h3>
           <p className="text-slate-500 text-xs max-w-sm mx-auto">Try adjusting your search query or reset your selected filters.</p>
           <button 
-            onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setSelectedTag('All'); setShowOnlySaved(false); }}
+            onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setShowOnlySaved(false); }}
             className="mt-5 px-4 py-2 rounded-xl bg-slate-950 text-white font-bold text-xs hover:bg-slate-800 transition-all cursor-pointer shadow-2xs"
           >
             Clear all filters

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Scheme, formatCategoryName, getSchemeDocuments, getSchemeApplicationSteps, getEstimatedBenefit } from '@/types/scheme';
 import Link from 'next/link';
 import {
@@ -16,34 +16,21 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
   const benefit = getEstimatedBenefit(scheme);
 
   const [checkedDocs, setCheckedDocs] = useState<Record<number, boolean>>({});
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || !scheme.id) return false;
+    try {
+      const saved: string[] = JSON.parse(localStorage.getItem('saved_schemes') || '[]');
+      return saved.includes(scheme.id);
+    } catch {
+      return false;
+    }
+  });
   const [copied, setCopied] = useState(false);
-  const [formattedDate, setFormattedDate] = useState<string>('Recently verified');
   const [printDate, setPrintDate] = useState<string>('');
 
-  useEffect(() => {
-    setPrintDate(new Date().toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }));
-
-    if (scheme.id) {
-      try {
-        const saved: string[] = JSON.parse(localStorage.getItem('saved_schemes') || '[]');
-        setIsBookmarked(saved.includes(scheme.id));
-      } catch {
-        // Ignore local storage error
-      }
-    }
-    if (scheme.lastSyncedAt) {
-      try {
-        setFormattedDate(new Date(scheme.lastSyncedAt).toLocaleDateString('en-IN'));
-      } catch {
-        // Ignore date parse error
-      }
-    }
-  }, [scheme.id, scheme.lastSyncedAt]);
+  const formattedDate = scheme.lastSyncedAt
+    ? new Date(scheme.lastSyncedAt).toLocaleDateString('en-IN')
+    : 'Recently verified';
 
   const toggleDoc = (idx: number) => {
     setCheckedDocs(prev => ({ ...prev, [idx]: !prev[idx] }));
@@ -84,6 +71,11 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
+      setPrintDate(new Date().toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }));
       window.print();
     }
   };

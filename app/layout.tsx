@@ -3,9 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from '@/components/Navbar';
 import PWARegister from '@/components/PWARegister';
-import Link from 'next/link';
-import { ShieldCheck, ArrowUpRight } from 'lucide-react';
-import Logo from '@/components/Logo';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

@@ -33,10 +33,6 @@ export default function Navbar() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
   const handleLogout = async () => {
     try {
       await signOut(auth);

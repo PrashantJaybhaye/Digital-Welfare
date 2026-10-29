@@ -5,8 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowRight, Search, ShieldCheck, HeartPulse, GraduationCap,
-  Sprout, Building, Users,
+  ArrowRight, Search,
   ChevronDown, Star
 } from 'lucide-react';
 
@@ -14,15 +13,6 @@ export default function Home() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
-  const categories = [
-    { name: 'Agriculture & Farmers', count: '24 Schemes', icon: Sprout, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { name: 'Health & Wellness', count: '18 Schemes', icon: HeartPulse, color: 'text-rose-600', bg: 'bg-rose-50' },
-    { name: 'Education & Skills', count: '32 Schemes', icon: GraduationCap, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { name: 'Women & Children', count: '20 Schemes', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { name: 'Housing & Shelter', count: '12 Schemes', icon: Building, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { name: 'Social Security', count: '15 Schemes', icon: ShieldCheck, color: 'text-slate-700', bg: 'bg-slate-100' },
-  ];
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -495,7 +485,7 @@ export default function Home() {
                 />
               </svg>
             </span> steps. <br />
-            Let's get in touch!
+            Let&apos;s get in touch!
           </h2>
 
           <p className="text-sm sm:text-base text-slate-500 mb-8 leading-relaxed font-normal max-w-md mx-auto">

@@ -9,8 +9,6 @@ import {
 import { Scheme, formatCategoryName, getEstimatedBenefit, getSchemeDocuments } from '@/types/scheme';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import { getFallbackSchemes } from '@/lib/fallback-schemes';
 
 const INDIAN_STATES = [
@@ -24,10 +22,10 @@ const INDIAN_STATES = [
 
 export default function EligibilityChecker() {
   const [loading, setLoading] = useState(false);
+  const [printMeta, setPrintMeta] = useState({ refSuffix: '109283', printDate: '' });
   const [results, setResults] = useState<{ 
     eligible: Scheme[]; 
     notEligible: Scheme[];
-    totalEstimatedBenefit: number;
     estimatedBenefitLabel: string;
     hasHealthInsuranceCover: boolean;
   } | null>(null);
@@ -39,9 +37,6 @@ export default function EligibilityChecker() {
     occupation: '',
     state: 'All India',
     socialCategory: 'All',
-    isStudent: false,
-    isFarmer: false,
-    hasDisability: false,
   });
 
   const handleIncomeQuickSelect = (amount: number) => {
@@ -55,13 +50,12 @@ export default function EligibilityChecker() {
     try {
       let allSchemes: Scheme[] = [];
       try {
-        const snapshot = await getDocs(collection(db, 'schemes'));
-        allSchemes = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Scheme[];
-      } catch (err) {
-        console.warn("Firestore fetch notice (using fallback schemes):", err);
+        const res = await fetch('/api/schemes');
+        if (res.ok) {
+          const data = await res.json();
+          allSchemes = data.schemes || [];
+        }
+      } catch {
         allSchemes = getFallbackSchemes();
       }
 
@@ -198,7 +192,7 @@ export default function EligibilityChecker() {
       const eligible = matchedList.map(item => item.scheme);
 
       let benefitLabel = 'Direct Welfare Aid';
-      let healthCover = userIncome <= 300000;
+      const healthCover = userIncome <= 300000;
 
       if (userOccupation === 'student') {
         benefitLabel = '₹25,000 - ₹50,000 / Year';
@@ -215,10 +209,14 @@ export default function EligibilityChecker() {
         benefitLabel = topBenefit.label;
       }
 
+      setPrintMeta({
+        refSuffix: Math.floor(100000 + Math.random() * 900000).toString(),
+        printDate: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+      });
+
       setResults({ 
         eligible, 
         notEligible, 
-        totalEstimatedBenefit: 0,
         estimatedBenefitLabel: benefitLabel,
         hasHealthInsuranceCover: healthCover
       });
@@ -239,6 +237,10 @@ export default function EligibilityChecker() {
   };
 
   const handlePrint = () => {
+    setPrintMeta(prev => ({
+      ...prev,
+      printDate: prev.printDate || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    }));
     window.print();
   };
 
@@ -582,10 +584,10 @@ export default function EligibilityChecker() {
                 </div>
                 <div className="text-right text-[9.5px]">
                   <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-300 font-mono text-[9px] font-bold">
-                    REF: DWG/{formData.age || '0'}{formData.gender?.[0] || 'X'}-{Date.now().toString().slice(-6)}
+                    REF: DWG/{formData.age || '0'}{formData.gender?.[0] || 'X'}-{printMeta.refSuffix}
                   </span>
                   <p className="text-[9.5px] text-slate-500 mt-0.5">
-                    Date: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    Date: {printMeta.printDate || 'Live'}
                   </p>
                   <p className="text-[8.5px] font-bold text-emerald-800 uppercase">
                     ● Status: Scanned & Qualified
@@ -695,7 +697,7 @@ export default function EligibilityChecker() {
             </div>
 
             <div className="border-t border-slate-300 pt-2 flex justify-between items-center text-[9px] text-slate-500 font-medium">
-              <span>National Welfare Facilitation Record • Ref: DWG/{formData.age || '0'}-{Date.now().toString().slice(-6)}</span>
+              <span>National Welfare Facilitation Record • Ref: DWG/{formData.age || '0'}-{printMeta.refSuffix}</span>
               <span className="font-bold text-slate-900">Page 1 of 2 • (See Page 2 for Additional Schemes & Application Steps)</span>
             </div>
           </div>

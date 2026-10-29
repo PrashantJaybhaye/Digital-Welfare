@@ -1,11 +1,10 @@
-import { Scheme } from '@/types/scheme';
+import { Scheme, generateSlug } from '@/types/scheme';
 import { RawSchemeInput, validateRawScheme } from './validator';
 import { normalizeRawScheme } from './normalizer';
 import { extractEligibilityRules } from './rule-extractor';
 import { extractRequiredDocuments } from './doc-extractor';
 import { extractBenefits } from './benefit-extractor';
 import { MAHARASHTRA_OFFICIAL_RAW_SCHEMES } from './mahadbt-catalog';
-import * as cheerio from 'cheerio';
 
 export interface PipelineStageMetric {
   stage: string;
@@ -69,28 +68,35 @@ export class GovTechSchemePipeline {
 
       if (wikiRes.ok) {
         const html = await wikiRes.text();
-        const $ = cheerio.load(html);
         let liveCount = 0;
 
-        $('.wikitable tr').each((i, row) => {
-          const cells = $(row).find('th, td');
-          if (i === 0 || cells.length < 3) return;
+        const tableMatch = html.match(/<table[^>]*class="[^"]*wikitable[^"]*"[^>]*>([\s\S]*?)<\/table>/i);
+        if (tableMatch) {
+          const rowMatches = tableMatch[1].matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi);
+          let rowIndex = 0;
+          for (const row of rowMatches) {
+            if (rowIndex++ === 0) continue;
+            const cells = [...row[1].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)]
+              .map(c => c[1].replace(/<[^>]*>/g, '').replace(/\[\d+\]/g, '').trim());
 
-          const rawTitle = $(cells[0]).text().replace(/\[\d+\]/g, '').trim();
-          const rawCategory = $(cells[1]).text().replace(/\[\d+\]/g, '').trim() || 'Central Sector Scheme';
-          const rawDesc = $(cells[cells.length - 1]).text().replace(/\[\d+\]/g, '').trim();
+            if (cells.length >= 3) {
+              const rawTitle = cells[0];
+              const rawCategory = cells[1] || 'Central Sector Scheme';
+              const rawDesc = cells[cells.length - 1];
 
-          if (rawTitle && rawTitle.length > 3 && rawDesc && rawDesc.length > 5) {
-            rawIngestedList.push({
-              title: rawTitle,
-              description: rawDesc,
-              category: rawCategory,
-              state: 'All India',
-              sourceType: 'Central-Portal'
-            });
-            liveCount++;
+              if (rawTitle && rawTitle.length > 3 && rawDesc && rawDesc.length > 5) {
+                rawIngestedList.push({
+                  title: rawTitle,
+                  description: rawDesc,
+                  category: rawCategory,
+                  state: 'All India',
+                  sourceType: 'Central-Portal'
+                });
+                liveCount++;
+              }
+            }
           }
-        });
+        }
         this.log(`Live crawl harvested ${liveCount} central records.`);
       }
     } catch (crawlerErr) {
@@ -170,11 +176,7 @@ export class GovTechSchemePipeline {
         lastSyncedAt: now
       };
 
-      const slug = synthesizedScheme.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '')
-        .substring(0, 100);
+      const slug = generateSlug(synthesizedScheme.title);
 
       if (slug && !finalSchemesMap.has(slug)) {
         finalSchemesMap.set(slug, synthesizedScheme);

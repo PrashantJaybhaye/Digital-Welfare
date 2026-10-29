@@ -43,7 +43,14 @@ export default function AdminDashboard() {
   const [pipelineLogs, setPipelineLogs] = useState<string[]>([]);
   
   // Admin Security & Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('welfare_admin_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState('');
@@ -62,15 +69,6 @@ export default function AdminDashboard() {
 
   // Check existing session on load
   useEffect(() => {
-    try {
-      const savedSession = sessionStorage.getItem('welfare_admin_auth');
-      if (savedSession === 'true') {
-        setIsAuthenticated(true);
-      }
-    } catch {
-      // Graceful fallback
-    }
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsAuthenticated(true);
@@ -163,9 +161,34 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    fetchSchemes();
-    fetchSubscribers();
-  }, [fetchSchemes, fetchSubscribers]);
+    let ignore = false;
+    const init = async () => {
+      try {
+        const [schemesSnap, subsSnap] = await Promise.all([
+          getDocs(collection(db, 'schemes')).catch(() => null),
+          getDocs(collection(db, 'scheme_subscribers')).catch(() => null)
+        ]);
+        if (!ignore) {
+          if (schemesSnap) {
+            setSchemes(schemesSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Scheme[]);
+          }
+          if (subsSnap) {
+            setSubscribers(subsSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Subscriber[]);
+          }
+          setLoadingSchemes(false);
+          setLoadingSubscribers(false);
+        }
+      } catch (err) {
+        console.error("Error loading admin data:", err);
+        if (!ignore) {
+          setLoadingSchemes(false);
+          setLoadingSubscribers(false);
+        }
+      }
+    };
+    init();
+    return () => { ignore = true; };
+  }, []);
 
   // Sync Live Schemes
   const handleSync = async () => {
@@ -262,7 +285,7 @@ export default function AdminDashboard() {
 
     setSavingScheme(true);
     try {
-      const docRef = await addDoc(collection(db, 'schemes'), {
+      await addDoc(collection(db, 'schemes'), {
         ...newScheme,
         lastSyncedAt: new Date().toISOString()
       });
@@ -690,7 +713,7 @@ export default function AdminDashboard() {
               {loadingSchemes ? (
                 <div className="py-8 text-center text-xs text-slate-400">Loading catalog...</div>
               ) : schemes.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-400">No schemes found. Click "Sync Live Portals".</div>
+                <div className="py-8 text-center text-xs text-slate-400">No schemes found. Click &quot;Sync Live Portals&quot;.</div>
               ) : (
                 <div className="space-y-2">
                   {schemes.slice(0, 5).map(scheme => {
@@ -1213,7 +1236,12 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2">
-              {[
+              {(pipelineStages.length > 0 ? pipelineStages.map((ps) => ({
+                stage: ps.stage,
+                desc: ps.details || 'Automated GovTech sync stage',
+                count: `${ps.count} records`,
+                status: ps.status.toUpperCase()
+              })) : [
                 { stage: '1. Official Portals', desc: 'MahaDBT, MP-SIMS, Central Gazette', count: '3 Portals', status: 'ACTIVE' },
                 { stage: '2. Raw Ingestion', desc: 'Continuous JSON & Table Harvester', count: '167 Schemes', status: 'SYNCHRONIZED' },
                 { stage: '3. Validation', desc: 'Discard generic/malformed headlines', count: '100% Verified', status: 'CLEANED' },
@@ -1222,7 +1250,7 @@ export default function AdminDashboard() {
                 { stage: '6. Doc Generation', desc: '7/12, caste validity, proofs checklist', count: 'Auto-Checklist', status: 'ATTACHED' },
                 { stage: '7. Benefit Valuation', desc: 'Direct DBT, fee waivers, hospital cover', count: 'Valuated', status: 'CALCULATED' },
                 { stage: '8. Firestore Sync', desc: 'Indexed batch writes & live search', count: `${schemes.length} Stored`, status: 'DEPLOYED' }
-              ].map((s, idx) => (
+              ]).map((s, idx) => (
                 <div key={idx} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-center mb-1">

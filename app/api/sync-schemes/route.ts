@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
 import { GovTechSchemePipeline } from '@/lib/pipeline/pipeline';
+import { generateSlug } from '@/types/scheme';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -30,11 +31,7 @@ export async function POST() {
     for (const chunk of chunks) {
       const batch = adminDb.batch();
       chunk.forEach((scheme) => {
-        const docId = scheme.title
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)+/g, '')
-          .substring(0, 100);
+        const docId = generateSlug(scheme.title);
 
         if (docId) {
           const docRef = schemesRef.doc(docId);
