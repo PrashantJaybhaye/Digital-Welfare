@@ -80,7 +80,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Farmer',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in/Farmer',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/Farmer',
     sourceUrl: 'https://mpsims.maharashtra.gov.in/MPSIMSWEB/schemePublicList',
     sourceType: 'MP-SIMS'
   },
@@ -112,7 +112,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Farmer',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in/Farmer',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/Farmer',
     sourceUrl: 'https://mpsims.maharashtra.gov.in/MPSIMSWEB/schemePublicList',
     sourceType: 'MP-SIMS'
   },
@@ -144,8 +144,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Farmer',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in/Farmer',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/Farmer',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -160,7 +160,7 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Farmer',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in/Farmer',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/Farmer',
     sourceUrl: 'https://mpsims.maharashtra.gov.in/MPSIMSWEB/schemePublicList',
     sourceType: 'MP-SIMS'
   },
@@ -176,8 +176,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Farmer',
     socialCategory: 'SC/ST',
-    applyLink: 'https://mahadbt.maharashtra.gov.in/Farmer',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/Farmer',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -192,8 +192,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Farmer',
     socialCategory: 'SC/ST',
-    applyLink: 'https://mahadbt.maharashtra.gov.in/Farmer',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/Farmer',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -226,8 +226,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'EWS',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -242,8 +242,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -258,8 +258,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -274,8 +274,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -290,8 +290,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'All',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
 
@@ -308,8 +308,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'SC/ST',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -324,8 +324,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'SC/ST',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -390,8 +390,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'SC/ST',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -440,8 +440,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'OBC',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -456,8 +456,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'Student',
     socialCategory: 'OBC',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -472,8 +472,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Female',
     targetOccupation: 'Student',
     socialCategory: 'OBC',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
   {
@@ -488,8 +488,8 @@ export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
     targetGender: 'Any',
     targetOccupation: 'All Citizens',
     socialCategory: 'OBC',
-    applyLink: 'https://mahadbt.maharashtra.gov.in',
-    sourceUrl: 'https://mahadbt.maharashtra.gov.in',
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    sourceUrl: 'https://mahadbt2.maharashtra.gov.in/home',
     sourceType: 'MahaDBT'
   },
 

@@ -31,3 +31,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    const snap = await adminDb.collection('scheme_subscribers').orderBy('subscribedAt', 'desc').get();
+    const subscribers = snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    return NextResponse.json({ success: true, subscribers });
+  } catch (err: unknown) {
+    console.error('Fetch subscribers error:', err);
+    return NextResponse.json({ success: true, subscribers: [] });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { id } = await req.json();
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Subscriber ID is required' }, { status: 400 });
+    }
+    await adminDb.collection('scheme_subscribers').doc(id).delete();
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err.message : 'Failed to delete subscriber';
+    return NextResponse.json({ success: false, error }, { status: 500 });
+  }
+}

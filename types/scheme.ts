@@ -24,6 +24,13 @@ export const CATEGORY_MAP: Record<string, string> = {
   'CS': 'Central Sector Scheme',
   'CSS': 'Centrally Sponsored Scheme',
   'CCP': 'Climate Change Programme',
+  'DHE': 'Higher Education',
+  'DTE': 'Technical Education',
+  'DMER': 'Medical Education',
+  'SJSA': 'Social Justice & Special Assistance',
+  'TDD': 'Tribal Development',
+  'OBC': 'OBC & VJNT Welfare',
+  'VJNT': 'OBC & VJNT Welfare',
   '—': 'General',
 };
 
@@ -75,3 +82,19 @@ export function getEstimatedBenefit(scheme: Scheme): { amount: number; label: st
   }
   return { amount: 5000, label: 'Direct Public Welfare Support' };
 }
+
+export const DEFAULT_APPLICATION_STEPS = [
+  'Gather Aadhaar, Domicile, and relevant eligibility documents',
+  'Register on the official portal and verify via Aadhaar OTP',
+  'Fill out personal, bank, and income details and submit form',
+  'Track your Application Reference Number (ARN) for Direct DBT approval'
+];
+
+export const INDIAN_STATES = [
+  'All India', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+  'Delhi', 'Jammu & Kashmir', 'Ladakh', 'Puducherry', 'Chandigarh'
+];

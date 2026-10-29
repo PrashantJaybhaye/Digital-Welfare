@@ -3,6 +3,7 @@
 import { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Scheme, formatCategoryName } from '@/types/scheme';
+import { useSavedSchemes, toggleSavedScheme } from '@/lib/client-store';
 import { ArrowRight, Search, Bookmark, Bell } from 'lucide-react';
 import SchemeAlertModal from '@/components/SchemeAlertModal';
 import SchemeCard from '@/components/SchemeCard';
@@ -16,15 +17,7 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [showOnlySaved, setShowOnlySaved] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [savedIds, setSavedIds] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem('saved_schemes');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const savedIds = useSavedSchemes();
   const [visibleCount, setVisibleCount] = useState(12);
 
   const [prevParams, setPrevParams] = useState({ search: initialSearch, category: initialCategory });
@@ -51,16 +44,7 @@ function SchemeListContent({ initialSchemes }: { initialSchemes: Scheme[] }) {
   const toggleBookmark = (schemeId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (typeof window === 'undefined') return;
-
-    let updated: string[];
-    if (savedIds.includes(schemeId)) {
-      updated = savedIds.filter(id => id !== schemeId);
-    } else {
-      updated = [...savedIds, schemeId];
-    }
-    setSavedIds(updated);
-    localStorage.setItem('saved_schemes', JSON.stringify(updated));
+    toggleSavedScheme(schemeId);
   };
 
   const handleShareWhatsApp = (scheme: Scheme, e: React.MouseEvent) => {

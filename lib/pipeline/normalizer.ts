@@ -14,6 +14,11 @@ const CATEGORY_NORMALIZATION_MAP: Record<string, string> = {
   'AGRI': 'Agriculture & Krishi (MahaDBT / MP-SIMS)',
   'FARMER': 'Agriculture & Krishi (MahaDBT / MP-SIMS)',
   'KRISHI': 'Agriculture & Krishi (MahaDBT / MP-SIMS)',
+  'COLLEGE STUDENT': 'MahaDBT (College Student)',
+  'SCHOOL STUDENT': 'MahaDBT (School Student)',
+  'PENSIONER': 'MahaDBT (Pensioner & Special Assistance)',
+  'DIVYANG': 'MahaDBT (Divyang Welfare)',
+  'WOMEN EMPOWERMENT': 'MahaDBT (Women, Labour & Other Welfare)',
   'WOMEN': 'Women & Child Welfare',
   'HEALTH': 'Health & Medical Welfare',
   'HOUSING': 'Housing & Gharkul',
@@ -113,8 +118,20 @@ export async function normalizeRawScheme(scheme: RawSchemeInput): Promise<RawSch
   }
 
   let applyLink = scheme.applyLink?.trim() || null;
+  if (applyLink) {
+    applyLink = applyLink
+      .replace('mahadbtmahait.gov.in', 'mahadbt2.maharashtra.gov.in')
+      .replace('mahadbt.maharashtra.gov.in', 'mahadbt2.maharashtra.gov.in');
+  }
   if (!applyLink) {
     applyLink = `https://www.google.com/search?q=${encodeURIComponent(title + " official portal apply")}`;
+  }
+
+  let sourceUrl = scheme.sourceUrl?.trim() || null;
+  if (sourceUrl) {
+    sourceUrl = sourceUrl
+      .replace('mahadbtmahait.gov.in', 'mahadbt2.maharashtra.gov.in')
+      .replace('mahadbt.maharashtra.gov.in', 'mahadbt2.maharashtra.gov.in');
   }
 
   return {
@@ -123,6 +140,7 @@ export async function normalizeRawScheme(scheme: RawSchemeInput): Promise<RawSch
     description,
     state,
     category: normalizeCategory(scheme.category),
-    applyLink
+    applyLink,
+    sourceUrl
   };
 }

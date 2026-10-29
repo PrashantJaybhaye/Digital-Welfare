@@ -1,4 +1,4 @@
-import { Scheme, generateSlug } from '@/types/scheme';
+import { Scheme, generateSlug, DEFAULT_APPLICATION_STEPS } from '@/types/scheme';
 import { MAHARASHTRA_OFFICIAL_RAW_SCHEMES } from './pipeline/mahadbt-catalog';
 import { extractEligibilityRules } from './pipeline/rule-extractor';
 import { extractRequiredDocuments } from './pipeline/doc-extractor';
@@ -24,14 +24,7 @@ export const FALLBACK_SCHEMES: Scheme[] = MAHARASHTRA_OFFICIAL_RAW_SCHEMES.map((
     socialCategory: rules.socialCategory,
     benefits: benefitData.benefits,
     requiredDocuments,
-    stepsToApply: raw.stepsToApply?.length
-      ? raw.stepsToApply
-      : [
-          'Gather Aadhaar, Domicile, and relevant eligibility documents',
-          'Register on the official portal and verify via Aadhaar OTP',
-          'Fill out personal, bank, and income details and submit form',
-          'Track your Application Reference Number (ARN) for Direct DBT approval'
-        ],
+    stepsToApply: raw.stepsToApply?.length ? raw.stepsToApply : DEFAULT_APPLICATION_STEPS,
     estimatedBenefitAmount: benefitData.estimatedBenefitAmount,
     financialBenefitText: benefitData.financialBenefitText,
     applyLink: raw.applyLink,

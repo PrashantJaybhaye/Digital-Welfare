@@ -36,6 +36,7 @@ const INVALID_TITLE_PATTERNS = [
   /^(click here|read more|apply here|view all|know more|faq|guidelines|rules)$/i,
   /^(general scholarship school students \d+ scheme)$/i,
   /^(pensioners\/special assistance scheme \d+ schemes?)$/i,
+  /^(women empowerment[,/ ]+labor[,/ ]+and other welfare schemes(\s*\d*\s*schemes?)?)$/i,
   /^(other \d+ schemes)$/i,
   /^[0-9\s.,_-]+$/
 ];

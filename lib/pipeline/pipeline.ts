@@ -1,4 +1,4 @@
-import { Scheme, generateSlug } from '@/types/scheme';
+import { Scheme, generateSlug, DEFAULT_APPLICATION_STEPS } from '@/types/scheme';
 import { RawSchemeInput, validateRawScheme } from './validator';
 import { normalizeRawScheme } from './normalizer';
 import { extractEligibilityRules } from './rule-extractor';
@@ -59,6 +59,59 @@ export class GovTechSchemePipeline {
     this.log(`Ingesting ${MAHARASHTRA_OFFICIAL_RAW_SCHEMES.length} official Maharashtra & National schemes...`);
     rawIngestedList.push(...MAHARASHTRA_OFFICIAL_RAW_SCHEMES);
 
+    // Live Harvesting from MahaDBT 2.0 Portal (https://mahadbt2.maharashtra.gov.in)
+    const mahadbt2Routes = [
+      { url: 'https://mahadbt2.maharashtra.gov.in/school-student', category: 'SCHOOL STUDENT', apply: 'https://mahadbt2.maharashtra.gov.in/school-student' },
+      { url: 'https://mahadbt2.maharashtra.gov.in/pensioner', category: 'PENSIONER', apply: 'https://mahadbt2.maharashtra.gov.in/pensioner' },
+      { url: 'https://mahadbt2.maharashtra.gov.in/divyang', category: 'DIVYANG', apply: 'https://mahadbt2.maharashtra.gov.in/divyang' },
+      { url: 'https://mahadbt2.maharashtra.gov.in/others', category: 'WOMEN EMPOWERMENT', apply: 'https://mahadbt2.maharashtra.gov.in/others' }
+    ];
+
+    try {
+      this.log('Connecting to official MahaDBT 2.0 portal (https://mahadbt2.maharashtra.gov.in)...');
+      let mahaLiveCount = 0;
+
+      for (const route of mahadbt2Routes) {
+        const res = await fetch(route.url, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+          cache: 'no-store'
+        });
+
+        if (res.ok) {
+          const html = await res.text();
+          const rows = [...html.matchAll(/<tr[^>]*data-index="(\d+)"[^>]*>([\s\S]*?)<\/tr>/gi)];
+          for (const row of rows) {
+            const cells = [...row[2].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
+              .map(c => c[1].replace(/<[^>]+>/g, '').trim());
+
+            if (cells.length >= 3) {
+              const dept = cells[0];
+              const desc = cells[1];
+              const title = cells[2];
+
+              if (title && title.length > 3) {
+                rawIngestedList.push({
+                  title,
+                  description: desc || `${title} under ${dept}. Official scheme hosted on Maharashtra MahaDBT 2.0 portal.`,
+                  department: dept,
+                  category: route.category,
+                  state: 'Maharashtra',
+                  applyLink: route.apply,
+                  sourceUrl: route.url,
+                  sourceType: 'MahaDBT'
+                });
+                mahaLiveCount++;
+              }
+            }
+          }
+        }
+      }
+      this.log(`Harvested ${mahaLiveCount} live welfare schemes directly from MahaDBT 2.0 portal.`);
+    } catch (mahaErr) {
+      const msg = mahaErr instanceof Error ? mahaErr.message : String(mahaErr);
+      this.log(`MahaDBT 2.0 live harvester note: ${msg}`);
+    }
+
     try {
       this.log('Harvesting live tables from National Schemes directory...');
       const wikiRes = await fetch('https://en.wikipedia.org/wiki/List_of_government_schemes_in_India', {
@@ -104,7 +157,7 @@ export class GovTechSchemePipeline {
       this.log(`Live crawler notice: ${msg}`);
     }
 
-    this.updateStage(0, 3, 'completed', 'Connected to MahaDBT, MP-SIMS and Central Portals');
+    this.updateStage(0, 3, 'completed', 'Connected to MahaDBT 2.0 (mahadbt2.maharashtra.gov.in), MP-SIMS and Central Portals');
     this.updateStage(1, rawIngestedList.length, 'completed', `Ingested ${rawIngestedList.length} raw scheme inputs`);
 
     this.updateStage(2, 0, 'running', 'Filtering invalid headlines and malformed payloads...');
@@ -147,14 +200,7 @@ export class GovTechSchemePipeline {
       const requiredDocuments = extractRequiredDocuments(norm);
       const benefitData = extractBenefits(norm);
 
-      const stepsToApply = norm.stepsToApply && norm.stepsToApply.length > 0
-        ? norm.stepsToApply
-        : [
-            'Gather Aadhaar, Domicile, and relevant eligibility documents',
-            'Register on the official portal and verify via Aadhaar OTP',
-            'Fill out personal, bank, and income details and submit form',
-            'Track your Application Reference Number (ARN) for Direct DBT approval'
-          ];
+      const stepsToApply = norm.stepsToApply?.length ? norm.stepsToApply : DEFAULT_APPLICATION_STEPS;
 
       const synthesizedScheme: Scheme = {
         title: norm.title!,

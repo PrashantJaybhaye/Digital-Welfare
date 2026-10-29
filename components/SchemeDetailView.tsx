@@ -16,15 +16,8 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
   const benefit = getEstimatedBenefit(scheme);
 
   const [checkedDocs, setCheckedDocs] = useState<Record<number, boolean>>({});
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !scheme.id) return false;
-    try {
-      const saved: string[] = JSON.parse(localStorage.getItem('saved_schemes') || '[]');
-      return saved.includes(scheme.id);
-    } catch {
-      return false;
-    }
-  });
+  const savedSchemes = useSavedSchemes();
+  const isBookmarked = scheme.id ? savedSchemes.includes(scheme.id) : false;
   const [copied, setCopied] = useState(false);
   const [printDate, setPrintDate] = useState<string>('');
 
