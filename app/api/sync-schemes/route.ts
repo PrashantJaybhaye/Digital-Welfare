@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
 import { GovTechSchemePipeline } from '@/lib/pipeline/pipeline';
 import { generateSlug } from '@/types/scheme';
+import { invalidateSchemesCache } from '@/lib/schemes-service';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -40,6 +41,7 @@ export async function POST() {
       });
       await batch.commit();
     }
+    invalidateSchemesCache();
 
     return NextResponse.json({
       success: true,

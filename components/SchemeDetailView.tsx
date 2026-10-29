@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Scheme, formatCategoryName, getSchemeDocuments, getSchemeApplicationSteps, getEstimatedBenefit } from '@/types/scheme';
+import { useSavedSchemes, toggleSavedScheme } from '@/lib/client-store';
 import Link from 'next/link';
 import {
   ArrowLeft, ExternalLink, Calendar, CheckCircle2, Building2, MapPin,
@@ -30,21 +31,8 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
   };
 
   const toggleBookmark = () => {
-    if (typeof window === 'undefined' || !scheme.id) return;
-    try {
-      const saved: string[] = JSON.parse(localStorage.getItem('saved_schemes') || '[]');
-      let updated: string[];
-      if (isBookmarked) {
-        updated = saved.filter(id => id !== scheme.id);
-        setIsBookmarked(false);
-      } else {
-        updated = [...saved, scheme.id];
-        setIsBookmarked(true);
-      }
-      localStorage.setItem('saved_schemes', JSON.stringify(updated));
-    } catch {
-      // Ignore local storage error
-    }
+    if (!scheme.id) return;
+    toggleSavedScheme(scheme.id);
   };
 
   const handleShareWhatsApp = () => {

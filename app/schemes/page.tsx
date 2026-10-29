@@ -1,31 +1,11 @@
-import { adminDb } from '@/lib/firebase-admin';
 import { Scheme } from '@/types/scheme';
 import SchemeList from '@/components/SchemeList';
-import { getFallbackSchemes } from '@/lib/fallback-schemes';
+import { getFastSchemes } from '@/lib/schemes-service';
 
 export const revalidate = 3600;
 
 export default async function SchemesPage() {
-  let schemes: Scheme[] = [];
-  try {
-    const snapshot = await adminDb.collection('schemes').orderBy('title').get();
-    schemes = snapshot.docs.map(doc => {
-      const data = doc.data();
-      const sanitized = JSON.parse(JSON.stringify(data));
-      return {
-        id: doc.id,
-        ...sanitized,
-        lastSyncedAt: sanitized.lastSyncedAt?.toString() || new Date().toISOString()
-      };
-    }) as Scheme[];
-  } catch (error) {
-    console.warn("Failed to fetch schemes from Firebase (using fallback catalog):", error);
-    schemes = getFallbackSchemes();
-  }
-
-  if (schemes.length === 0) {
-    schemes = getFallbackSchemes();
-  }
+  const schemes: Scheme[] = await getFastSchemes();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-16">

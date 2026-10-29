@@ -1,39 +1,22 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
-import { getFallbackSchemes } from '@/lib/fallback-schemes';
-import { Scheme, generateSlug } from '@/types/scheme';
+import { generateSlug } from '@/types/scheme';
+import { getFastSchemes, invalidateSchemesCache } from '@/lib/schemes-service';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const snapshot = await adminDb.collection('schemes').orderBy('title').get();
-    if (!snapshot.empty) {
-      const schemes = snapshot.docs.map(doc => {
-        const data = doc.data();
-        const sanitized = JSON.parse(JSON.stringify(data));
-        return {
-          id: doc.id,
-          ...sanitized,
-          lastSyncedAt: sanitized.lastSyncedAt?.toString() || new Date().toISOString()
-        };
-      }) as Scheme[];
-
-      return NextResponse.json({
-        success: true,
-        schemes,
-        source: 'firestore'
-      });
-    }
-  } catch (err) {
-    console.warn('Firebase Admin schemes fetch failed (serving fallback catalog):', err);
+    const schemes = await getFastSchemes();
+    return NextResponse.json({
+      success: true,
+      schemes,
+      total: schemes.length
+    });
+  } catch (err: unknown) {
+    const error = err instanceof Error ? err.message : 'Failed to retrieve schemes';
+    return NextResponse.json({ success: false, error }, { status: 500 });
   }
-
-  return NextResponse.json({
-    success: true,
-    schemes: getFallbackSchemes(),
-    source: 'fallback'
-  });
 }
 
 export async function POST(req: Request) {
@@ -49,6 +32,8 @@ export async function POST(req: Request) {
       id: docId,
       lastSyncedAt: new Date().toISOString()
     }, { merge: true });
+
+    invalidateSchemesCache();
 
     return NextResponse.json({ success: true, id: docId });
   } catch (err: unknown) {
@@ -71,10 +56,11 @@ export async function DELETE(req: Request) {
     }
     await batch.commit();
 
+    invalidateSchemesCache();
+
     return NextResponse.json({ success: true, deletedCount: toDelete.length });
   } catch (err: unknown) {
     const error = err instanceof Error ? err.message : 'Failed to delete scheme(s)';
     return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }
-

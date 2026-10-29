@@ -1,34 +1,11 @@
-import { adminDb } from '@/lib/firebase-admin';
-import { Scheme } from '@/types/scheme';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import SchemeDetailView from '@/components/SchemeDetailView';
-import { getFallbackScheme } from '@/lib/fallback-schemes';
+import { getFastSchemeById } from '@/lib/schemes-service';
 
 export default async function SchemeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  let scheme: Scheme | null = null;
-
-  try {
-    const docRef = adminDb.collection('schemes').doc(resolvedParams.id);
-    const docSnap = await docRef.get();
-
-    if (docSnap.exists) {
-      const data = docSnap.data();
-      const sanitized = JSON.parse(JSON.stringify(data));
-      scheme = { 
-        id: docSnap.id, 
-        ...sanitized,
-        lastSyncedAt: sanitized.lastSyncedAt?.toString() || new Date().toISOString()
-      } as Scheme;
-    }
-  } catch (error) {
-    console.warn("Firestore lookup failed (using fallback catalog):", error);
-  }
-
-  if (!scheme) {
-    scheme = getFallbackScheme(resolvedParams.id);
-  }
+  const scheme = await getFastSchemeById(resolvedParams.id);
 
   if (!scheme) {
     return (
