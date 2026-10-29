@@ -3,6 +3,7 @@ export interface Scheme {
   title: string;
   description: string;
   category: string;
+  department?: string | null;
   state: string;
   minAge?: number | null;
   maxAge?: number | null;
