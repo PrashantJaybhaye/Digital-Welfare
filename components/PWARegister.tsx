@@ -42,12 +42,26 @@ export default function PWARegister() {
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      try {
+        const isDismissed = localStorage.getItem('pwa_install_dismissed') === 'true';
+        if (isDismissed) return;
+      } catch {
+        // Ignore localStorage error
+      }
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowInstallBanner(true);
     };
 
+    const handleBeforePrint = () => {
+      setShowInstallBanner(false);
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('beforeprint', handleBeforePrint);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('beforeprint', handleBeforePrint);
+    };
   }, []);
 
   const handleInstall = async () => {
@@ -60,7 +74,11 @@ export default function PWARegister() {
 
   const handleDismiss = () => {
     setShowInstallBanner(false);
-    sessionStorage.setItem('pwa_banner_dismissed', 'true');
+    try {
+      localStorage.setItem('pwa_install_dismissed', 'true');
+    } catch {
+      // Ignore localStorage error
+    }
   };
 
   if (!showInstallBanner) return null;
@@ -68,7 +86,7 @@ export default function PWARegister() {
   return (
     <aside 
       aria-label="PWA install banner" 
-      className="fixed bottom-5 right-5 left-5 sm:left-auto z-50 animate-in fade-in slide-in-from-bottom-3 duration-200"
+      className="fixed bottom-5 right-5 left-5 sm:left-auto z-50 animate-in fade-in slide-in-from-bottom-3 duration-200 print:hidden"
     >
       <div className="flex items-center gap-3 bg-white border border-slate-200/90 shadow-xl shadow-slate-900/5 rounded-2xl p-2.5 sm:p-3 sm:max-w-sm">
         <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">

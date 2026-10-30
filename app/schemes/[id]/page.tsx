@@ -1,7 +1,17 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import SchemeDetailView from '@/components/SchemeDetailView';
-import { getFastSchemeById } from '@/lib/schemes-service';
+import { getFastSchemeById, getFastSchemes } from '@/lib/schemes-service';
+
+export const dynamicParams = true;
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const schemes = await getFastSchemes();
+  return schemes.map((s) => ({
+    id: s.id || encodeURIComponent(s.title),
+  }));
+}
 
 export default async function SchemeDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;

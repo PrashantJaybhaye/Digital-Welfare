@@ -1,6 +1,6 @@
 import { SchemeGridSkeleton } from '@/components/SchemeSkeleton';
 
-export default function SchemesLoading() {
+export default function SchemesCatalogLoading() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-16">
       {/* Header skeleton */}
@@ -20,3 +20,4 @@ export default function SchemesLoading() {
     </div>
   );
 }
+

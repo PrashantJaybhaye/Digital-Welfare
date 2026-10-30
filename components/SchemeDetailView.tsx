@@ -324,210 +324,200 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
       </div>
 
       {/* Official Government Print Dossier */}
-      <div className="hidden print:block bg-white text-slate-950 max-w-[210mm] mx-auto font-sans leading-normal">
-        <div className="print-page-1">
-          <div>
-            <div className="border-b-2 border-slate-950 pb-3 mb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Logo size={38} color="#020617" />
-                  <div>
-                    <h1 className="text-[13px] font-black tracking-tight text-slate-950 uppercase leading-none">
-                      National Public Welfare Portal • Government of India & States
-                    </h1>
-                    <p className="text-[9.5px] font-bold text-slate-600 uppercase tracking-wider mt-1">
-                      Official Citizen Scheme Facilitation & Entitlement Dossier
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-right text-[9.5px] text-slate-600">
-                  <p><span className="font-bold text-slate-900">Doc Ref:</span> DW-{(scheme.id || 'SCHEME').toUpperCase().slice(0, 12)}</p>
-                  <p><span className="font-bold text-slate-900">Date:</span> {printDate || 'Live'}</p>
-                  <span className="inline-block mt-0.5 text-[8.5px] font-bold text-emerald-800 uppercase">
-                    ● Active Verified Directive
-                  </span>
-                </div>
+      <div className="hidden print:block bg-white text-slate-950 w-full max-w-[210mm] mx-auto font-sans leading-tight">
+        {/* Top Header */}
+        <div className="border-b-2 border-slate-950 pb-2.5 mb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2.5">
+              <Logo size={32} color="#020617" />
+              <div>
+                <h1 className="text-xs font-black tracking-tight text-slate-950 uppercase leading-none">
+                  National Public Welfare Portal • Government of India & States
+                </h1>
+                <p className="text-[9px] font-bold text-slate-600 uppercase tracking-wider mt-0.5">
+                  Official Citizen Scheme Facilitation & Entitlement Dossier
+                </p>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-300 rounded-lg p-3.5 mb-4">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[8.5px] font-black px-2 py-0.5 rounded bg-slate-900 text-white uppercase tracking-wider">
-                      {formatCategoryName(scheme.category)}
-                    </span>
-                    <span className="text-[9.5px] font-bold text-slate-700">
-                      Region: {scheme.state || 'All India'}
-                    </span>
-                  </div>
-                  <h2 className="text-base font-black text-slate-950 mt-0.5 leading-snug">
-                    {scheme.title}
-                  </h2>
-                  <p className="text-[10.5px] text-slate-700 mt-1 leading-relaxed">
-                    {scheme.description}
-                  </p>
-                </div>
-
-                <div className="bg-white border-2 border-slate-900 rounded-lg p-2 text-center shrink-0 min-w-40 shadow-xs">
-                  <span className="text-[8.5px] font-bold text-slate-500 uppercase block tracking-wider">Estimated Entitlement</span>
-                  <span className="text-[11.5px] font-black text-slate-950 mt-0.5 block">{benefit.label}</span>
-                </div>
-              </div>
+            <div className="text-right text-[8.5px] text-slate-600">
+              <p><span className="font-bold text-slate-900">Doc Ref:</span> DW-{(scheme.id || 'SCHEME').toUpperCase().slice(0, 14)}</p>
+              <p><span className="font-bold text-slate-900">Date:</span> {printDate || 'Official Copy'}</p>
+              <span className="inline-block mt-0.5 text-[8px] font-bold text-emerald-800 uppercase">
+                ● Verified Government Directive
+              </span>
             </div>
-
-            <div className="mb-4">
-              <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-2">
-                1. Official Demographic & Eligibility Assessment Matrix
-              </h3>
-              <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[10px]">
-                <div>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase block">Age Eligibility</span>
-                  <span className="font-bold text-slate-950">
-                    {scheme.minAge ? `${scheme.minAge} Yrs` : 'No Min'} {scheme.maxAge ? `to ${scheme.maxAge} Yrs` : 'No Max'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase block">Income Ceiling</span>
-                  <span className="font-bold text-slate-950">
-                    {scheme.maxIncome ? `Up to ₹${scheme.maxIncome.toLocaleString('en-IN')}/yr` : 'No Upper Cap'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase block">Gender Coverage</span>
-                  <span className="font-bold text-slate-950">{scheme.targetGender || 'All Genders'}</span>
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase block">Target Occupation</span>
-                  <span className="font-bold text-slate-950 truncate block">{scheme.targetOccupation || 'All Eligible Citizens'}</span>
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase block">Social Category</span>
-                  <span className="font-bold text-slate-950">{scheme.socialCategory || 'All Categories'}</span>
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold text-slate-500 uppercase block">Scheme Type</span>
-                  <span className="font-bold text-slate-950">Direct Benefit Transfer (DBT)</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-2">
-                2. Direct Welfare Provisions & Financial Subsidies
-              </h3>
-              <div className="grid grid-cols-2 gap-2 text-[10px]">
-                {scheme.benefits && scheme.benefits.length > 0 ? (
-                  scheme.benefits.map((b, idx) => (
-                    <div key={idx} className="flex items-start gap-1.5 p-2 bg-slate-50 rounded border border-slate-200">
-                      <span className="font-bold text-slate-900">•</span>
-                      <span className="text-slate-800 leading-tight">{b}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-2 bg-slate-50 rounded border border-slate-200 text-slate-600 col-span-2">
-                    Direct government welfare financial subsidy and assistance provided as per official nodal ministry guidelines.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-300 pt-2 flex justify-between items-center text-[9px] text-slate-500 font-medium">
-            <span>Official Welfare Dossier • DW-{(scheme.id || 'SCHEME').toUpperCase().slice(0, 10)}</span>
-            <span className="font-bold text-slate-900">Page 1 of 2 • (See Page 2 for Verification Checklist & Filing Procedure)</span>
           </div>
         </div>
 
-        <div className="print-page-2">
-          <div>
-            <div className="border-b-2 border-slate-950 pb-2.5 mb-3 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Logo size={24} color="#020617" />
-                <span className="text-[11px] font-black text-slate-950 uppercase tracking-tight">
-                  Digital Welfare Guide • Document Verification & Filing Checklist
+        {/* Scheme Title & Benefit Banner */}
+        <div className="bg-slate-50 border border-slate-300 rounded-lg p-3 mb-3 print-avoid-break">
+          <div className="flex justify-between items-start gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-slate-900 text-white uppercase tracking-wider">
+                  {formatCategoryName(scheme.category)}
+                </span>
+                {scheme.department && (
+                  <span className="text-[9px] font-bold text-slate-700">
+                    Dept: {scheme.department}
+                  </span>
+                )}
+                <span className="text-[9px] font-semibold text-slate-600">
+                  • Region: {scheme.state || 'All India'}
                 </span>
               </div>
-              <span className="text-[9.5px] font-bold text-slate-600">
-                Scheme: {scheme.title.slice(0, 32)}... (Page 2 of 2)
-              </span>
+              <h2 className="text-sm font-black text-slate-950 leading-snug">
+                {scheme.title}
+              </h2>
+              <p className="text-[9.5px] text-slate-700 mt-1 leading-relaxed">
+                {scheme.description}
+              </p>
             </div>
 
-            <div className="mb-3.5">
-              <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-1.5">
-                3. Mandatory Citizen Verification Document Checklist
-              </h3>
-              <table className="w-full text-left border-collapse border border-slate-300 text-[10px]">
-                <thead>
-                  <tr className="bg-slate-100 border-b border-slate-300 text-[9px] font-extrabold uppercase">
-                    <th className="p-1.5 border-r border-slate-300 w-10 text-center">Ready</th>
-                    <th className="p-1.5 border-r border-slate-300 w-7 text-center">#</th>
-                    <th className="p-1.5">Required Document / Proof</th>
-                    <th className="p-1.5 border-l border-slate-300 w-44">Issuing Authority / Portal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents.map((doc, idx) => (
-                    <tr key={idx} className="border-b border-slate-200 even:bg-slate-50/50">
-                      <td className="p-1.5 border-r border-slate-300 text-center font-bold">
-                        <span className="inline-block w-3.5 h-3.5 border-2 border-slate-900 rounded"></span>
-                      </td>
-                      <td className="p-1.5 border-r border-slate-300 text-center font-bold">{idx + 1}</td>
-                      <td className="p-1.5 font-medium text-slate-900">{doc}</td>
-                      <td className="p-1.5 border-l border-slate-300 text-[9.5px] text-slate-600">
-                        UIDAI / Revenue / DigiLocker
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="bg-white border-2 border-slate-900 rounded-lg p-2 text-center shrink-0 min-w-36 shadow-xs">
+              <span className="text-[8px] font-bold text-slate-500 uppercase block tracking-wider">Estimated Entitlement</span>
+              <span className="text-[11px] font-black text-slate-950 mt-0.5 block">{benefit.label}</span>
             </div>
+          </div>
+        </div>
 
-            <div className="mb-3.5">
-              <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-1.5">
-                4. Step-by-Step Application & Direct Benefit Transfer Roadmap
-              </h3>
-              <div className="space-y-1 text-[9.5px] text-slate-800">
-                {steps.map((step, idx) => (
-                  <div key={idx} className="flex items-start gap-1.5">
-                    <span className="font-bold text-slate-950 shrink-0 w-4">{idx + 1}.</span>
-                    <div>
-                      <span className="font-bold text-slate-950">{step.title}: </span>
-                      <span className="text-slate-700">{step.desc}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5 p-2.5 bg-slate-50 border border-slate-300 rounded-lg mb-3">
+        {/* Two-Column Grid for Eligibility Matrix & Key Benefits */}
+        <div className="grid grid-cols-2 gap-3 mb-3 print-avoid-break">
+          {/* Eligibility Matrix */}
+          <div className="border border-slate-300 rounded-lg p-2.5 bg-slate-50/50">
+            <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-1.5">
+              1. Eligibility & Demographic Matrix
+            </h3>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-[9px]">
               <div>
-                <span className="text-[9px] font-extrabold uppercase text-slate-700 block mb-0.5">
-                  Direct Benefit Transfer (DBT) Compliance:
+                <span className="text-[8px] font-bold text-slate-500 uppercase block">Age Eligibility</span>
+                <span className="font-bold text-slate-950">
+                  {scheme.minAge ? `${scheme.minAge} Yrs` : 'No Min'} {scheme.maxAge ? `to ${scheme.maxAge} Yrs` : 'No Max'}
                 </span>
-                <p className="text-[8.5px] text-slate-600 leading-tight">
-                  1. Bank account must be seeded with Aadhaar and active on NPCI mapper.<br />
-                  2. DigiLocker e-certificates are legally valid under IT Act 2000.<br />
-                  3. Online Portal: {scheme.applyLink || 'https://www.india.gov.in'}
-                </p>
               </div>
-              <div className="border-l border-slate-300 pl-2.5 flex flex-col justify-between">
-                <span className="text-[9px] font-extrabold uppercase text-slate-700 block">
-                  CSC / Citizen Seva Kendra Facilitation Seal:
+              <div>
+                <span className="text-[8px] font-bold text-slate-500 uppercase block">Income Ceiling</span>
+                <span className="font-bold text-slate-950">
+                  {scheme.maxIncome ? `Up to ₹${scheme.maxIncome.toLocaleString('en-IN')}/yr` : 'No Upper Limit'}
                 </span>
-                <div className="flex justify-between items-end pt-3 text-[8.5px] text-slate-500">
-                  <span>Facilitator Signature: ________________</span>
-                  <span>Date & Seal: [ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</span>
-                </div>
+              </div>
+              <div>
+                <span className="text-[8px] font-bold text-slate-500 uppercase block">Gender Coverage</span>
+                <span className="font-bold text-slate-950">{scheme.targetGender || 'All Genders'}</span>
+              </div>
+              <div>
+                <span className="text-[8px] font-bold text-slate-500 uppercase block">Social Category</span>
+                <span className="font-bold text-slate-950">{scheme.socialCategory || 'All Categories'}</span>
+              </div>
+              <div>
+                <span className="text-[8px] font-bold text-slate-500 uppercase block">Target Group</span>
+                <span className="font-bold text-slate-950 truncate block">{scheme.targetOccupation || 'All Citizens'}</span>
+              </div>
+              <div>
+                <span className="text-[8px] font-bold text-slate-500 uppercase block">Disbursement Mode</span>
+                <span className="font-bold text-emerald-900">Direct Benefit Transfer (DBT)</span>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-slate-300 pt-1.5 text-[8.5px] text-slate-500 flex justify-between items-center">
-            <span>Disclaimer: Computer-generated citizen guidance dossier. Benefit sanction is subject to implementing ministry e-KYC verification.</span>
-            <span className="font-bold text-slate-900 shrink-0 ml-2">Page 2 of 2 • End of Document</span>
+          {/* Key Benefits */}
+          <div className="border border-slate-300 rounded-lg p-2.5 bg-slate-50/50">
+            <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-1.5">
+              2. Key Entitlements & Subsidies
+            </h3>
+            <div className="space-y-1 text-[9px]">
+              {scheme.benefits && scheme.benefits.length > 0 ? (
+                scheme.benefits.slice(0, 4).map((b, idx) => (
+                  <div key={idx} className="flex items-start gap-1.5">
+                    <span className="font-bold text-slate-950 mt-0.5">•</span>
+                    <span className="text-slate-800 leading-tight">{b}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-slate-600 text-[8.5px]">Direct financial subsidy and welfare support provided under nodal department guidelines.</p>
+              )}
+            </div>
           </div>
+        </div>
+
+        {/* Two-Column Grid for Document Checklist & Steps */}
+        <div className="grid grid-cols-2 gap-3 mb-3 print-avoid-break">
+          {/* Document Checklist */}
+          <div className="border border-slate-300 rounded-lg p-2.5 bg-slate-50/50">
+            <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-1.5">
+              3. Mandatory Verification Documents
+            </h3>
+            <table className="w-full text-left border-collapse text-[8.5px]">
+              <thead>
+                <tr className="bg-slate-200/70 border-b border-slate-300 text-[8px] font-extrabold uppercase text-slate-700">
+                  <th className="p-1 border-r border-slate-300 w-6 text-center">Ready</th>
+                  <th className="p-1">Document Required</th>
+                  <th className="p-1 border-l border-slate-300 w-28">Authority</th>
+                </tr>
+              </thead>
+              <tbody>
+                {documents.map((doc, idx) => (
+                  <tr key={idx} className="border-b border-slate-200 even:bg-white/80">
+                    <td className="p-1 border-r border-slate-300 text-center font-bold">
+                      <span className="inline-block w-3 h-3 border border-slate-800 rounded-xs"></span>
+                    </td>
+                    <td className="p-1 font-medium text-slate-900 leading-tight">{doc}</td>
+                    <td className="p-1 border-l border-slate-300 text-[8px] text-slate-600">UIDAI / Revenue</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Application Steps */}
+          <div className="border border-slate-300 rounded-lg p-2.5 bg-slate-50/50">
+            <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-950 border-b border-slate-300 pb-1 mb-1.5">
+              4. Step-by-Step Filing Procedure
+            </h3>
+            <div className="space-y-1.5 text-[8.5px] text-slate-800">
+              {steps.map((step, idx) => (
+                <div key={idx} className="flex items-start gap-1.5">
+                  <span className="font-black text-slate-950 shrink-0 w-3.5 text-center mt-0.5">
+                    {idx + 1}.
+                  </span>
+                  <div>
+                    <span className="font-bold text-slate-950">{step.title}: </span>
+                    <span className="text-slate-700 leading-tight">{step.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Compliance Notice & CSC Facilitation Seal */}
+        <div className="grid grid-cols-2 gap-3 p-2.5 bg-slate-50 border border-slate-300 rounded-lg mb-2 print-avoid-break">
+          <div>
+            <span className="text-[8px] font-extrabold uppercase text-slate-700 block mb-0.5">
+              Direct Benefit Transfer (DBT) Guidelines:
+            </span>
+            <p className="text-[8px] text-slate-600 leading-tight">
+              1. Bank account must be seeded with Aadhaar and active on NPCI mapper.<br />
+              2. DigiLocker verified digital certificates are legally accepted under IT Act 2000.<br />
+              3. Official Portal: <span className="font-bold text-slate-900">{scheme.applyLink || 'https://mahadbt2.maharashtra.gov.in'}</span>
+            </p>
+          </div>
+          <div className="border-l border-slate-300 pl-3 flex flex-col justify-between">
+            <span className="text-[8px] font-extrabold uppercase text-slate-700 block">
+              Citizen Seva Kendra (CSC) / Facilitation Stamp:
+            </span>
+            <div className="flex justify-between items-end pt-2 text-[8px] text-slate-500">
+              <span>Authorized Signature: ________________</span>
+              <span>Date & Seal: [ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-slate-300 pt-1 text-[7.5px] text-slate-500 flex justify-between items-center">
+          <span>Disclaimer: Computer-generated citizen guidance dossier. Subject to nodal department e-KYC verification.</span>
+          <span className="font-bold text-slate-900">DW-{(scheme.id || 'SCHEME').toUpperCase().slice(0, 10)} • Official Citizen Copy</span>
         </div>
       </div>
     </>

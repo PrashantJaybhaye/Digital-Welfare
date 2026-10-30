@@ -23,14 +23,14 @@ export default async function SchemesPage() {
                 d="M2 8.5C35 2.5 95 2.5 138 7" 
                 stroke="currentColor" 
                 strokeWidth="3" 
-                strokeLinecap="round"
+                strokeLinecap="round" 
               />
               <path 
                 d="M15 10C50 5.5 100 5.5 128 9.5" 
                 stroke="currentColor" 
                 strokeWidth="1.5" 
                 strokeLinecap="round" 
-                strokeOpacity="0.4"
+                strokeOpacity="0.4" 
               />
             </svg>
           </span> schemes.
@@ -44,3 +44,4 @@ export default async function SchemesPage() {
     </div>
   );
 }
+
