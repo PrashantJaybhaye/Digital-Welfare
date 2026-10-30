@@ -8,7 +8,7 @@ export function isAuthorizedAdmin(providedKey?: string | null): boolean {
 
   const validSecrets = [
     process.env.ADMIN_SECRET,
-    'Ayush4436', // Backwards-compatible default admin key
+    'admin2026', // Default admin key
   ].filter(Boolean) as string[];
 
   const input = providedKey.trim();

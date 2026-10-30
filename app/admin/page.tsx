@@ -65,7 +65,7 @@ export default function AdminDashboard() {
   }, []);
 
   const getAdminHeaders = useCallback((): Record<string, string> => {
-    const token = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') || 'Ayush4436' : 'Ayush4436';
+    const token = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') || 'admin2026' : 'admin2026';
     return {
       'Content-Type': 'application/json',
       'x-admin-key': token,
@@ -533,7 +533,7 @@ export default function AdminDashboard() {
                   autoFocus
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
-                  placeholder="Enter admin passcode (Ayush4436)..."
+                  placeholder="Enter admin passcode (admin2026)..."
                   className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200/90 rounded-2xl text-sm font-semibold text-slate-950 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 focus:border-transparent transition-all shadow-2xs"
                 />
 
@@ -550,10 +550,10 @@ export default function AdminDashboard() {
                 <span>Security Access Key:</span>
                 <button
                   type="button"
-                  onClick={() => setPasscode('Ayush4436')}
+                  onClick={() => setPasscode('admin2026')}
                   className="font-mono font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
                 >
-                  Ayush4436 (Click to use)
+                  admin2026 (Click to use)
                 </button>
               </p>
             </div>

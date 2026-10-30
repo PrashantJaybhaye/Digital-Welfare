@@ -1,4 +1,4 @@
-# 🏛️ DigitalWelfare (Aayush)
+# 🏛️ DigitalWelfare
 
 > **Helping every citizen discover, check eligibility for, and claim government welfare schemes — in seconds.**
 
@@ -23,7 +23,7 @@ Yet, **millions of eligible families miss out** on benefits they rightfully qual
 - **The "Missing Document" headache:** Citizens travel miles to a Common Service Centre (CSC) or Setu office, wait in long queues, only to be told they forgot a specific document (like a Tehsildar income certificate, 7/12 land record, or caste validity).
 - **Missed deadlines:** By the time word reaches a village or community, the application window is often closed.
 
-**DigitalWelfare (Aayush)** bridges this gap. It gives every citizen a simple, friendly, one-stop portal to search schemes, check their eligibility with one click, calculate their total financial benefits, and get an exact checklist of documents before heading to an application center.
+**DigitalWelfare** bridges this gap. It gives every citizen a simple, friendly, one-stop portal to search schemes, check their eligibility with one click, calculate their total financial benefits, and get an exact checklist of documents before heading to an application center.
 
 ---
 
@@ -148,7 +148,7 @@ DigitalWelfare indexes active welfare initiatives across key departments:
 ## 📂 Project Structure
 
 ```
-d:/aayush/
+digital-welfare/
 ├── app/                                # Next.js App Router Pages & APIs
 │   ├── admin/                          # Admin Dashboard (Pipeline sync, subscriber overview)
 │   ├── api/                            
