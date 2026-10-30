@@ -3,11 +3,32 @@ import { adminDb } from '@/lib/firebase-admin';
 import { GovTechSchemePipeline } from '@/lib/pipeline/pipeline';
 import { generateSlug } from '@/types/scheme';
 import { invalidateSchemesCache } from '@/lib/schemes-service';
+import { verifyAdminRequest } from '@/lib/admin-auth';
+import { rateLimit, getClientIp } from '@/lib/rate-limiter';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-export async function POST() {
+export async function POST(req: Request) {
+  // Enforce server-side Admin Authentication
+  if (!verifyAdminRequest(req)) {
+    return NextResponse.json({
+      success: false,
+      error: 'Unauthorized. Admin credentials required to trigger scraper pipeline.'
+    }, { status: 401 });
+  }
+
+  // Rate limit: max 2 sync attempts per 10 minutes per IP
+  const clientIp = getClientIp(req);
+  const limiter = rateLimit(`sync-schemes-${clientIp}`, 2, 10 * 60 * 1000);
+  if (!limiter.success) {
+    const minutesLeft = Math.ceil(limiter.resetMs / 60000);
+    return NextResponse.json({
+      success: false,
+      error: `Sync rate limit reached. Please wait ${minutesLeft} minute(s) before syncing again.`
+    }, { status: 429 });
+  }
+
   try {
     const pipeline = new GovTechSchemePipeline();
     const result = await pipeline.runPipeline();

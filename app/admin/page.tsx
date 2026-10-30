@@ -64,27 +64,48 @@ export default function AdminDashboard() {
     return () => unsubscribe();
   }, []);
 
-  const handlePasscodeLogin = (e: React.FormEvent) => {
+  const getAdminHeaders = useCallback((): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') || 'Ayush4436' : 'Ayush4436';
+    return {
+      'Content-Type': 'application/json',
+      'x-admin-key': token,
+    };
+  }, []);
+
+  const handlePasscodeLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setAuthLoading(true);
 
-    const expectedSecret = process.env.NEXT_PUBLIC_ADMIN_SECRET || 'Ayush4436';
-
-    setTimeout(() => {
-      if (passcode.trim() === expectedSecret || passcode.trim() === 'Ayush4436' || passcode.trim() === 'admin2026') {
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: passcode.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('admin_token', passcode.trim());
+        }
         setAdminSessionAuth(true);
       } else {
-        setAuthError('Invalid Admin Access Key. Access Denied.');
+        setAuthError(data.error || 'Invalid Admin Access Key. Access Denied.');
       }
+    } catch {
+      setAuthError('Connection error. Could not verify credentials.');
+    } finally {
       setAuthLoading(false);
-    }, 400);
+    }
   };
 
   const handleAdminLogout = async () => {
     try {
       await signOut(auth);
     } catch {}
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('admin_token');
+    }
     setAdminSessionAuth(false);
     setFirebaseAuthed(false);
     setPasscode('');
@@ -201,7 +222,10 @@ export default function AdminDashboard() {
   const fetchSubscribers = useCallback(async () => {
     setLoadingSubscribers(true);
     try {
-      const res = await fetch('/api/subscribe-alerts', { cache: 'no-store' });
+      const res = await fetch('/api/subscribe-alerts', { 
+        cache: 'no-store',
+        headers: getAdminHeaders()
+      });
       const data = await res.json();
       if (data.subscribers) {
         setSubscribers(data.subscribers);
@@ -211,7 +235,7 @@ export default function AdminDashboard() {
     } finally {
       setLoadingSubscribers(false);
     }
-  }, []);
+  }, [getAdminHeaders]);
 
   useEffect(() => {
     let ignore = false;
@@ -219,7 +243,10 @@ export default function AdminDashboard() {
       try {
         const [schemesRes, subsRes] = await Promise.all([
           fetch('/api/schemes', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
-          fetch('/api/subscribe-alerts', { cache: 'no-store' }).then(r => r.json()).catch(() => null)
+          fetch('/api/subscribe-alerts', { 
+            cache: 'no-store',
+            headers: getAdminHeaders()
+          }).then(r => r.json()).catch(() => null)
         ]);
         if (!ignore) {
           if (schemesRes?.schemes) {
@@ -241,14 +268,17 @@ export default function AdminDashboard() {
     };
     init();
     return () => { ignore = true; };
-  }, []);
+  }, [getAdminHeaders]);
 
   // Sync Live Schemes
   const handleSync = async () => {
     setSyncing(true);
     setSyncResult(null);
     try {
-      const response = await fetch('/api/sync-schemes', { method: 'POST' });
+      const response = await fetch('/api/sync-schemes', { 
+        method: 'POST',
+        headers: getAdminHeaders()
+      });
       const data = await response.json();
       
       setSyncResult({
@@ -279,7 +309,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/schemes', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminHeaders(),
         body: JSON.stringify({ id })
       });
       if (!res.ok) throw new Error('Delete request failed');
@@ -324,7 +354,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/schemes', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminHeaders(),
         body: JSON.stringify({ ids: idsToDelete })
       });
       if (!res.ok) throw new Error('Bulk delete failed');
@@ -350,7 +380,7 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/schemes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminHeaders(),
         body: JSON.stringify({
           ...newScheme,
           lastSyncedAt: new Date().toISOString()
