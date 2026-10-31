@@ -9,6 +9,7 @@
 [![Cloud Datastore](https://img.shields.io/badge/Cloud_Database-NoSQL_Firestore-FFA611?style=flat-square)](https://cloud.google.com/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable_%26_Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
 [![Security Audited](https://img.shields.io/badge/Security-20--Point_Hardened-10b981?style=flat-square)](https://github.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
 
@@ -25,6 +26,7 @@
 - [Deployment Guide (Vercel & Cloud)](#-deployment-guide-vercel--cloud)
 - [NPM Scripts Reference](#-npm-scripts-reference)
 - [Contributing & Community](#-contributing--community)
+- [License](#-license)
 
 ---
 
@@ -389,6 +391,14 @@ Contributions, corrections to scheme guidelines, and feature improvements are wa
 3. Commit your Changes (`git commit -m "feat: Add new state scholarship pipeline"`).
 4. Push to the Branch (`git push origin feature/NewSchemeModule`).
 5. Open a Pull Request on GitHub.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+Developed as an open-source civic initiative for the **Hack for Social (MY Bharat)** hackathon.
 
 ---
 
