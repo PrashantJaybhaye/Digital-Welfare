@@ -1,8 +1,8 @@
 name: Automated Welfare Scheme Sync
 on:
   schedule:
-    # Run every Sunday at 00:00 UTC (05:30 IST)
-    - cron: '0 0 * * 0'
+    # Run every 6 hours (at 00:00, 06:00, 12:00, 18:00 UTC — 12 o'clock & 6 o'clock cycle)
+    - cron: '0 0,6,12,18 * * *'
   workflow_dispatch: # Allows manual 1-click execution from GitHub Actions UI
 
 jobs:
