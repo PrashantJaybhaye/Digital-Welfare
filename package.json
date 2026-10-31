@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npx tsx tests/eligibility-engine.test.ts",
     "db:seed": "npx tsx scripts/push-curated-schemes.ts"
   },
   "dependencies": {

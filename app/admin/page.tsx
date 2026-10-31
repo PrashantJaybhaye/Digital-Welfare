@@ -1,40 +1,45 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  RefreshCw, LayoutDashboard, Settings, FileText, Users, 
-  ServerCrash, Plus, Search, Trash2, ExternalLink, X, 
-  CheckCircle2, AlertCircle, Sparkles, 
-  Download, ArrowRight, Activity, Eye, EyeOff, Bell,
-  Key, LogOut, ShieldCheck
+import {
+  RefreshCw,
+  LayoutDashboard,
+  FileText,
+  Plus,
+  Bell,
+  Activity,
+  Download,
+  LogOut,
+  CheckCircle2,
+  ServerCrash,
+  X,
+  Key,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  AlertCircle,
+  ArrowRight,
 } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { Scheme, formatCategoryName, getEstimatedBenefit, INDIAN_STATES } from '@/types/scheme';
+import { Scheme } from '@/types/scheme';
 import { useIsClient, useAdminSessionAuth, setAdminSessionAuth } from '@/lib/client-store';
 import Link from 'next/link';
 
-type TabType = 'overview' | 'schemes' | 'create' | 'subscribers' | 'system';
-
-interface Subscriber {
-  id: string;
-  contact: string;
-  category: string;
-  state: string;
-  channel: string;
-  subscribedAt: string;
-  isActive: boolean;
-}
-
-
+import { TabType, Subscriber, PipelineStage } from '@/components/admin/admin-types';
+import OverviewTab from '@/components/admin/OverviewTab';
+import SchemeInventoryTab from '@/components/admin/SchemeInventoryTab';
+import CreateSchemeTab from '@/components/admin/CreateSchemeTab';
+import SubscribersTab from '@/components/admin/SubscribersTab';
+import DiagnosticsTab from '@/components/admin/DiagnosticsTab';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<{success: boolean, message: string} | null>(null);
-  const [pipelineStages, setPipelineStages] = useState<{stage: string, count: number, status: string, details?: string}[]>([]);
+  const [syncResult, setSyncResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [pipelineStages, setPipelineStages] = useState<PipelineStage[]>([]);
   const [pipelineLogs, setPipelineLogs] = useState<string[]>([]);
-  
+
   // Admin Security & Authentication State
   const isClient = useIsClient();
   const sessionAuth = useAdminSessionAuth();
@@ -56,16 +61,53 @@ export default function AdminDashboard() {
   const [selectedSchemeIds, setSelectedSchemeIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
+  // New Scheme Form State
+  const [newScheme, setNewScheme] = useState<Partial<Scheme>>({
+    title: '',
+    description: '',
+    department: 'Government of Maharashtra',
+    category: 'MahaDBT (College Student)',
+    state: 'Maharashtra',
+    minAge: null,
+    maxAge: null,
+    maxIncome: null,
+    targetGender: 'Any',
+    targetOccupation: 'All Citizens',
+    socialCategory: 'All',
+    financialBenefitText: '',
+    estimatedBenefitAmount: null,
+    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
+    benefits: [
+      'Direct Direct Benefit Transfer (DBT) to Aadhaar-seeded bank account',
+      'Official Maharashtra State welfare subsidy',
+    ],
+    requiredDocuments: [
+      'Aadhaar Card (Identity & Proof of Address)',
+      'Bank Account Passbook (Linked to Aadhaar & NPCI for DBT)',
+      'State Domicile Certificate',
+    ],
+    stepsToApply: [
+      'Gather Aadhaar, Domicile, and relevant eligibility documents',
+      'Register on the official portal and verify via Aadhaar OTP',
+      'Fill out personal, bank, and income details and submit form',
+      'Track your Application Reference Number (ARN) for Direct DBT approval',
+    ],
+  });
+  const [benefitInput, setBenefitInput] = useState('');
+  const [docInput, setDocInput] = useState('');
+  const [stepInput, setStepInput] = useState('');
+  const [savingScheme, setSavingScheme] = useState(false);
+  const [createSuccess, setCreateSuccess] = useState(false);
+
   // Check Firebase Auth & Secure Server Session in background
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) setFirebaseAuthed(true);
     });
 
-    // Check existing server session
     fetch('/api/admin/auth')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.authenticated) {
           setAdminSessionAuth(true);
         }
@@ -122,60 +164,22 @@ export default function AdminDashboard() {
     setFirebaseAuthed(false);
     setPasscode('');
   };
-  
-  // New Scheme Form State (Comprehensive & Humanized)
-  const [newScheme, setNewScheme] = useState<Partial<Scheme>>({
-    title: '',
-    description: '',
-    department: 'Government of Maharashtra',
-    category: 'MahaDBT (College Student)',
-    state: 'Maharashtra',
-    minAge: null,
-    maxAge: null,
-    maxIncome: null,
-    targetGender: 'Any',
-    targetOccupation: 'All Citizens',
-    socialCategory: 'All',
-    financialBenefitText: '',
-    estimatedBenefitAmount: null,
-    applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
-    benefits: [
-      'Direct Direct Benefit Transfer (DBT) to Aadhaar-seeded bank account',
-      'Official Maharashtra State welfare subsidy'
-    ],
-    requiredDocuments: [
-      'Aadhaar Card (Identity & Proof of Address)',
-      'Bank Account Passbook (Linked to Aadhaar & NPCI for DBT)',
-      'State Domicile Certificate'
-    ],
-    stepsToApply: [
-      'Gather Aadhaar, Domicile, and relevant eligibility documents',
-      'Register on the official portal and verify via Aadhaar OTP',
-      'Fill out personal, bank, and income details and submit form',
-      'Track your Application Reference Number (ARN) for Direct DBT approval'
-    ]
-  });
-  const [benefitInput, setBenefitInput] = useState('');
-  const [docInput, setDocInput] = useState('');
-  const [stepInput, setStepInput] = useState('');
-  const [savingScheme, setSavingScheme] = useState(false);
-  const [createSuccess, setCreateSuccess] = useState(false);
 
   const addBenefitItem = (text?: string) => {
     const val = (text || benefitInput).trim();
     if (!val) return;
     if (newScheme.benefits && newScheme.benefits.includes(val)) return;
-    setNewScheme(prev => ({
+    setNewScheme((prev) => ({
       ...prev,
-      benefits: [...(prev.benefits || []), val]
+      benefits: [...(prev.benefits || []), val],
     }));
     setBenefitInput('');
   };
 
   const removeBenefitItem = (index: number) => {
-    setNewScheme(prev => ({
+    setNewScheme((prev) => ({
       ...prev,
-      benefits: (prev.benefits || []).filter((_, i) => i !== index)
+      benefits: (prev.benefits || []).filter((_, i) => i !== index),
     }));
   };
 
@@ -183,34 +187,34 @@ export default function AdminDashboard() {
     const val = (text || docInput).trim();
     if (!val) return;
     if (newScheme.requiredDocuments && newScheme.requiredDocuments.includes(val)) return;
-    setNewScheme(prev => ({
+    setNewScheme((prev) => ({
       ...prev,
-      requiredDocuments: [...(prev.requiredDocuments || []), val]
+      requiredDocuments: [...(prev.requiredDocuments || []), val],
     }));
     setDocInput('');
   };
 
   const removeDocItem = (index: number) => {
-    setNewScheme(prev => ({
+    setNewScheme((prev) => ({
       ...prev,
-      requiredDocuments: (prev.requiredDocuments || []).filter((_, i) => i !== index)
+      requiredDocuments: (prev.requiredDocuments || []).filter((_, i) => i !== index),
     }));
   };
 
   const addStepItem = () => {
     const val = stepInput.trim();
     if (!val) return;
-    setNewScheme(prev => ({
+    setNewScheme((prev) => ({
       ...prev,
-      stepsToApply: [...(prev.stepsToApply || []), val]
+      stepsToApply: [...(prev.stepsToApply || []), val],
     }));
     setStepInput('');
   };
 
   const removeStepItem = (index: number) => {
-    setNewScheme(prev => ({
+    setNewScheme((prev) => ({
       ...prev,
-      stepsToApply: (prev.stepsToApply || []).filter((_, i) => i !== index)
+      stepsToApply: (prev.stepsToApply || []).filter((_, i) => i !== index),
     }));
   };
 
@@ -224,7 +228,7 @@ export default function AdminDashboard() {
         setSchemes(data.schemes);
       }
     } catch (err) {
-      console.error("Error fetching schemes in admin:", err);
+      console.error('Error fetching schemes in admin:', err);
     } finally {
       setLoadingSchemes(false);
     }
@@ -234,16 +238,16 @@ export default function AdminDashboard() {
   const fetchSubscribers = useCallback(async () => {
     setLoadingSubscribers(true);
     try {
-      const res = await fetch('/api/subscribe-alerts', { 
+      const res = await fetch('/api/subscribe-alerts', {
         cache: 'no-store',
-        headers: getAdminHeaders()
+        headers: getAdminHeaders(),
       });
       const data = await res.json();
       if (data.subscribers) {
         setSubscribers(data.subscribers);
       }
     } catch (err) {
-      console.error("Error fetching subscribers:", err);
+      console.error('Error fetching subscribers:', err);
     } finally {
       setLoadingSubscribers(false);
     }
@@ -254,11 +258,15 @@ export default function AdminDashboard() {
     const init = async () => {
       try {
         const [schemesRes, subsRes] = await Promise.all([
-          fetch('/api/schemes', { cache: 'no-store' }).then(r => r.json()).catch(() => null),
-          fetch('/api/subscribe-alerts', { 
+          fetch('/api/schemes', { cache: 'no-store' })
+            .then((r) => r.json())
+            .catch(() => null),
+          fetch('/api/subscribe-alerts', {
             cache: 'no-store',
-            headers: getAdminHeaders()
-          }).then(r => r.json()).catch(() => null)
+            headers: getAdminHeaders(),
+          })
+            .then((r) => r.json())
+            .catch(() => null),
         ]);
         if (!ignore) {
           if (schemesRes?.schemes) {
@@ -271,7 +279,7 @@ export default function AdminDashboard() {
           setLoadingSubscribers(false);
         }
       } catch (err) {
-        console.error("Error loading admin data:", err);
+        console.error('Error loading admin data:', err);
         if (!ignore) {
           setLoadingSchemes(false);
           setLoadingSubscribers(false);
@@ -279,7 +287,9 @@ export default function AdminDashboard() {
       }
     };
     init();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [getAdminHeaders]);
 
   // Sync Live Schemes
@@ -287,23 +297,25 @@ export default function AdminDashboard() {
     setSyncing(true);
     setSyncResult(null);
     try {
-      const response = await fetch('/api/sync-schemes', { 
+      const response = await fetch('/api/sync-schemes', {
         method: 'POST',
-        headers: getAdminHeaders()
+        headers: getAdminHeaders(),
       });
       const data = await response.json();
-      
+
       setSyncResult({
         success: Boolean(data.success),
-        message: data.message || data.error || (data.success ? 'Successfully ingested schemes into database' : 'Sync completed with notice.')
+        message:
+          data.message ||
+          data.error ||
+          (data.success ? 'Successfully ingested schemes into database' : 'Sync completed with notice.'),
       });
-      
+
       if (data.stages) setPipelineStages(data.stages);
       if (data.logs) setPipelineLogs(data.logs);
-      
+
       if (data.success) fetchSchemes();
 
-      // Auto-dismiss sync success message after 8 seconds
       setTimeout(() => {
         setSyncResult(null);
       }, 8000);
@@ -315,47 +327,58 @@ export default function AdminDashboard() {
     }
   };
 
-  // Delete Single Scheme (Instant optimistic removal + sync)
+  // Delete Single Scheme
   const handleDeleteScheme = async (id: string, title: string) => {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
-    
-    // Instant state update across dashboard and schemes tab
-    setSchemes(prev => prev.filter(s => s.id !== id));
-    setSelectedSchemeIds(prev => prev.filter(itemId => itemId !== id));
+
+    setSchemes((prev) => prev.filter((s) => s.id !== id));
+    setSelectedSchemeIds((prev) => prev.filter((itemId) => itemId !== id));
 
     try {
       const res = await fetch('/api/schemes', {
         method: 'DELETE',
         headers: getAdminHeaders(),
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ id }),
       });
       if (!res.ok) throw new Error('Delete request failed');
       await fetchSchemes();
     } catch (err) {
-      console.error("Error deleting scheme:", err);
-      alert("Failed to delete scheme. Check server permissions.");
+      console.error('Error deleting scheme:', err);
+      alert('Failed to delete scheme. Check server permissions.');
       await fetchSchemes();
     }
   };
 
   // Toggle Selection (Individual)
   const toggleSelectScheme = (id: string) => {
-    setSelectedSchemeIds(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    setSelectedSchemeIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
   // Toggle Selection (Select All Visible)
   const toggleSelectAllSchemes = () => {
-    const visibleIds = filteredSchemes.map(s => s.id!).filter(Boolean);
-    if (visibleIds.length > 0 && visibleIds.every(id => selectedSchemeIds.includes(id))) {
-      setSelectedSchemeIds(prev => prev.filter(id => !visibleIds.includes(id)));
+    const q = schemeSearch.toLowerCase();
+    const visibleIds = schemes
+      .filter((s) => {
+        const matchesSearch =
+          s.title.toLowerCase().includes(q) ||
+          (s.description || '').toLowerCase().includes(q) ||
+          (s.state || '').toLowerCase().includes(q);
+        const matchesCat = selectedCategoryFilter === 'All' || s.category === selectedCategoryFilter;
+        return matchesSearch && matchesCat;
+      })
+      .map((s) => s.id!)
+      .filter(Boolean);
+
+    if (visibleIds.length > 0 && visibleIds.every((id) => selectedSchemeIds.includes(id))) {
+      setSelectedSchemeIds((prev) => prev.filter((id) => !visibleIds.includes(id)));
     } else {
       setSelectedSchemeIds(Array.from(new Set([...selectedSchemeIds, ...visibleIds])));
     }
   };
 
-  // Bulk Delete Selected Schemes (Instant optimistic removal + full sync)
+  // Bulk Delete Selected Schemes
   const handleBulkDelete = async () => {
     if (selectedSchemeIds.length === 0) return;
     const count = selectedSchemeIds.length;
@@ -364,21 +387,20 @@ export default function AdminDashboard() {
     setIsBulkDeleting(true);
     const idsToDelete = [...selectedSchemeIds];
 
-    // Instant state update across dashboard and schemes tab
-    setSchemes(prev => prev.filter(s => !idsToDelete.includes(s.id!)));
+    setSchemes((prev) => prev.filter((s) => !idsToDelete.includes(s.id!)));
     setSelectedSchemeIds([]);
 
     try {
       const res = await fetch('/api/schemes', {
         method: 'DELETE',
         headers: getAdminHeaders(),
-        body: JSON.stringify({ ids: idsToDelete })
+        body: JSON.stringify({ ids: idsToDelete }),
       });
       if (!res.ok) throw new Error('Bulk delete failed');
       await fetchSchemes();
     } catch (err) {
-      console.error("Error bulk deleting schemes:", err);
-      alert("Failed to delete some schemes. Please check your permissions.");
+      console.error('Error bulk deleting schemes:', err);
+      alert('Failed to delete some schemes. Please check your permissions.');
       await fetchSchemes();
     } finally {
       setIsBulkDeleting(false);
@@ -389,7 +411,7 @@ export default function AdminDashboard() {
   const handleCreateScheme = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newScheme.title || !newScheme.description) {
-      alert("Please fill in scheme title and description.");
+      alert('Please fill in scheme title and description.');
       return;
     }
 
@@ -400,15 +422,14 @@ export default function AdminDashboard() {
         headers: getAdminHeaders(),
         body: JSON.stringify({
           ...newScheme,
-          lastSyncedAt: new Date().toISOString()
-        })
+          lastSyncedAt: new Date().toISOString(),
+        }),
       });
       if (!res.ok) throw new Error('Failed to create scheme');
 
       setCreateSuccess(true);
       await fetchSchemes();
-      
-      // Reset form to clean defaults
+
       setNewScheme({
         title: '',
         description: '',
@@ -426,19 +447,19 @@ export default function AdminDashboard() {
         applyLink: 'https://mahadbt2.maharashtra.gov.in/home',
         benefits: [
           'Direct Direct Benefit Transfer (DBT) to Aadhaar-seeded bank account',
-          'Official Maharashtra State welfare subsidy'
+          'Official Maharashtra State welfare subsidy',
         ],
         requiredDocuments: [
           'Aadhaar Card (Identity & Proof of Address)',
           'Bank Account Passbook (Linked to Aadhaar & NPCI for DBT)',
-          'State Domicile Certificate'
+          'State Domicile Certificate',
         ],
         stepsToApply: [
           'Gather Aadhaar, Domicile, and relevant eligibility documents',
           'Register on the official portal and verify via Aadhaar OTP',
           'Fill out personal, bank, and income details and submit form',
-          'Track your Application Reference Number (ARN) for Direct DBT approval'
-        ]
+          'Track your Application Reference Number (ARN) for Direct DBT approval',
+        ],
       });
       setBenefitInput('');
       setDocInput('');
@@ -446,8 +467,8 @@ export default function AdminDashboard() {
 
       setTimeout(() => setCreateSuccess(false), 4000);
     } catch (err) {
-      console.error("Error saving scheme:", err);
-      alert("Failed to save new scheme.");
+      console.error('Error saving scheme:', err);
+      alert('Failed to save new scheme.');
     } finally {
       setSavingScheme(false);
     }
@@ -455,23 +476,14 @@ export default function AdminDashboard() {
 
   // Export schemes JSON
   const handleExportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(schemes, null, 2));
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(schemes, null, 2));
     const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `digital-welfare-schemes-${new Date().toISOString().slice(0,10)}.json`);
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `digital-welfare-schemes-${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
   };
-
-  // Filter schemes for Scheme Manager
-  const filteredSchemes = schemes.filter(s => {
-    const matchesSearch = s.title.toLowerCase().includes(schemeSearch.toLowerCase()) || 
-                          (s.description || '').toLowerCase().includes(schemeSearch.toLowerCase()) ||
-                          (s.state || '').toLowerCase().includes(schemeSearch.toLowerCase());
-    const matchesCat = selectedCategoryFilter === 'All' || s.category === selectedCategoryFilter;
-    return matchesSearch && matchesCat;
-  });
 
   // -------------------------------------------------------------
   // AUTHENTICATION CHECKING & LOCK SCREEN
@@ -490,13 +502,10 @@ export default function AdminDashboard() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 relative overflow-hidden">
-        {/* Subtle background glow & GovTech grid */}
         <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] bg-size-[20px_20px] opacity-40 pointer-events-none" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#7eed9e]/15 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-md w-full bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-3xl p-7 sm:p-9 shadow-2xl shadow-slate-900/5">
-          
-          {/* Header Badge & Icon */}
           <div className="text-center mb-7">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-[11px] font-bold tracking-wide uppercase mb-5 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-[#7eed9e] animate-pulse"></span>
@@ -504,12 +513,13 @@ export default function AdminDashboard() {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight leading-tight mb-2">
-              Admin <span className="relative inline-block">
+              Admin{' '}
+              <span className="relative inline-block">
                 Operations
-                <svg 
-                  className="absolute -bottom-1 left-0 w-full h-2.5 text-slate-950 overflow-visible pointer-events-none" 
-                  viewBox="0 0 140 10" 
-                  fill="none" 
+                <svg
+                  className="absolute -bottom-1 left-0 w-full h-2.5 text-slate-950 overflow-visible pointer-events-none"
+                  viewBox="0 0 140 10"
+                  fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path d="M2 7.5C35 2.5 95 2.5 138 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -531,12 +541,8 @@ export default function AdminDashboard() {
           <form onSubmit={handlePasscodeLogin} className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-bold text-slate-800">
-                  Master Security Key
-                </label>
-                <span className="text-[10px] text-slate-400 font-semibold">
-                  Required for access
-                </span>
+                <label className="text-xs font-bold text-slate-800">Master Security Key</label>
+                <span className="text-[10px] text-slate-400 font-semibold">Required for access</span>
               </div>
 
               <div className="relative">
@@ -545,7 +551,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   required
                   autoFocus
                   autoComplete="current-password"
@@ -559,12 +565,12 @@ export default function AdminDashboard() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                  title={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              
+
               <div className="mt-3 p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -594,11 +600,8 @@ export default function AdminDashboard() {
           </form>
 
           <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <Link 
-              href="/" 
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-950 transition-colors"
-            >
-              <span>← Return to Citizen Portal</span>
+            <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-950 transition-colors">
+              ← Return to Citizen Directory
             </Link>
           </div>
         </div>
@@ -607,65 +610,41 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-10 pb-16 min-h-[calc(100vh-4rem)]">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 sm:mb-8 pb-5 border-b border-slate-200/80">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+      {/* Admin Masthead Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/60 text-[10px] font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Operations Hub
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider">
+              Control Panel
             </span>
-            <span className="text-[10px] font-bold text-slate-400">Cloud Datastore Synchronized</span>
+            <span className="text-xs text-slate-400 font-semibold">• Cloud Firestore Live</span>
           </div>
-
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight leading-tight">
-            Portal <span className="relative inline-block">
-              administration.
-              {/* Hand-drawn Underline */}
-              <svg 
-                className="absolute -bottom-1.5 left-0 w-full h-2.5 text-slate-950 overflow-visible pointer-events-none" 
-                viewBox="0 0 160 12" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path 
-                  d="M2 8.5C40 2.5 110 2.5 158 7" 
-                  stroke="currentColor" 
-                  strokeWidth="2.8" 
-                  strokeLinecap="round"
-                />
-                <path 
-                  d="M18 10C60 5.5 115 5.5 146 9.5" 
-                  stroke="currentColor" 
-                  strokeWidth="1.5" 
-                  strokeLinecap="round" 
-                  strokeOpacity="0.4"
-                />
-              </svg>
-            </span>
+            Welfare System Administration
           </h1>
-          <p className="text-xs text-slate-600 font-normal mt-1">
-            Manage public welfare datasets, ingest government programs, and monitor citizen subscriptions.
+          <p className="text-xs text-slate-500 mt-1">
+            Manage scheme inventory, execute GovTech scrapers, monitor citizen alerts, and inspect pipeline stages.
           </p>
         </div>
 
-        {/* Global Actions Toolbar */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={handleExportJSON}
-            disabled={schemes.length === 0}
-            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/80 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+            title="Download full JSON dataset"
           >
-            <Download className="w-3.5 h-3.5 text-slate-700" /> Export JSON
+            <Download className="w-3.5 h-3.5 text-slate-600" />
+            <span>Export JSON</span>
           </button>
 
-          <button 
+          <button
             onClick={handleSync}
             disabled={syncing}
-            className="bg-slate-950 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            className="px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-[#7eed9e] ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Ingesting Gazette Data...' : 'Sync Live Portals'}
+            <span>{syncing ? 'Syncing...' : 'Sync Live Portals'}</span>
           </button>
 
           <button
@@ -681,11 +660,13 @@ export default function AdminDashboard() {
 
       {/* Sync Status Notification */}
       {syncResult && (
-        <div className={`p-4 rounded-2xl border mb-6 flex items-start justify-between gap-3 animate-fade-in ${
-          syncResult.success 
-            ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950' 
-            : 'bg-rose-50/80 border-rose-200 text-rose-950'
-        }`}>
+        <div
+          className={`p-4 rounded-2xl border mb-6 flex items-start justify-between gap-3 animate-fade-in ${
+            syncResult.success
+              ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950'
+              : 'bg-rose-50/80 border-rose-200 text-rose-950'
+          }`}
+        >
           <div className="flex items-start gap-3">
             {syncResult.success ? (
               <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
@@ -714,8 +695,8 @@ export default function AdminDashboard() {
           { id: 'schemes', label: `Scheme Inventory (${schemes.length})`, icon: FileText },
           { id: 'create', label: 'Add New Scheme', icon: Plus },
           { id: 'subscribers', label: `Citizen Alerts (${subscribers.length})`, icon: Bell },
-          { id: 'system', label: 'Diagnostics & API', icon: Activity }
-        ].map(tab => {
+          { id: 'system', label: 'Diagnostics & API', icon: Activity },
+        ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
@@ -723,8 +704,8 @@ export default function AdminDashboard() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
               className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
-                isActive 
-                  ? 'bg-slate-950 text-white shadow-2xs' 
+                isActive
+                  ? 'bg-slate-950 text-white shadow-2xs'
                   : 'bg-white hover:bg-slate-100/80 text-slate-600 border border-slate-200/60'
               }`}
             >
@@ -737,1001 +718,77 @@ export default function AdminDashboard() {
 
       {/* Overview tab */}
       {activeTab === 'overview' && (
-        <div className="space-y-6 animate-fade-in">
-          
-          {/* Key Metric Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Catalog Schemes</span>
-                <span className="p-1.5 rounded-lg bg-slate-100 text-slate-700"><FileText className="w-3.5 h-3.5" /></span>
-              </div>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-                {loadingSchemes ? '...' : schemes.length}
-              </p>
-              <p className="text-[11px] text-emerald-800 font-bold mt-1">● Active in Live Database</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Central Sector</span>
-                <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800"><Sparkles className="w-3.5 h-3.5" /></span>
-              </div>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-                {loadingSchemes ? '...' : schemes.filter(s => s.category === 'CS' || s.category === 'Central Sector Scheme').length}
-              </p>
-              <p className="text-[11px] text-slate-500 font-medium mt-1">100% Union Govt Funded</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">State Programs</span>
-                <span className="p-1.5 rounded-lg bg-slate-100 text-slate-700"><Users className="w-3.5 h-3.5" /></span>
-              </div>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-                {loadingSchemes ? '...' : schemes.filter(s => s.state && s.state !== 'All India').length}
-              </p>
-              <p className="text-[11px] text-slate-500 font-medium mt-1">Across 28 States & 8 UTs</p>
-            </div>
-
-            <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Subscribers</span>
-                <span className="p-1.5 rounded-lg bg-[#7eed9e]/30 text-emerald-950"><Bell className="w-3.5 h-3.5" /></span>
-              </div>
-              <p className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-                {loadingSubscribers ? '...' : subscribers.length}
-              </p>
-              <p className="text-[11px] text-emerald-800 font-bold mt-1">WhatsApp & Email Alerts</p>
-            </div>
-
-          </div>
-
-          {/* Quick Operations & Recent Ingestion Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            
-            {/* Quick Actions Panel */}
-            <div className="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-4">
-              <h3 className="text-sm font-bold text-slate-950 flex items-center gap-1.5">
-                <Settings className="w-4 h-4 text-slate-800" /> Admin Controls
-              </h3>
-
-              <div className="space-y-2">
-                <button
-                  onClick={() => setActiveTab('create')}
-                  className="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/70 text-left flex items-center justify-between transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="p-1.5 rounded-lg bg-[#7eed9e]/20 text-emerald-900"><Plus className="w-4 h-4" /></span>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-950">Publish New Scheme</h4>
-                      <p className="text-[10px] text-slate-500">Add Central or State welfare rule</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('schemes')}
-                  className="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/70 text-left flex items-center justify-between transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="p-1.5 rounded-lg bg-slate-200/60 text-slate-800"><FileText className="w-4 h-4" /></span>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-950">Audit Scheme Inventory</h4>
-                      <p className="text-[10px] text-slate-500">Edit, inspect, and delete schemes</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-
-                <Link
-                  href="/schemes"
-                  className="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/70 text-left flex items-center justify-between transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="p-1.5 rounded-lg bg-slate-200/60 text-slate-800"><Eye className="w-4 h-4" /></span>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-950">Preview Citizen Directory</h4>
-                      <p className="text-[10px] text-slate-500">View public live scheme catalog</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Recently Ingested Schemes */}
-            <div className="lg:col-span-8 bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="text-sm font-bold text-slate-950 flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-slate-800" /> Recently Ingested Schemes
-                </h3>
-                <button 
-                  onClick={() => setActiveTab('schemes')}
-                  className="text-xs font-bold text-slate-950 hover:underline"
-                >
-                  View All ({schemes.length}) →
-                </button>
-              </div>
-
-              {loadingSchemes ? (
-                <div className="py-8 text-center text-xs text-slate-400">Loading catalog...</div>
-              ) : schemes.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-400">No schemes found. Click &quot;Sync Live Portals&quot;.</div>
-              ) : (
-                <div className="space-y-2">
-                  {schemes.slice(0, 5).map(scheme => {
-                    const benefit = getEstimatedBenefit(scheme);
-                    return (
-                      <div 
-                        key={scheme.id}
-                        className="p-3 rounded-xl border border-slate-200/70 bg-slate-50/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
-                      >
-                        <div className="grow">
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white text-slate-800 border border-slate-200/60">
-                              {formatCategoryName(scheme.category)}
-                            </span>
-                            <span className="text-[9px] font-semibold text-slate-500">
-                              {scheme.state || 'All India'}
-                            </span>
-                          </div>
-                          <h4 className="text-xs font-bold text-slate-950">{scheme.title}</h4>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#7eed9e]/20 text-emerald-950 border border-[#7eed9e]/40">
-                            {benefit.label}
-                          </span>
-                          <Link 
-                            href={`/schemes/${scheme.id}`}
-                            className="p-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/60"
-                            title="Inspect Scheme"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </Link>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-          </div>
-
-        </div>
+        <OverviewTab
+          schemes={schemes}
+          subscribers={subscribers}
+          loadingSchemes={loadingSchemes}
+          loadingSubscribers={loadingSubscribers}
+          setActiveTab={setActiveTab}
+        />
       )}
 
       {/* Scheme inventory tab */}
       {activeTab === 'schemes' && (
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-4 animate-fade-in">
-          
-          {/* Search & Filter Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div className="relative w-full sm:w-80">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search by title, state, keyword..."
-                value={schemeSearch}
-                onChange={(e) => setSchemeSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-              <select
-                value={selectedCategoryFilter}
-                onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs font-bold text-slate-800 cursor-pointer focus:outline-none"
-              >
-                <option value="All">All Categories</option>
-                <option value="CS">Central Sector (CS)</option>
-                <option value="CSS">Centrally Sponsored (CSS)</option>
-                <option value="CCP">Climate Change (CCP)</option>
-                <option value="—">General</option>
-              </select>
-
-              <button
-                onClick={() => setActiveTab('create')}
-                className="px-3 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 shadow-2xs whitespace-nowrap cursor-pointer"
-              >
-                <Plus className="w-3 h-3 text-[#7eed9e]" /> Add Scheme
-              </button>
-            </div>
-          </div>
-
-          {/* Bulk Selection Light-Mode Action Bar */}
-          {selectedSchemeIds.length > 0 && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-1 duration-150 shadow-2xs">
-              <div className="flex items-center gap-2.5">
-                <span className="px-2 py-0.5 bg-rose-600 text-white text-[11px] font-bold rounded-lg shadow-2xs">
-                  {selectedSchemeIds.length} Selected
-                </span>
-                <span className="text-xs font-semibold text-slate-700 hidden sm:inline">
-                  out of {filteredSchemes.length} schemes
-                </span>
-                <button
-                  onClick={() => setSelectedSchemeIds([])}
-                  className="text-xs font-semibold text-rose-700 hover:text-rose-900 underline ml-1 cursor-pointer transition-colors"
-                >
-                  Deselect all
-                </button>
-              </div>
-
-              <button
-                onClick={handleBulkDelete}
-                disabled={isBulkDeleting}
-                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 active:scale-98 transition-all cursor-pointer disabled:opacity-50"
-              >
-                {isBulkDeleting ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Deleting...</span>
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete Selected ({selectedSchemeIds.length})</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* Scheme Inventory Table */}
-          <div className="overflow-x-auto border border-slate-200/80 rounded-xl">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="p-3 w-10 text-center">
-                    <input
-                      type="checkbox"
-                      checked={filteredSchemes.length > 0 && filteredSchemes.every(s => s.id && selectedSchemeIds.includes(s.id))}
-                      onChange={toggleSelectAllSchemes}
-                      className="rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
-                      title="Select / Deselect all visible schemes"
-                    />
-                  </th>
-                  <th className="p-3">Scheme Title</th>
-                  <th className="p-3">Category</th>
-                  <th className="p-3">State / Jurisdiction</th>
-                  <th className="p-3">Estimated Benefit</th>
-                  <th className="p-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loadingSchemes ? (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-400">Loading scheme catalog...</td>
-                  </tr>
-                ) : filteredSchemes.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-slate-400">No schemes matched your search criteria.</td>
-                  </tr>
-                ) : (
-                  filteredSchemes.map((scheme) => {
-                    const benefit = getEstimatedBenefit(scheme);
-                    const isSelected = scheme.id ? selectedSchemeIds.includes(scheme.id) : false;
-
-                    return (
-                      <tr 
-                        key={scheme.id} 
-                        className={`transition-colors ${isSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/60'}`}
-                      >
-                        <td className="p-3 text-center">
-                          {scheme.id && (
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleSelectScheme(scheme.id!)}
-                              className="rounded border-slate-300 text-slate-900 focus:ring-0 cursor-pointer"
-                            />
-                          )}
-                        </td>
-                        <td className="p-3 font-bold text-slate-950 max-w-xs truncate">
-                          {scheme.title}
-                        </td>
-                        <td className="p-3">
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 border border-slate-200/60">
-                            {formatCategoryName(scheme.category)}
-                          </span>
-                        </td>
-                        <td className="p-3 text-slate-600 font-medium">
-                          {scheme.state || 'All India'}
-                        </td>
-                        <td className="p-3">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#7eed9e]/20 text-emerald-950 border border-[#7eed9e]/40">
-                            {benefit.label}
-                          </span>
-                        </td>
-                        <td className="p-3 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <Link
-                              href={`/schemes/${scheme.id}`}
-                              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-                              title="View Public Details"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </Link>
-                            <button
-                              onClick={() => handleDeleteScheme(scheme.id!, scheme.title)}
-                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors cursor-pointer"
-                              title="Delete from Database"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-        </div>
+        <SchemeInventoryTab
+          schemes={schemes}
+          loadingSchemes={loadingSchemes}
+          schemeSearch={schemeSearch}
+          setSchemeSearch={setSchemeSearch}
+          selectedCategoryFilter={selectedCategoryFilter}
+          setSelectedCategoryFilter={setSelectedCategoryFilter}
+          selectedSchemeIds={selectedSchemeIds}
+          setSelectedSchemeIds={setSelectedSchemeIds}
+          isBulkDeleting={isBulkDeleting}
+          toggleSelectAllSchemes={toggleSelectAllSchemes}
+          toggleSelectScheme={toggleSelectScheme}
+          handleBulkDelete={handleBulkDelete}
+          handleDeleteScheme={handleDeleteScheme}
+          setActiveTab={setActiveTab}
+        />
       )}
 
       {/* Add scheme tab */}
       {activeTab === 'create' && (
-        <div className="bg-white p-5 sm:p-7 rounded-3xl border border-slate-200/90 shadow-xl shadow-slate-900/5 max-w-4xl mx-auto animate-fade-in">
-          <div className="border-b border-slate-200 pb-4 mb-6">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold uppercase tracking-wider mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Curated GovTech Catalog
-            </div>
-            <h2 className="text-xl font-bold text-slate-950 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-slate-900" /> Ingest & Publish Welfare Scheme
-            </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Publish verified Central or State public welfare schemes directly into Cloud Firestore with custom eligibility rules, document checklists, and application steps.
-            </p>
-          </div>
-
-          {createSuccess && (
-            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-bold mb-6 flex items-center gap-2.5 animate-fade-in shadow-xs">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              Scheme successfully published to Cloud Firestore! Visible across all citizen search and eligibility engines.
-            </div>
-          )}
-
-          <form onSubmit={handleCreateScheme} className="space-y-6 text-xs">
-            
-            {/* Section 1: Basic Information */}
-            <div className="space-y-4 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/60">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-slate-700" /> 1. Scheme Identification & Department
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Scheme Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Rajarshi Chhatrapati Shahu Maharaj Shikshan Shulkh Shishyavrutti Yojana"
-                    value={newScheme.title}
-                    onChange={(e) => setNewScheme({ ...newScheme, title: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 font-semibold text-slate-950 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-950 outline-none text-xs sm:text-sm shadow-2xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Department / Ministry *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Directorate of Higher Education (DHE)"
-                    value={newScheme.department || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, department: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 font-medium text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-950 outline-none text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    State / Jurisdiction *
-                  </label>
-                  <select
-                    value={newScheme.state}
-                    onChange={(e) => setNewScheme({ ...newScheme, state: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 font-medium text-slate-900 focus:ring-2 focus:ring-slate-950 outline-none text-xs cursor-pointer"
-                  >
-                    {INDIAN_STATES.map(st => (
-                      <option key={st} value={st}>{st}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Scheme Classification / Category *
-                  </label>
-                  <select
-                    value={newScheme.category}
-                    onChange={(e) => setNewScheme({ ...newScheme, category: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 font-medium text-slate-900 focus:ring-2 focus:ring-slate-950 outline-none text-xs cursor-pointer"
-                  >
-                    <optgroup label="MahaDBT 2.0 Official Categories">
-                      <option value="MahaDBT (College Student)">College Student (MahaScholarship / Higher Education)</option>
-                      <option value="MahaDBT (School Student)">School Student (Pre-Matric & Secondary Education)</option>
-                      <option value="Agriculture & Krishi (MahaDBT / MP-SIMS)">Farmer (Krishi, Irrigation & Farm Subsidies)</option>
-                      <option value="MahaDBT (Pensioner & Special Assistance)">Pensioner & Special Assistance Schemes</option>
-                      <option value="MahaDBT (Divyang Welfare)">Divyang Welfare (Disability Support & Grants)</option>
-                      <option value="MahaDBT (Women, Labour & Other Welfare)">Women Empowerment, Labor & Other Welfare Schemes</option>
-                    </optgroup>
-                    <optgroup label="Central Government Categories">
-                      <option value="Central Sector Scheme">Central Sector Scheme (100% Union Funded)</option>
-                      <option value="Centrally Sponsored Scheme">Centrally Sponsored Scheme (Central + State)</option>
-                      <option value="Climate Change Programme">Climate Change Programme (CCP)</option>
-                      <option value="General Welfare">General Public Welfare</option>
-                    </optgroup>
-                  </select>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Official Description & Objectives *
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    placeholder="Comprehensive summary describing target beneficiaries, subsidy breakdown, institutional criteria, and government objectives..."
-                    value={newScheme.description}
-                    onChange={(e) => setNewScheme({ ...newScheme, description: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 font-normal text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-950 outline-none text-xs leading-relaxed"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 2: Target Demographics & Eligibility Criteria */}
-            <div className="space-y-4 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/60">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-slate-700" /> 2. Eligibility Criteria & Demographics
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Target Gender
-                  </label>
-                  <select
-                    value={newScheme.targetGender || 'Any'}
-                    onChange={(e) => setNewScheme({ ...newScheme, targetGender: e.target.value as 'Male' | 'Female' | 'Any' })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  >
-                    <option value="Any">Any Gender (All Citizens)</option>
-                    <option value="Female">Female Only (Women & Girls)</option>
-                    <option value="Male">Male Only</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Target Occupation
-                  </label>
-                  <select
-                    value={newScheme.targetOccupation || 'All Citizens'}
-                    onChange={(e) => setNewScheme({ ...newScheme, targetOccupation: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  >
-                    <option value="All Citizens">All Citizens</option>
-                    <option value="Student">Student (School / College / Higher Ed)</option>
-                    <option value="Farmer">Farmer (Landholder / Tenant)</option>
-                    <option value="Worker">Worker / Construction / Labour (BOCW)</option>
-                    <option value="Senior Citizen">Senior Citizen / Pensioner</option>
-                    <option value="Persons with Disabilities">Persons with Disabilities (Divyang)</option>
-                    <option value="Unemployed">Unemployed / Job Seeker / Youth</option>
-                    <option value="Artisan">Artisan / Traditional Craftsman</option>
-                    <option value="Entrepreneur">Entrepreneur / MSME / Startup</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Social Category
-                  </label>
-                  <select
-                    value={newScheme.socialCategory || 'All'}
-                    onChange={(e) => setNewScheme({ ...newScheme, socialCategory: e.target.value as NonNullable<Scheme['socialCategory']> })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  >
-                    <option value="All">All Categories (Open / Universal)</option>
-                    <option value="SC/ST">SC / ST (Scheduled Castes & Tribes)</option>
-                    <option value="OBC">OBC (Other Backward Classes)</option>
-                    <option value="VJNT">VJNT (Vimukta Jati & Nomadic Tribes)</option>
-                    <option value="SBC">SBC (Special Backward Class)</option>
-                    <option value="EWS">EWS / EBC (Economically Weaker Section)</option>
-                    <option value="Minority">Religious Minority (Muslim, Christian, Buddhist, Jain)</option>
-                    <option value="General">General / Open Category Only</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Min Age (Years)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="e.g. 18 (leave blank if none)"
-                    value={newScheme.minAge || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, minAge: e.target.value ? parseInt(e.target.value) : null })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Max Age (Years)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="e.g. 60 (leave blank if none)"
-                    value={newScheme.maxAge || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, maxAge: e.target.value ? parseInt(e.target.value) : null })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Annual Income Ceiling (₹)
-                  </label>
-                  <input
-                    type="number"
-                    step="5000"
-                    placeholder="e.g. 250000 or 800000"
-                    value={newScheme.maxIncome || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, maxIncome: e.target.value ? parseInt(e.target.value) : null })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 3: Financial Benefit & Application Portal */}
-            <div className="space-y-4 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/60">
-              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-slate-700" /> 3. Direct Subsidies & Official Portal Links
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Financial Benefit Label (Display)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ₹1,500 / Month Direct DBT Transfer or 50% Tuition Fee Waiver"
-                    value={newScheme.financialBenefitText || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, financialBenefitText: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Estimated Annual Value (₹)
-                  </label>
-                  <input
-                    type="number"
-                    step="1000"
-                    placeholder="e.g. 18000 or 500000"
-                    value={newScheme.estimatedBenefitAmount || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, estimatedBenefitAmount: e.target.value ? parseInt(e.target.value) : null })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  />
-                </div>
-
-                <div className="sm:col-span-3">
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    Official Portal Application URL (MahaDBT 2.0 / Central)
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://mahadbt2.maharashtra.gov.in/home"
-                    value={newScheme.applyLink || ''}
-                    onChange={(e) => setNewScheme({ ...newScheme, applyLink: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 4: Key Scheme Benefits (Dynamic Interactive List) */}
-            <div className="space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/60">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  4. Key Benefits & Subsidies ({newScheme.benefits?.length || 0})
-                </label>
-                <span className="text-[10px] text-slate-500">Press Enter or click Add</span>
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter a specific benefit (e.g. 100% exam fee reimbursement)..."
-                  value={benefitInput}
-                  onChange={(e) => setBenefitInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBenefitItem(); } }}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                />
-                <button
-                  type="button"
-                  onClick={() => addBenefitItem()}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                >
-                  Add Benefit
-                </button>
-              </div>
-
-              {/* Quick suggestions */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="text-[10px] text-slate-400 font-medium self-center mr-1">Quick Add:</span>
-                {[
-                  'Direct monthly DBT bank transfer',
-                  '100% Tuition & Exam fee waiver',
-                  '₹5 Lakh cashless health cover per family',
-                  '50% Capital subsidy on farm equipment',
-                  'Free hostel accommodation allowance'
-                ].map((sug) => (
-                  <button
-                    key={sug}
-                    type="button"
-                    onClick={() => addBenefitItem(sug)}
-                    className="text-[10px] font-medium bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    + {sug}
-                  </button>
-                ))}
-              </div>
-
-              {/* Active Benefits Pills */}
-              <div className="space-y-1.5 pt-2">
-                {newScheme.benefits?.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs">
-                    <span className="font-medium text-slate-900">• {item}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeBenefitItem(idx)}
-                      className="text-rose-500 hover:text-rose-700 font-bold p-1 rounded hover:bg-rose-50 cursor-pointer"
-                      title="Remove benefit"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 5: Required Documents Checklist (Dynamic Interactive List) */}
-            <div className="space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/60">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  5. Required Documents Checklist ({newScheme.requiredDocuments?.length || 0})
-                </label>
-                <span className="text-[10px] text-slate-500">Citizen verification checklist</span>
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter required certificate or proof (e.g. 7/12 Land Extract)..."
-                  value={docInput}
-                  onChange={(e) => setDocInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addDocItem(); } }}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                />
-                <button
-                  type="button"
-                  onClick={() => addDocItem()}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                >
-                  Add Document
-                </button>
-              </div>
-
-              {/* Quick suggestions */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                <span className="text-[10px] text-slate-400 font-medium self-center mr-1">Common Proofs:</span>
-                {[
-                  'Aadhaar Card (Identity Proof)',
-                  'Bank Account Passbook (Aadhaar Seeded)',
-                  'Maharashtra Domicile Certificate',
-                  'Income Certificate (Issued by Tehsildar)',
-                  'Caste Certificate & Validity',
-                  '7/12 & 8-A Land Ownership Record',
-                  'College Fee Receipt & Bonafide Certificate'
-                ].map((sug) => (
-                  <button
-                    key={sug}
-                    type="button"
-                    onClick={() => addDocItem(sug)}
-                    className="text-[10px] font-medium bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 px-2 py-0.5 rounded-lg transition-colors cursor-pointer"
-                  >
-                    + {sug}
-                  </button>
-                ))}
-              </div>
-
-              {/* Active Document Pills */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                {newScheme.requiredDocuments?.map((doc, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs">
-                    <span className="font-medium text-slate-900 truncate mr-2">📄 {doc}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeDocItem(idx)}
-                      className="text-rose-500 hover:text-rose-700 font-bold p-1 rounded hover:bg-rose-50 shrink-0 cursor-pointer"
-                      title="Remove document"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Section 6: Steps to Apply */}
-            <div className="space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/60">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  6. Step-by-Step Application Guide ({newScheme.stepsToApply?.length || 0} Steps)
-                </label>
-                <span className="text-[10px] text-slate-500">Citizen application journey</span>
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter next application step..."
-                  value={stepInput}
-                  onChange={(e) => setStepInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStepItem(); } }}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 font-medium text-slate-900"
-                />
-                <button
-                  type="button"
-                  onClick={addStepItem}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                >
-                  Add Step
-                </button>
-              </div>
-
-              <div className="space-y-2 pt-2">
-                {newScheme.stepsToApply?.map((step, idx) => (
-                  <div key={idx} className="flex items-start justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs">
-                    <div className="flex items-start gap-2 min-w-0 pr-2">
-                      <span className="font-bold text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 shrink-0 mt-0.5">
-                        Step {idx + 1}
-                      </span>
-                      <span className="font-medium text-slate-900">{step}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeStepItem(idx)}
-                      className="text-rose-500 hover:text-rose-700 font-bold p-1 rounded hover:bg-rose-50 shrink-0 cursor-pointer"
-                      title="Remove step"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Submit Action */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={savingScheme}
-                className="w-full bg-slate-950 hover:bg-slate-800 text-white font-bold py-3.5 px-6 rounded-2xl transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2 text-sm active:scale-98 cursor-pointer disabled:opacity-60"
-              >
-                {savingScheme ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-[#7eed9e]" />
-                    <span>Committing Scheme to Cloud Firestore...</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 text-[#7eed9e]" />
-                    <span>Publish Official Welfare Scheme</span>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+        <CreateSchemeTab
+          newScheme={newScheme}
+          setNewScheme={setNewScheme}
+          benefitInput={benefitInput}
+          setBenefitInput={setBenefitInput}
+          docInput={docInput}
+          setDocInput={setDocInput}
+          stepInput={stepInput}
+          setStepInput={setStepInput}
+          savingScheme={savingScheme}
+          createSuccess={createSuccess}
+          addBenefitItem={addBenefitItem}
+          removeBenefitItem={removeBenefitItem}
+          addDocItem={addDocItem}
+          removeDocItem={removeDocItem}
+          addStepItem={addStepItem}
+          removeStepItem={removeStepItem}
+          handleCreateScheme={handleCreateScheme}
+        />
       )}
 
       {/* Citizen subscribers tab */}
       {activeTab === 'subscribers' && (
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-4 animate-fade-in">
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3">
-            <div>
-              <h3 className="text-sm font-bold text-slate-950 flex items-center gap-1.5">
-                <Bell className="w-4 h-4 text-slate-800" /> Scheme Alert Subscribers ({subscribers.length})
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">Citizens registered for SMS/WhatsApp scheme updates.</p>
-            </div>
-            <button
-              onClick={fetchSubscribers}
-              className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
-              title="Refresh subscribers"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="overflow-x-auto border border-slate-200/80 rounded-xl">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="p-3">Contact</th>
-                  <th className="p-3">Preferred Category</th>
-                  <th className="p-3">State</th>
-                  <th className="p-3">Alert Channel</th>
-                  <th className="p-3">Subscribed On</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loadingSubscribers ? (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">Loading subscriber records...</td>
-                  </tr>
-                ) : subscribers.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">No citizen subscribers registered yet.</td>
-                  </tr>
-                ) : (
-                  subscribers.map((sub) => (
-                    <tr key={sub.id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="p-3 font-bold text-slate-950">{sub.contact}</td>
-                      <td className="p-3 text-slate-700">{sub.category || 'All Schemes'}</td>
-                      <td className="p-3 text-slate-600">{sub.state || 'All India'}</td>
-                      <td className="p-3">
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          {sub.channel || 'WhatsApp'}
-                        </span>
-                      </td>
-                      <td className="p-3 text-slate-500 text-[11px]">
-                        {sub.subscribedAt ? new Date(sub.subscribedAt).toLocaleDateString('en-IN') : 'Recent'}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <SubscribersTab
+          subscribers={subscribers}
+          loadingSubscribers={loadingSubscribers}
+          fetchSubscribers={fetchSubscribers}
+        />
       )}
 
       {/* System diagnostics tab */}
       {activeTab === 'system' && (
-        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/90 shadow-2xs space-y-5 animate-fade-in">
-          <div>
-            <h3 className="text-sm font-bold text-slate-950 flex items-center gap-1.5 mb-1">
-              <Activity className="w-4 h-4 text-slate-800" /> System Health & API Diagnostics
-            </h3>
-            <p className="text-xs text-slate-500">Live operational status of backend sync engines and endpoints.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-2">
-              <h4 className="font-bold text-slate-900">Endpoints & Microservices</h4>
-              <div className="flex justify-between items-center py-1 border-b border-slate-200/40">
-                <span className="text-slate-600 font-mono text-[11px]">POST /api/sync-schemes</span>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">200 OK</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-200/40">
-                <span className="text-slate-600 font-mono text-[11px]">POST /api/subscribe-alerts</span>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">200 OK</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-slate-600 font-mono text-[11px]">Cloud Firestore Connection</span>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">CONNECTED</span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 space-y-2">
-              <h4 className="font-bold text-slate-900">Database & Security Config</h4>
-              <div className="flex justify-between items-center py-1 border-b border-slate-200/40">
-                <span className="text-slate-600">Firestore Collections</span>
-                <span className="font-bold text-slate-900">`schemes`, `scheme_subscribers`</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-200/40">
-                <span className="text-slate-600">Total Indexed Documents</span>
-                <span className="font-bold text-slate-900">{schemes.length} records</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="text-slate-600">Environment</span>
-                <span className="text-[10px] font-bold text-slate-800 bg-slate-200/60 px-2 py-0.5 rounded">PRODUCTION READY</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 10-Stage GovTech Pipeline Architecture Monitor */}
-          <div className="p-5 rounded-2xl bg-slate-950 text-white space-y-4">
-            <div className="flex justify-between items-start flex-wrap gap-2">
-              <div>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#7eed9e]/20 text-[#7eed9e] text-[10px] font-bold uppercase tracking-wider mb-2">
-                  <Sparkles className="w-3 h-3" /> 10-Stage GovTech Intelligence Engine
-                </span>
-                <h4 className="text-sm font-bold text-white">Automated Scheme Harvester & Rule Extractor</h4>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  End-to-end ingestion pipeline from official Maharashtra & Central portals into Firestore.
-                </p>
-              </div>
-
-              <button
-                onClick={handleSync}
-                disabled={syncing}
-                className="px-3.5 py-1.5 rounded-xl bg-[#7eed9e] hover:bg-[#68e48d] text-slate-950 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'Executing Pipeline...' : 'Run Pipeline Now'}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2">
-              {(pipelineStages.length > 0 ? pipelineStages.map((ps) => ({
-                stage: ps.stage,
-                desc: ps.details || 'Automated GovTech sync stage',
-                count: `${ps.count} records`,
-                status: ps.status.toUpperCase()
-              })) : [
-                { stage: '1. Official Portals', desc: 'MahaDBT, MP-SIMS, Central Gazette', count: '3 Portals', status: 'ACTIVE' },
-                { stage: '2. Raw Ingestion', desc: 'Continuous JSON & Table Harvester', count: '167 Schemes', status: 'SYNCHRONIZED' },
-                { stage: '3. Validation', desc: 'Discard generic/malformed headlines', count: '100% Verified', status: 'CLEANED' },
-                { stage: '4. Normalization', desc: 'Devanagari translation & taxonomy', count: 'Standardized', status: 'ENRICHED' },
-                { stage: '5. Rule Extraction', desc: 'Age, income, caste, gender, occupation', count: 'Rule-Tagged', status: 'STRUCTURED' },
-                { stage: '6. Doc Generation', desc: '7/12, caste validity, proofs checklist', count: 'Auto-Checklist', status: 'ATTACHED' },
-                { stage: '7. Benefit Valuation', desc: 'Direct DBT, fee waivers, hospital cover', count: 'Valuated', status: 'CALCULATED' },
-                { stage: '8. Firestore Sync', desc: 'Indexed batch writes & live search', count: `${schemes.length} Stored`, status: 'DEPLOYED' }
-              ]).map((s, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] font-bold text-slate-400">{s.stage}</span>
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/60">
-                        {s.status}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 font-medium">{s.desc}</p>
-                  </div>
-                  <p className="text-xs font-bold text-[#7eed9e] mt-2">{s.count}</p>
-                </div>
-              ))}
-            </div>
-
-            {pipelineLogs.length > 0 && (
-              <div className="mt-4 p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] font-mono text-slate-300 max-h-40 overflow-y-auto space-y-1">
-                <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">Live Pipeline Logs:</div>
-                {pipelineLogs.slice(-10).map((log, idx) => (
-                  <div key={idx} className="text-slate-300 leading-tight">{log}</div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <DiagnosticsTab
+          schemes={schemes}
+          pipelineStages={pipelineStages}
+          pipelineLogs={pipelineLogs}
+          syncing={syncing}
+          handleSync={handleSync}
+        />
       )}
-
     </div>
   );
 }
