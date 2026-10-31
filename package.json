@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "npx tsx tests/eligibility-engine.test.ts",
+    "test": "npx tsx tests/eligibility-engine.test.ts && npx tsx tests/timeline-extractor.test.ts",
     "db:seed": "npx tsx scripts/push-curated-schemes.ts"
   },
   "dependencies": {

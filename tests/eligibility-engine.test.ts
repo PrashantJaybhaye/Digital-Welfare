@@ -4,19 +4,6 @@ import { Scheme } from '../types/scheme';
 
 const mockSchemes: Scheme[] = [
   {
-    id: 'ladki-bahin',
-    title: 'Mukhyamantri Majhi Ladki Bahin Yojana',
-    description: 'Financial independence and nutritional support for women in Maharashtra',
-    category: 'Women Empowerment',
-    state: 'Maharashtra',
-    minAge: 21,
-    maxAge: 65,
-    maxIncome: 250000,
-    targetGender: 'Female',
-    financialBenefitText: '₹1,500 / Month Direct DBT',
-    applyLink: 'https://ladakibahin.maharashtra.gov.in',
-  },
-  {
     id: 'pm-kisan',
     title: 'PM Kisan Samman Nidhi',
     description: 'Direct income support for all landholding farmer families across India',
@@ -25,8 +12,10 @@ const mockSchemes: Scheme[] = [
     minAge: 18,
     maxIncome: 400000,
     targetOccupation: 'Farmer',
+    benefits: ['₹6,000 / Year in 3 instalments'],
     financialBenefitText: '₹6,000 / Year in 3 instalments',
     applyLink: 'https://pmkisan.gov.in',
+    lastSyncedAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 'post-matric-scholarship',
@@ -38,8 +27,10 @@ const mockSchemes: Scheme[] = [
     maxAge: 35,
     maxIncome: 250000,
     socialCategory: 'SC/ST',
+    benefits: ['100% Tuition Waiver + Maintenance Allowance'],
     financialBenefitText: '100% Tuition Waiver + Maintenance Allowance',
     applyLink: 'https://mahadbt2.maharashtra.gov.in',
+    lastSyncedAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 'ayushman-bharat',
@@ -48,8 +39,10 @@ const mockSchemes: Scheme[] = [
     category: 'Healthcare & Nutrition',
     state: 'All India',
     maxIncome: 300000,
+    benefits: ['₹5,00,000 cashless hospital cover per family per year'],
     financialBenefitText: '₹5,00,000 per family per year',
     applyLink: 'https://pmjay.gov.in',
+    lastSyncedAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 'railway-station-redevelopment',
@@ -57,6 +50,8 @@ const mockSchemes: Scheme[] = [
     description: 'Infrastructure development and civil modernization for railway stations',
     category: 'Infrastructure',
     state: 'All India',
+    benefits: ['Railway station platform and civil works redevelopment'],
+    lastSyncedAt: '2026-01-01T00:00:00.000Z',
   },
   {
     id: 'up-kanya-sumangala',
@@ -66,6 +61,8 @@ const mockSchemes: Scheme[] = [
     state: 'Uttar Pradesh',
     targetGender: 'Female',
     maxIncome: 300000,
+    benefits: ['₹15,000 conditional financial assistance in 6 stages'],
+    lastSyncedAt: '2026-01-01T00:00:00.000Z',
   },
 ];
 

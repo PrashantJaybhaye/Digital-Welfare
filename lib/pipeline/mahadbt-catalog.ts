@@ -3,22 +3,6 @@ import { RawSchemeInput } from './validator';
 export const MAHARASHTRA_OFFICIAL_RAW_SCHEMES: RawSchemeInput[] = [
   // Women & Child Development
   {
-    title: 'Mukhyamantri Majhi Ladki Bahin Yojana',
-    description: 'Flagship economic empowerment scheme by the Government of Maharashtra providing direct monthly financial assistance of ₹1,500 to women aged 21 to 65 years with annual family income up to ₹2.5 Lakh.',
-    department: 'Women and Child Development Department',
-    category: 'Women & Child Welfare',
-    state: 'Maharashtra',
-    minAge: 21,
-    maxAge: 65,
-    maxIncome: 250000,
-    targetGender: 'Female',
-    targetOccupation: 'All Citizens',
-    socialCategory: 'All',
-    applyLink: 'https://ladakibahin.maharashtra.gov.in',
-    sourceUrl: 'https://ladakibahin.maharashtra.gov.in',
-    sourceType: 'MahaDBT'
-  },
-  {
     title: 'Lek Ladki Yojana',
     description: 'Financial empowerment and girl-child support scheme providing cumulative ₹1,01,000 cash assistance at different educational stages from birth up to 18 years for girls born in yellow or orange ration card families.',
     department: 'Women and Child Development Department',

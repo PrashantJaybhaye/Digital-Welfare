@@ -136,7 +136,6 @@ DigitalWelfare indexes active government welfare programs across central and sta
 | **Tribal Development (TDD)** | ST Post-Matric Scholarship, Swayam Yojana, Birsa Munda Krishi Kranti | Scheduled Tribes (ST) | 100% Tuition Waiver + ₹51,000/yr DBT + Farm Subsidies |
 | **OBC, VJNT & SBC Welfare** | Post-Matric Scholarship, Savitribai Phule Aadhaar, Modi Awas Gharkul | OBC, VJNT, SBC Citizens | Tuition Reimbursement + ₹60,000/yr Hostel + Housing |
 | **Agriculture & Farmers** | Namo Shetkari Samman Nidhi, Baliraja Free Power, Magel Tyala Solar Pump | Farmers & Landowners | ₹6,000/yr State DBT + 100% Free Farm Power + Solar Pumps |
-| **Women & Child Welfare** | Mukhyamantri Majhi Ladki Bahin Yojana, Lek Ladki Yojana, Annapurna Free LPG | Women & Girl Children | ₹1,500/month DBT + ₹1.01L girl-child aid + 3 Free Gas Refills/yr |
 | **Youth & Employment** | CM Yuva Karya Prashikshan Yojana, MAPS Apprenticeships, Annasaheb Patil Loans | Youth & Job Seekers | ₹6,000–₹10,000/mo Internship Stipend + Interest-Free Loans |
 | **Public Health** | Mahatma Jyotirao Phule Jan Arogya Yojana (Universal MJPJAY / PM-JAY) | All Citizens | ₹5,00,000/year Cashless Hospital Care across 1,000+ Hospitals |
 | **Labour & Construction (BOCW)** | Bandhkam Kamgar Welfare, Education & Marriage Grants, Atal Aahar | Construction Workers | Safety Kits + ₹5k–₹1L Grants + ₹5 Hot Meals |

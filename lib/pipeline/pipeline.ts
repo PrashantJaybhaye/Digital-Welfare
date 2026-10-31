@@ -4,6 +4,7 @@ import { normalizeRawScheme } from './normalizer';
 import { extractEligibilityRules } from './rule-extractor';
 import { extractRequiredDocuments } from './doc-extractor';
 import { extractBenefits } from './benefit-extractor';
+import { extractSchemeTimeline } from './timeline-extractor';
 import { MAHARASHTRA_OFFICIAL_RAW_SCHEMES } from './mahadbt-catalog';
 
 export interface PipelineStageMetric {
@@ -221,6 +222,7 @@ export class GovTechSchemePipeline {
         estimatedBenefitAmount: benefitData.estimatedBenefitAmount,
         financialBenefitText: benefitData.financialBenefitText,
         applyLink: resolveActiveApplicationUrl(norm.title, norm.category, norm.state, norm.applyLink),
+        applicationTimeline: extractSchemeTimeline(norm),
         lastSyncedAt: now
       };
 
