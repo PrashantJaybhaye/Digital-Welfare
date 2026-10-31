@@ -10,6 +10,7 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable_%26_Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
 [![Security Audited](https://img.shields.io/badge/Security-20--Point_Hardened-10b981?style=flat-square)](https://github.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Live Prototype](https://img.shields.io/badge/Live_Prototype-digitalwelfare.vercel.app-black?style=flat-square&logo=vercel)](https://digitalwelfare.vercel.app)
 
 ---
 
@@ -26,6 +27,7 @@
 - [Deployment Guide (Vercel & Cloud)](#-deployment-guide-vercel--cloud)
 - [NPM Scripts Reference](#-npm-scripts-reference)
 - [Contributing & Community](#-contributing--community)
+- [Team & Hackathon Submission](#-team--hackathon-submission)
 - [License](#-license)
 
 ---
@@ -394,11 +396,30 @@ Contributions, corrections to scheme guidelines, and feature improvements are wa
 
 ---
 
+## 👥 Team & Hackathon Submission
+
+Built for **Hack for Social Cause (HSC)** under the **Government and Civic Technology** theme.
+
+* **Team Name:** AlphaCoders
+* **Team ID:** `HSC | MH | 00284`
+* **State / UT:** Maharashtra
+* **Live Prototype:** [digitalwelfare.vercel.app](https://digitalwelfare.vercel.app)
+
+### Team Composition & Roles:
+| Member | Role | Contribution Focus |
+| :--- | :--- | :--- |
+| **Prashant Jaybhaye** | Frontend & UI | Next.js 16 App Router, Tailwind CSS, Responsive UI & Print Dossiers |
+| **Vaibhavi Mendre** | Backend & Data | Scheme Data Ingestion, Firestore Backend & APIs |
+| **Swayam Bana** | Testing & Research | Scheme Rule Verification, Criteria Validation & Quality Assurance |
+
+---
+
 ## 📄 License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-Developed as an open-source civic initiative for the **Hack for Social (MY Bharat)** hackathon.
+Copyright (c) 2026 **AlphaCoders** (Prashant Jaybhaye, Vaibhavi Mendre, Swayam Bana)  
+*Open-source Digital Public Good created for Hack for Social Cause.*
 
 ---
 
