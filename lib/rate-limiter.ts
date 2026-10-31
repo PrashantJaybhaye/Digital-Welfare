@@ -72,8 +72,16 @@ export function rateLimit(
 export function getClientIp(req: Request): string {
   const xForwardedFor = req.headers.get('x-forwarded-for');
   if (xForwardedFor) {
-    return xForwardedFor.split(',')[0].trim();
+    const candidate = xForwardedFor.split(',')[0].trim();
+    // Validate that candidate looks like a valid IPv4 or IPv6 address to prevent header injection
+    if (/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(candidate) || candidate.includes(':')) {
+      return candidate;
+    }
   }
-  return req.headers.get('x-real-ip') || '127.0.0.1';
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp && (/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(realIp) || realIp.includes(':'))) {
+    return realIp.trim();
+  }
+  return '127.0.0.1';
 }
 

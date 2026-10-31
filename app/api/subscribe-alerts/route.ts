@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase-admin';
 import { verifyAdminRequest } from '@/lib/admin-auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limiter';
+import { sanitizeText, sanitizeEmail, sanitizePhone } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,40 +15,45 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: false,
         error: 'Too many subscription attempts. Please try again later.'
-      }, { status: 429 });
+      }, { 
+        status: 429,
+        headers: {
+          'Retry-After': Math.ceil(limiter.resetMs / 1000).toString()
+        }
+      });
     }
 
-    const { contact, category, state, channel } = await req.json();
+    const body = await req.json();
+    const rawContact = typeof body.contact === 'string' ? body.contact.trim() : '';
 
-    if (!contact || typeof contact !== 'string' || !contact.trim()) {
+    if (!rawContact) {
       return NextResponse.json({ success: false, error: 'Valid Phone number or Email is required' }, { status: 400 });
     }
 
-    const cleanContact = contact.trim().toLowerCase().slice(0, 150);
-    
     // Validate email or 10-digit Indian phone
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanContact);
-    const isPhone = /^[6-9]\d{9}$/.test(cleanContact.replace(/[^0-9]/g, ''));
+    const validEmail = sanitizeEmail(rawContact);
+    const validPhone = sanitizePhone(rawContact);
 
-    if (!isEmail && !isPhone) {
+    if (!validEmail && !validPhone) {
       return NextResponse.json({
         success: false,
         error: 'Please enter a valid 10-digit Indian mobile number or email address'
       }, { status: 400 });
     }
 
-    const safeChannel = ['WhatsApp', 'Email', 'SMS'].includes(channel) ? channel : 'WhatsApp';
-    const safeCategory = typeof category === 'string' ? category.trim().slice(0, 100) : 'All Schemes';
-    const safeState = typeof state === 'string' ? state.trim().slice(0, 100) : 'All India';
+    const cleanContact = validEmail || validPhone || '';
+    const channel = ['WhatsApp', 'Email', 'SMS'].includes(body.channel) ? body.channel : 'WhatsApp';
+    const safeCategory = sanitizeText(body.category, 100) || 'All Schemes';
+    const safeState = sanitizeText(body.state, 100) || 'All India';
 
-    const docId = cleanContact.replace(/[^a-z0-9]/g, '_');
+    const docId = cleanContact.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const subscriberRef = adminDb.collection('scheme_subscribers').doc(docId);
 
     await subscriberRef.set({
       contact: cleanContact,
       category: safeCategory,
       state: safeState,
-      channel: safeChannel,
+      channel,
       subscribedAt: new Date().toISOString(),
       isActive: true
     }, { merge: true });
@@ -57,7 +63,6 @@ export async function POST(req: Request) {
       message: 'Successfully subscribed to Scheme Alerts!'
     });
   } catch (err: unknown) {
-    console.error('Subscription error:', err);
     const error = err instanceof Error ? err.message : 'Internal server error';
     return NextResponse.json({ success: false, error }, { status: 500 });
   }
@@ -80,8 +85,8 @@ export async function GET(req: Request) {
     }));
     return NextResponse.json({ success: true, subscribers });
   } catch (err: unknown) {
-    console.error('Fetch subscribers error:', err);
-    return NextResponse.json({ success: true, subscribers: [] });
+    const error = err instanceof Error ? err.message : 'Failed to load subscribers';
+    return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }
 
@@ -95,14 +100,15 @@ export async function DELETE(req: Request) {
   }
 
   try {
-    const { id } = await req.json();
-    if (!id || typeof id !== 'string') {
+    const body = await req.json();
+    const id = sanitizeText(body.id, 200);
+    if (!id) {
       return NextResponse.json({ success: false, error: 'Subscriber ID is required' }, { status: 400 });
     }
-    await adminDb.collection('scheme_subscribers').doc(id.trim()).delete();
+    await adminDb.collection('scheme_subscribers').doc(id).delete();
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
-    console.error('Failed to delete subscriber:', err);
-    return NextResponse.json({ success: false, error: 'Failed to delete subscriber' }, { status: 500 });
+    const error = err instanceof Error ? err.message : 'Failed to delete subscriber';
+    return NextResponse.json({ success: false, error }, { status: 500 });
   }
 }

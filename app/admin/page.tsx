@@ -56,16 +56,27 @@ export default function AdminDashboard() {
   const [selectedSchemeIds, setSelectedSchemeIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
-  // Check Firebase Auth in background
+  // Check Firebase Auth & Secure Server Session in background
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) setFirebaseAuthed(true);
     });
+
+    // Check existing server session
+    fetch('/api/admin/auth')
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated) {
+          setAdminSessionAuth(true);
+        }
+      })
+      .catch(() => {});
+
     return () => unsubscribe();
   }, []);
 
   const getAdminHeaders = useCallback((): Record<string, string> => {
-    const token = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') || 'admin2026' : 'admin2026';
+    const token = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') || '' : '';
     return {
       'Content-Type': 'application/json',
       'x-admin-key': token,
@@ -101,6 +112,7 @@ export default function AdminDashboard() {
 
   const handleAdminLogout = async () => {
     try {
+      await fetch('/api/admin/auth', { method: 'DELETE' });
       await signOut(auth);
     } catch {}
     if (typeof window !== 'undefined') {
@@ -531,9 +543,10 @@ export default function AdminDashboard() {
                   type={showPassword ? "text" : "password"}
                   required
                   autoFocus
+                  autoComplete="current-password"
                   value={passcode}
                   onChange={(e) => setPasscode(e.target.value)}
-                  placeholder="Enter admin passcode (admin2026)..."
+                  placeholder="Enter Master Admin Access Key..."
                   className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200/90 rounded-2xl text-sm font-semibold text-slate-950 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-950 focus:border-transparent transition-all shadow-2xs"
                 />
 
@@ -546,16 +559,13 @@ export default function AdminDashboard() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500 mt-2 font-normal flex items-center justify-between">
-                <span>Security Access Key:</span>
-                <button
-                  type="button"
-                  onClick={() => setPasscode('admin2026')}
-                  className="font-mono font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
-                >
-                  admin2026 (Click to use)
-                </button>
-              </p>
+              
+              <div className="mt-3 p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  <span className="font-semibold text-slate-800">Protected Gateway:</span> Authenticate with the secret configured in your deployment environment (<code className="font-mono text-slate-800 bg-slate-200/70 px-1 py-0.5 rounded text-[10px]">ADMIN_SECRET</code>). Sessions expire after 2 hours.
+                </p>
+              </div>
             </div>
 
             <button
@@ -600,7 +610,7 @@ export default function AdminDashboard() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Live Operations Hub
             </span>
-            <span className="text-[10px] font-bold text-slate-400">Firebase Firestore Connected</span>
+            <span className="text-[10px] font-bold text-slate-400">Cloud Datastore Synchronized</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-950 tracking-tight leading-tight">

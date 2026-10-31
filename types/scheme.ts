@@ -1,3 +1,5 @@
+import { extractRequiredDocuments } from '@/lib/pipeline/doc-extractor';
+
 export interface Scheme {
   id?: string;
   title: string;
@@ -49,14 +51,10 @@ export function generateSlug(title: string): string {
 }
 
 export function getSchemeDocuments(scheme: Scheme): string[] {
-  if (scheme.requiredDocuments && scheme.requiredDocuments.length > 0) {
+  if (scheme.requiredDocuments && scheme.requiredDocuments.length >= 3) {
     return scheme.requiredDocuments;
   }
-  return [
-    'Aadhaar Card (Identity & Proof of Address)',
-    'Bank Account Passbook / Cancelled Cheque (Linked to Aadhaar for DBT)',
-    'Recent Passport-Sized Photographs'
-  ];
+  return extractRequiredDocuments(scheme);
 }
 
 export function getSchemeApplicationSteps(scheme: Scheme): { title: string; desc: string }[] {

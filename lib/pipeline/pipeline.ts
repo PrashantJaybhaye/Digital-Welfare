@@ -1,5 +1,5 @@
 import { Scheme, generateSlug, DEFAULT_APPLICATION_STEPS } from '@/types/scheme';
-import { RawSchemeInput, validateRawScheme } from './validator';
+import { RawSchemeInput, validateRawScheme, resolveActiveApplicationUrl } from './validator';
 import { normalizeRawScheme } from './normalizer';
 import { extractEligibilityRules } from './rule-extractor';
 import { extractRequiredDocuments } from './doc-extractor';
@@ -218,7 +218,7 @@ export class GovTechSchemePipeline {
         stepsToApply,
         estimatedBenefitAmount: benefitData.estimatedBenefitAmount,
         financialBenefitText: benefitData.financialBenefitText,
-        applyLink: norm.applyLink,
+        applyLink: resolveActiveApplicationUrl(norm.title, norm.category, norm.state, norm.applyLink),
         lastSyncedAt: now
       };
 

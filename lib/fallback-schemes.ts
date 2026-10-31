@@ -3,6 +3,7 @@ import { MAHARASHTRA_OFFICIAL_RAW_SCHEMES } from './pipeline/mahadbt-catalog';
 import { extractEligibilityRules } from './pipeline/rule-extractor';
 import { extractRequiredDocuments } from './pipeline/doc-extractor';
 import { extractBenefits } from './pipeline/benefit-extractor';
+import { resolveActiveApplicationUrl } from './pipeline/validator';
 
 export const FALLBACK_SCHEMES: Scheme[] = MAHARASHTRA_OFFICIAL_RAW_SCHEMES.map((raw, idx) => {
   const rules = extractEligibilityRules(raw);
@@ -27,7 +28,7 @@ export const FALLBACK_SCHEMES: Scheme[] = MAHARASHTRA_OFFICIAL_RAW_SCHEMES.map((
     stepsToApply: raw.stepsToApply?.length ? raw.stepsToApply : DEFAULT_APPLICATION_STEPS,
     estimatedBenefitAmount: benefitData.estimatedBenefitAmount,
     financialBenefitText: benefitData.financialBenefitText,
-    applyLink: raw.applyLink,
+    applyLink: resolveActiveApplicationUrl(raw.title, raw.category, raw.state, raw.applyLink),
     lastSyncedAt: new Date().toISOString()
   };
 });

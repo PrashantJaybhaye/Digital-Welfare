@@ -1,0 +1,10 @@
+# Robots.txt for Digital Welfare Portal
+User-agent: *
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Allow: /
+
+# Sitemap
+Sitemap: https://digital-welfare.gov.in/sitemap.xml
+

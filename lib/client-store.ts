@@ -94,7 +94,18 @@ export function useAdminSessionAuth(): boolean {
     subscribeAdminAuth,
     () => {
       try {
-        return sessionStorage.getItem('welfare_admin_auth') === 'true';
+        const isAuth = sessionStorage.getItem('welfare_admin_auth') === 'true';
+        if (!isAuth) return false;
+        
+        // 2 hours automatic session timeout
+        const loginTime = Number(sessionStorage.getItem('admin_auth_timestamp') || '0');
+        if (Date.now() - loginTime > 2 * 60 * 60 * 1000) {
+          sessionStorage.removeItem('welfare_admin_auth');
+          sessionStorage.removeItem('admin_token');
+          sessionStorage.removeItem('admin_auth_timestamp');
+          return false;
+        }
+        return true;
       } catch {
         return false;
       }
@@ -107,8 +118,11 @@ export function setAdminSessionAuth(authenticated: boolean) {
   try {
     if (authenticated) {
       sessionStorage.setItem('welfare_admin_auth', 'true');
+      sessionStorage.setItem('admin_auth_timestamp', Date.now().toString());
     } else {
       sessionStorage.removeItem('welfare_admin_auth');
+      sessionStorage.removeItem('admin_token');
+      sessionStorage.removeItem('admin_auth_timestamp');
     }
   } catch {}
   adminAuthListeners.forEach(listener => {

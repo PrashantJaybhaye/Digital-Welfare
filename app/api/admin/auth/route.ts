@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
-import { isAuthorizedAdmin, verifyAdminRequest } from '@/lib/admin-auth';
+import { 
+  isAuthorizedAdmin, 
+  verifyAdminRequest, 
+  createAdminSessionToken, 
+  buildAdminCookie, 
+  buildClearAdminCookie 
+} from '@/lib/admin-auth';
 import { rateLimit, getClientIp } from '@/lib/rate-limiter';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +32,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const passcode = body.passcode;
+    const passcode = typeof body.passcode === 'string' ? body.passcode.trim() : '';
 
     if (!passcode || !isAuthorizedAdmin(passcode)) {
       return NextResponse.json({
@@ -35,10 +41,20 @@ export async function POST(req: Request) {
       }, { status: 401 });
     }
 
-    return NextResponse.json({
+    // Generate secure HMAC session token
+    const token = createAdminSessionToken();
+    const cookieHeader = token ? buildAdminCookie(token) : '';
+
+    const response = NextResponse.json({
       success: true,
-      message: 'Authentication successful.'
+      message: 'Authentication successful. Secure session initiated.'
     });
+
+    if (cookieHeader) {
+      response.headers.set('Set-Cookie', cookieHeader);
+    }
+
+    return response;
   } catch {
     return NextResponse.json({ success: false, error: 'Invalid request payload' }, { status: 400 });
   }
@@ -49,3 +65,11 @@ export async function GET(req: Request) {
   return NextResponse.json({ authenticated: isAuth }, { status: isAuth ? 200 : 401 });
 }
 
+export async function DELETE() {
+  const response = NextResponse.json({
+    success: true,
+    message: 'Admin session terminated successfully.'
+  });
+  response.headers.set('Set-Cookie', buildClearAdminCookie());
+  return response;
+}

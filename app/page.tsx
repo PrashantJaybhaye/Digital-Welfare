@@ -12,10 +12,12 @@ import {
 export default function Home() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSearching(true);
     if (searchQuery.trim()) {
       router.push(`/schemes?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
@@ -90,9 +92,17 @@ export default function Home() {
                 />
                 <button
                   type="submit"
-                  className="bg-[#7eed9e] hover:bg-[#69df8e] text-slate-950 font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm transition-all shrink-0 active:scale-98 shadow-2xs cursor-pointer"
+                  disabled={isSearching}
+                  className="bg-[#7eed9e] hover:bg-[#69df8e] disabled:opacity-75 text-slate-950 font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm transition-all shrink-0 active:scale-98 shadow-2xs cursor-pointer flex items-center justify-center gap-2 min-w-36"
                 >
-                  Check eligibility
+                  {isSearching ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span>Checking...</span>
+                    </>
+                  ) : (
+                    <span>Check eligibility</span>
+                  )}
                 </button>
               </div>
             </form>

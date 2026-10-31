@@ -37,6 +37,7 @@ export default function SchemeCard({
   onShareWhatsApp 
 }: SchemeCardProps) {
   const [copied, setCopied] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const benefit = getEstimatedBenefit(scheme);
   const categoryLabel = formatCategoryName(scheme.category);
 
@@ -166,10 +167,22 @@ export default function SchemeCard({
       <div className="pt-2.5 border-t border-slate-100/90 flex items-center justify-between gap-2 mt-0.5">
         <Link 
           href={`/schemes/${scheme.id}`} 
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-950 hover:bg-slate-800 text-white font-semibold text-[11.5px] tracking-tight active:scale-95 transition-all shadow-2xs"
+          onClick={() => setIsNavigating(true)}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white font-semibold text-[11.5px] tracking-tight active:scale-95 transition-all shadow-2xs ${
+            isNavigating ? 'bg-slate-800 pointer-events-none ring-2 ring-slate-400' : 'bg-slate-950 hover:bg-slate-800'
+          }`}
         >
-          <span>Eligibility</span>
-          <ChevronRight className="w-3 h-3 text-slate-300" />
+          {isNavigating ? (
+            <>
+              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Opening...</span>
+            </>
+          ) : (
+            <>
+              <span>Eligibility</span>
+              <ChevronRight className="w-3 h-3 text-slate-300" />
+            </>
+          )}
         </Link>
 
         <div className="flex items-center gap-1">

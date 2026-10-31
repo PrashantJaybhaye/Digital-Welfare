@@ -49,23 +49,46 @@ body {
 
 @media print {
   @page {
-    size: A4 portrait;
-    margin: 8mm;
+    size: auto; /* Open free page size - allows browser/printer to adapt smoothly across all paper sizes without cramped shrinking */
+    margin: 10mm 12mm;
   }
 
   html, body {
     background: #ffffff !important;
-    color: #020617 !important;
-    font-size: 9.5pt !important;
-    line-height: 1.25 !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
     width: 100% !important;
+    max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
+  .print-page-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
   .print-avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }

@@ -41,6 +41,98 @@ const INVALID_TITLE_PATTERNS = [
   /^[0-9\s.,_-]+$/
 ];
 
+const DISCONTINUED_PATTERNS = [
+  /\bdiscontinued\b/i,
+  /\bsuperseded by\b/i,
+  /\bmerged into\b/i,
+  /\bclosed on\b/i,
+  /\bended in\b/i,
+  /\bformer (scheme|program|initiative)\b/i,
+  /\bno longer (operational|active|accepting)\b/i,
+  /\bterminated\b/i,
+  /\barchived scheme\b/i,
+  /\bvalid only till 20(1\d|2[0-3])\b/i
+];
+
+/**
+ * Detects whether a scheme has been discontinued, expired, or replaced by newer government programs.
+ */
+export function isSchemeExpired(title: string, description: string): boolean {
+  const combined = `${title} ${description}`.toLowerCase();
+  return DISCONTINUED_PATTERNS.some(pattern => pattern.test(combined));
+}
+
+/**
+ * Resolves verified live official government application links.
+ * Cleans dead URLs, Wikipedia links, and placeholders, routing to active official portals.
+ */
+export function resolveActiveApplicationUrl(
+  title?: string | null,
+  category?: string | null,
+  state?: string | null,
+  rawUrl?: string | null
+): string {
+  const text = `${title || ''} ${category || ''}`.toLowerCase();
+  const isMaha = (state || 'Maharashtra').toLowerCase().includes('maharashtra');
+
+  if (rawUrl && typeof rawUrl === 'string') {
+    const trimmed = rawUrl.trim();
+    if (
+      trimmed.startsWith('https://') &&
+      !trimmed.includes('wikipedia.org') &&
+      !trimmed.includes('example.com') &&
+      !trimmed.includes('localhost') &&
+      (trimmed.includes('.gov.in') || trimmed.includes('.nic.in') || trimmed.includes('.org') || trimmed.includes('.in'))
+    ) {
+      return trimmed.replace(/\/+$/, '');
+    }
+  }
+
+  // Scheme-specific official live portals
+  if (text.includes('ladki bahin')) return 'https://ladakibahin.maharashtra.gov.in';
+  if (text.includes('lek ladki')) return 'https://womenchild.maharashtra.gov.in';
+  if (text.includes('annapurna') || text.includes('gas cylinder')) return 'https://mahafood.gov.in';
+
+  if (text.includes('kisan') || text.includes('shetkari') || text.includes('krishi') || text.includes('solar pump')) {
+    return isMaha ? 'https://krishi.maharashtra.gov.in' : 'https://pmkisan.gov.in';
+  }
+
+  if (text.includes('ayushman') || text.includes('pm-jay') || text.includes('pmjay') || text.includes('mjpjay') || text.includes('arogya')) {
+    return isMaha ? 'https://www.jeevandayee.gov.in' : 'https://beneficiary.nha.gov.in';
+  }
+
+  if (text.includes('pmegp') || text.includes('kvic')) {
+    return 'https://www.kviconline.gov.in/pmegpeportal/pmegphome/index.jsp';
+  }
+
+  if (text.includes('mudra')) {
+    return 'https://www.mudra.org.in';
+  }
+
+  if (text.includes('stand up india')) {
+    return 'https://www.standupmitra.in';
+  }
+
+  if (text.includes('awas') || text.includes('housing') || text.includes('gharkul') || text.includes('pmay')) {
+    return text.includes('gramin') || text.includes('rural') ? 'https://pmayg.nic.in' : 'https://pmaymis.gov.in';
+  }
+
+  if (text.includes('annasaheb patil') || text.includes('mahaswayam') || text.includes('yuva karya') || text.includes('employment')) {
+    return 'https://rojgar.mahaswayam.gov.in';
+  }
+
+  if (text.includes('bocw') || text.includes('bandhkam')) {
+    return 'https://mahabocw.in';
+  }
+
+  if (isMaha) {
+    return 'https://mahadbt2.maharashtra.gov.in';
+  }
+
+  // Default official Government of India unified portal
+  return 'https://www.myscheme.gov.in';
+}
+
 export function validateRawScheme(input: RawSchemeInput): ValidationResult {
   if (!input) {
     return { isValid: false, reason: 'Empty input object' };
@@ -67,6 +159,13 @@ export function validateRawScheme(input: RawSchemeInput): ValidationResult {
     return { isValid: false, reason: 'Description contains error or 404 text' };
   }
 
+  // Check if scheme has been discontinued or expired
+  if (isSchemeExpired(rawTitle, rawDesc)) {
+    return { isValid: false, reason: 'Scheme is expired, discontinued, or superseded' };
+  }
+
+  const validatedApplyLink = resolveActiveApplicationUrl(rawTitle, input.category, input.state, input.applyLink);
+
   return {
     isValid: true,
     sanitized: {
@@ -74,7 +173,8 @@ export function validateRawScheme(input: RawSchemeInput): ValidationResult {
       title: rawTitle,
       description: rawDesc,
       state: (input.state || 'Maharashtra').trim(),
-      category: (input.category || 'MahaDBT (Maharashtra)').trim()
+      category: (input.category || 'MahaDBT (Maharashtra)').trim(),
+      applyLink: validatedApplyLink
     }
   };
 }

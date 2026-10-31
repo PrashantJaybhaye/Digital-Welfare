@@ -15,6 +15,7 @@ export default function CompareSchemesPage() {
   const [selectedSchemeIds, setSelectedSchemeIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [printDate, setPrintDate] = useState('');
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     async function loadSchemes() {
@@ -83,8 +84,12 @@ export default function CompareSchemesPage() {
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
+      setIsPrinting(true);
       setPrintDate(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }));
-      window.print();
+      setTimeout(() => {
+        window.print();
+        setIsPrinting(false);
+      }, 200);
     }
   };
 
@@ -157,10 +162,20 @@ export default function CompareSchemesPage() {
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handlePrint}
-                className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-slate-800 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer"
+                disabled={isPrinting}
+                className="px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-400 text-slate-800 font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95 disabled:opacity-75"
                 title="Print official comparison report"
               >
-                <Printer className="w-3.5 h-3.5 text-slate-600" /> Print Report
+                {isPrinting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin" />
+                    <span>Opening Print...</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="w-3.5 h-3.5 text-slate-600" /> Print Report
+                  </>
+                )}
               </button>
 
               {selectedSchemeIds.length >= 2 && (
