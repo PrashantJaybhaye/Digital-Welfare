@@ -1,145 +1,262 @@
-# 🏛️ DigitalWelfare | Public Welfare & Direct Subsidy Portal
+<div align="center">
 
-> **A Next.js 16 citizen-centric portal helping every Indian citizen discover, verify eligibility for, and claim central and state government welfare schemes in seconds.**
+# 🏛️ DigitalWelfare
+
+### One unified platform for discovering, understanding, and accessing government welfare schemes.
+
+Helping citizens discover schemes, verify eligibility, prepare documents, and access welfare benefits through a simple digital experience.
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-digitalwelfare.vercel.app-000000?style=for-the-badge&logo=vercel)](https://digitalwelfare.vercel.app)
+
+<br/>
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.3.1-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.8-blue?style=flat-square&logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![Cloud Datastore](https://img.shields.io/badge/Cloud_Database-NoSQL_Firestore-FFA611?style=flat-square)](https://cloud.google.com/)
+[![Cloud Datastore](https://img.shields.io/badge/Database-Cloud_Firestore-FFA611?style=flat-square&logo=firebase)](https://firebase.google.com/docs/firestore)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable_%26_Offline_Ready-purple?style=flat-square)](https://web.dev/progressive-web-apps/)
-[![Security Audited](https://img.shields.io/badge/Security-20--Point_Hardened-10b981?style=flat-square)](https://github.com/)
+[![Test Suite](https://img.shields.io/badge/Tests-13%2F13_Passing-emerald?style=flat-square&logo=node.js)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Live Prototype](https://img.shields.io/badge/Live_Prototype-digitalwelfare.vercel.app-black?style=flat-square&logo=vercel)](https://digitalwelfare.vercel.app)
+
+</div>
+
+---
+
+## ⚡ Project at a Glance
+
+| Property | Implementation Detail |
+| :--- | :--- |
+| 🚀 **Status** | **Live Prototype** — Deployed and production-built on Next.js 16.3.1 |
+| 🌐 **Platform** | Progressive Web Application (PWA) with responsive mobile & desktop views |
+| 🎯 **Domain** | Civic Technology / Public Welfare & Direct Benefit Transfer (DBT) |
+| 🧩 **Core Stack** | Next.js 16 (App Router, Turbopack) + React 19 + TypeScript 5 + Tailwind CSS v4 |
+| ☁️ **Cloud Datastore** | Google Cloud Firestore (NoSQL document catalog) + Firebase Admin SDK |
+| 📱 **Offline Capability** | Service Worker (`sw.js`) + 25+ scheme offline fallback bundle (`fallback-schemes.ts`) |
+| 🛡️ **Data Privacy** | DPDP Act 2023 aligned — Zero Aadhaar or PII stored on application servers |
+| 🏆 **Hackathon Track** | Hack for Social Cause (HSC) • Government and Civic Technology (`HSC \| MH \| 00284`) |
 
 ---
 
 ## 📋 Table of Contents
-- [The Problem & Vision](#-the-problem--vision)
+- [Why DigitalWelfare?](#-why-digitalwelfare)
+- [Core Citizen Value Flow](#-core-citizen-value-flow)
+- [Product Showcase](#-product-showcase)
+- [Video Demonstration](#-video-demonstration)
 - [Key Features](#-key-features)
-- [System Architecture & Data Flow](#-system-architecture--data-flow)
-- [Scheme Coverage & Benefits](#-scheme-coverage--benefits)
+- [System Architecture](#-system-architecture)
+- [Data Intelligence Pipeline](#-data-intelligence-pipeline)
 - [Technology Stack](#-technology-stack)
+- [Scheme Coverage & Benefits](#-scheme-coverage--benefits)
+- [Security Architecture](#-security-architecture)
+- [Admin Control Center](#-admin-control-center)
 - [Project Directory Structure](#-project-directory-structure)
 - [Getting Started & Local Setup](#-getting-started--local-setup)
-- [Admin Panel Management & Operational Guide](#-admin-panel-management--operational-guide)
-- [20-Point Security & Hardening Architecture](#-20-point-security--hardening-architecture)
-- [Deployment Guide (Vercel & Cloud)](#-deployment-guide-vercel--cloud)
+- [Environment Variables](#-environment-variables)
+- [Deployment Guide](#-deployment-guide)
 - [NPM Scripts Reference](#-npm-scripts-reference)
-- [Contributing & Community](#-contributing--community)
-- [Team & Hackathon Submission](#-team--hackathon-submission)
+- [Project Roadmap](#-project-roadmap)
+- [Hackathon Submission & Team](#-hackathon-submission--team)
 - [License](#-license)
 
 ---
 
-## 🎯 The Problem & Vision
+## 💡 Why DigitalWelfare?
 
-In India, central ministries and state governments allocate hundreds of thousands of crores annually to direct benefit transfer (DBT), education scholarships, farmer assistance, health security, and social safety nets. 
+### The Problem
+Every year, central and state governments allocate hundreds of thousands of crores to welfare, scholarships, health insurance, and agricultural subsidies. Yet millions of eligible citizens miss out due to structural friction:
 
-Despite these resources, **millions of eligible families miss out** due to friction:
-1. **Information Fragmentation:** Schemes are scattered across 50+ central portals and state systems (MahaDBT, MP-SIMS, MahaSwayam, BOCW).
-2. **Complex Gazettes:** Eligibility rules are buried in lengthy legal resolutions, leaving citizens unsure if their age, income ceiling, or category qualifies.
-3. **The "Missing Document" Trap:** Citizens travel miles to Common Service Centres (CSC) or Setu kiosks only to discover they lack specific proofs (e.g., 7/12 extract, Tehsildar income certificate, caste validity).
-4. **Offline Barriers:** Poor internet connectivity in rural districts creates failure points when loading dynamic web applications.
+* **Information Fragmentation:** Schemes are scattered across 50+ departmental websites and state portals (MahaDBT, MP-SIMS, myScheme, BOCW).
+* **Opaque Legal Gazettes:** Complex government resolutions make it difficult for families to know if their income, age, or landholding qualifies.
+* **The "Missing Document" Trap:** Citizens travel miles to Common Service Centres (CSC) or Setu kiosks only to be turned away for missing specific proofs (e.g., 7/12 land extract, caste validity, Tehsildar income certificate).
+* **Connectivity Barriers:** Rural citizens frequently face dropouts and blank screens on heavy legacy portals.
 
-**DigitalWelfare** resolves these challenges through a unified, mobile-first Progressive Web Application with instant rule evaluation, tailored document checklists, printable CSC facilitation dossiers, and zero-downtime offline fallbacks.
+### The Solution
+**DigitalWelfare** provides a streamlined, transparent citizen gateway that unifies discovery, eligibility evaluation, and application readiness into a single responsive application.
+
+```text
+       Traditional Friction                              DigitalWelfare Experience
+┌─────────────────────────────────┐               ┌─────────────────────────────────────┐
+│ 50+ Separate Gov Websites       │               │ 1 Unified Search & Category Browser │
+│ Complex 40-Page PDFs / Gazettes │      ───►     │ Instant 6-Parameter Eligibility     │
+│ Multiple Wasted Kiosk Visits    │               │ Standardized A4 Print Dossier       │
+│ Unclear Income & Document Rules │               │ Pre-Application Checklist (DigiLocker)
+└─────────────────────────────────┘               └─────────────────────────────────────┘
+```
+
+---
+
+## 🔄 Core Citizen Value Flow
+
+The platform guides citizens through a structured, 5-stage entitlement journey:
+
+```text
+  🔎 DISCOVER             🧠 EVALUATE             📊 COMPARE             📄 PREPARE             🏛️ ACCESS
+┌──────────────┐        ┌──────────────┐        ┌──────────────┐       ┌──────────────┐       ┌──────────────┐
+│ Browse 100+  │        │ Input age,   │        │ Contrast up  │       │ Review       │       │ Present A4   │
+│ central and  │   ──►  │ income, and  │   ──►  │ to 3 schemes │  ──►  │ required doc │  ──►  │ dossier at   │
+│ state welfare│        │ occupation to│        │ side-by-side │       │ checklist &  │       │ CSC / Setu   │
+│ programs     │        │ compute aid  │        │ entitlements │       │ guidelines   │       │ kiosk        │
+└──────────────┘        └──────────────┘        └──────────────┘       └──────────────┘       └──────────────┘
+```
+
+---
+
+## 📸 Product Showcase
+
+<div align="center">
+  <img src="public/hero-illustration.png" alt="DigitalWelfare Citizen Interface" width="100%" style="max-width: 820px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.08);" />
+  <p><sub>Citizen-Centric Interface • Real-Time Entitlement Slicing • Standardized GovTech Design System</sub></p>
+</div>
+
+| Route | View | Description |
+| :--- | :--- | :--- |
+| `/schemes` | **Scheme Directory** | Instant search with category filters, department badges, and localized bookmarks. |
+| `/schemes/[id]` | **Scheme Detail Breakdown** | Official department seals, eligibility breakdown, application window, and step-by-step guides. |
+| `/eligibility-check` | **Eligibility Engine** | Demographic calculator delivering personalized subsidy amounts and direct benefit totals. |
+| `/compare` | **3-Way Comparator** | Side-by-side comparison matrix contrasting monetary aid, income ceilings, and document proofs. |
+| `/admin` | **Control Center** | Protected administrative dashboard for scheme authoring, scraping pipelines, and citizen alert tracking. |
+
+---
+
+## 🎥 Video Demonstration
+
+Watch the complete project walkthrough showcasing real-world citizen scheme discovery, eligibility assessment, and CSC dossier generation:
+
+<div align="center">
+  <video src="public/Maharashtra_DigitalWelfare_Explainer_compatible.mp4" controls width="100%" style="max-width: 860px; border-radius: 14px; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2); border: 1px solid rgba(226, 232, 240, 0.8);">
+    Your browser does not support the video tag.
+  </video>
+
+  <p align="center" style="margin-top: 10px;">
+    <strong>🏛️ Maharashtra DigitalWelfare System Walkthrough</strong><br/>
+    <sub>HD Video • Standard H.264 / AAC MP4 • 1080p Compatible</sub>
+  </p>
+
+  <p align="center">
+    <a href="public/Maharashtra_DigitalWelfare_Explainer_compatible.mp4">
+      <img src="https://img.shields.io/badge/▶️_Watch_Video-Local_MP4_(18MB)-E11D48?style=for-the-badge&logo=quicktime" alt="Watch Local Video" />
+    </a>
+    &nbsp;
+    <a href="https://digitalwelfare.vercel.app/Maharashtra_DigitalWelfare_Explainer_compatible.mp4" target="_blank">
+      <img src="https://img.shields.io/badge/🌐_Cloud_Stream-Vercel_Edge_CDN-000000?style=for-the-badge&logo=vercel" alt="Cloud Stream" />
+    </a>
+    &nbsp;
+    <a href="public/socialhack-submission-HSCMH00284.pdf" target="_blank">
+      <img src="https://img.shields.io/badge/📄_HSC_Dossier-Submission_PDF-4F46E5?style=for-the-badge&logo=adobeacrobatreader" alt="Download Evaluation PDF" />
+    </a>
+  </p>
+</div>
+
+### ⏱️ Demonstration Chapters
+| Timestamp | Chapter Module | Key Demonstration Takeaways |
+| :--- | :--- | :--- |
+| **00:00 – 00:30** | **The Grassroots Reality** | Analysis of the rural welfare divide and the 50+ fragmented portals in Maharashtra. |
+| **00:31 – 01:10** | **Smart Scheme Catalog** | Real-time SWR search, instantaneous `<5ms` category filtering, and localized bookmarks. |
+| **01:11 – 01:55** | **Eligibility Engine** | 6-parameter algorithmic matching and aggregate annual financial entitlement calculation. |
+| **01:56 – 02:40** | **CSC Facilitation Dossier** | Single-click generation of the standardized A4 printable record with DigiLocker checklist. |
+| **02:41 – 03:20** | **Admin Control & Sync Pipeline** | Real-time scraper pipeline execution syncing live feeds into Cloud Firestore. |
 
 ---
 
 ## ✨ Key Features
 
-### 1. 🔍 Fast Scheme Catalog & Discovery (`/schemes`)
-- **Stale-While-Revalidate (SWR) Caching:** Schemas load in `< 5ms` from in-memory cache while background validation keeps data fresh.
-- **Dynamic Category & State Filters:** Instantly slice schemes across Agriculture, Higher Education, Health, Women & Child, Social Justice, and Skills.
-- **Bookmark & Save Schemes:** Synchronized client-side bookmarking across browser tabs via storage listeners.
-- **Dedicated Loading Skeletons:** Zero cumulative layout shift (CLS) with route-isolated loading states.
+### 1. 🔎 Smart Scheme Discovery (`/schemes`)
+* **Stale-While-Revalidate (SWR) Caching:** Schemas load in `< 5ms` from in-memory cache while background validation keeps data fresh.
+* **Multi-Department Filtering:** Instant filtering across Agriculture, Higher Education, Health, Women & Child, Social Justice, and Skills.
+* **Persistent Local Bookmarks:** Save schemes directly to browser local storage with multi-tab synchronization.
+* **Dynamic Timelines:** Automatically parses real application deadlines or marks universal programs (e.g. PM-KISAN, Ladki Bahin) as year-round.
 
-### 2. ⚡ Instant Eligibility Engine (`/eligibility-check`)
-- Multi-parameter dynamic matching: Age, Gender, Annual Family Income, Social Category (SC/ST/OBC/General), Occupation, and State.
-- Calculates **Total Annual Financial Entitlement** (e.g., ₹18,000/yr for *Majhi Ladki Bahin*, ₹12,000/yr for *PM-KISAN + Namo Shetkari*, ₹5 Lakh *Universal MJPJAY / PM-JAY* cashless health cover).
-- Identifies missing criteria with actionable steps to qualify.
+### 2. 🧠 Dynamic Eligibility Engine (`/eligibility-check`)
+* **6-Parameter Evaluation:** Evaluates Age boundaries, Gender targets, Family Income thresholds, Occupation profiles, State boundaries, and Social Category affirmative quotas.
+* **Entitlement Valuation:** Calculates total estimated annual aid (e.g., ₹18,000/yr for *Majhi Ladki Bahin*, ₹12,000/yr for *PM-KISAN + Namo Shetkari*, ₹5 Lakh *Ayushman Bharat / MJPJAY* cashless health cover).
+* **Decoupled Architecture:** Built on pure, unit-tested engine [`lib/eligibility-engine.ts`](lib/eligibility-engine.ts) with zero UI coupling.
 
 ### 3. 📄 Standardized CSC / Setu Facilitation Dossier (Print & PDF)
-- One-click print format standardized to fixed **A4 dimensions (186mm printable body)**.
-- Eliminates responsive layout collapsing on mobile and desktop printing.
-- Features formal Directorate mastheads, barcoded verification seals, citizen declaration blocks, and structured document checklists ready for kiosk operator handover.
+* **Fixed A4 Printable Body (186mm):** Standardized print layout eliminating responsive layout collapse on desktop and mobile printing.
+* **Kiosk-Ready Format:** Includes formal Directorate mastheads, barcoded reference identifiers, DigiLocker verification directives, and Kiosk Operator signature/stamp blocks.
+* **Multi-Page Handling:** Dynamically flows across Page 1 and Page 2 when matching more than 6 programs.
 
 ### 4. ⚖️ 3-Way Scheme Comparator (`/compare`)
-- Compare up to 3 schemes side-by-side.
-- Contrasts monetary entitlements, income thresholds, eligible age brackets, and mandatory documentation.
-- Export or print clean comparative audit sheets.
+* **Side-by-Side Matrix:** Compare up to 3 welfare schemes concurrently.
+* **Direct Contrasting:** Compares monetary grants, income ceilings, age brackets, and required document proofs.
+* **Printable Summary:** Generate clean physical comparison reports for citizens evaluating multiple options.
 
-### 5. 🔔 Scheme Alert Subscriptions (`/api/subscribe-alerts`)
-- Citizens subscribe to personalized scheme launch and deadline alerts via WhatsApp, SMS, or Email.
-- Captures category and state preferences with automated server validation and rate-limiting.
+### 5. 🔔 Citizen Alert Subscriptions (`/api/subscribe-alerts`)
+* **Targeted Notification Intake:** Citizens register preferences for category (e.g., Higher Education) and residence state.
+* **Multi-Channel Selection:** Supports WhatsApp, SMS, or Email preferences.
+* **Rate-Limited & Validated:** Protected by sliding-window rate limiters to prevent subscription spam.
 
 ### 6. 📱 Progressive Web App (PWA) & Offline Resilience
-- Fully installable on Android, iOS, Windows, and macOS (`manifest.json`).
-- Service worker (`public/sw.js`) provides offline caching and graceful fallback to offline catalogs (`lib/fallback-schemes.ts`).
+* **Installable:** Native-like installation on Android, iOS, Windows, and macOS via `manifest.json`.
+* **Zero-Downtime Fallback:** Service worker (`public/sw.js`) caches application assets; if Firestore is unavailable, the UI automatically mounts a 25+ scheme curated offline bundle (`lib/fallback-schemes.ts`).
 
 ---
 
-## 🏗️ System Architecture & Data Flow
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
     subgraph Sources [1. Government Data Sources]
         MahaDBT["MahaDBT Portal (Aaple Sarkar)"]
         MPSIMS["MP-SIMS (Scheme Catalog)"]
-        MahaSwayam["MahaSwayam (Skill & Employment)"]
         CentralGazettes["Central Ministry Feeds & Gazettes"]
     end
 
-    subgraph Pipeline [2. Intelligence & Ingestion Pipeline]
+    subgraph Pipeline [2. Ingestion & Intelligence Pipeline]
         Harvester["Data Harvester / Cheerio Scraper"]
-        Validator["Data Sanitizer & Dead Link Filter"]
-        Normalizer["Marathi / Hindi Translator & Categorizer"]
-        RuleExtractor["Rule Engine (Age, Income, Gender, Category)"]
-        BenefitExtractor["Entitlement Valuation (DBT & Subsidies)"]
-        DocExtractor["Smart Document Checklist Builder"]
+        Validator["Input Sanitizer & Dead Link Filter"]
+        Normalizer["Devanagari Translation & Normalizer"]
+        Extractors["Rule, Benefit, Doc & Timeline Extractors"]
     end
 
-    subgraph Datastore [3. Storage & Resilience]
+    subgraph Storage [3. Datastore & Offline Bundles]
         Firestore[("Cloud Firestore<br/>(schemes, scheme_subscribers)")]
-        LocalCatalog[("Offline Fallback Catalog<br/>(lib/fallback-schemes.ts)")]
-        SWCache[("Service Worker Cache<br/>(Offline Assets)")]
+        OfflineFallback[("Offline Curated Catalog<br/>(lib/fallback-schemes.ts)")]
+        SWCache[("Service Worker Cache<br/>(public/sw.js)")]
     end
 
-    subgraph WebApp [4. Citizen Presentation Layer]
-        CatalogUI["Scheme Directory (/schemes)"]
-        DetailUI["Scheme Detail View (/schemes/[id])"]
-        EngineUI["Eligibility Evaluator (/eligibility-check)"]
-        CompareUI["Scheme Comparator (/compare)"]
-        PrintDossier["Standardized A4 Print Dossier"]
-        AdminUI["Protected Admin Control Center (/admin)"]
+    subgraph AppLayer [4. Next.js 16 Application Layer]
+        Proxy["Proxy Security Guardrail (proxy.ts)"]
+        CatalogPage["Scheme Catalog (/schemes)"]
+        DetailPage["Scheme Details (/schemes/[id])"]
+        EnginePage["Eligibility Engine (/eligibility-check)"]
+        ComparePage["Scheme Comparator (/compare)"]
+        AdminDashboard["Protected Admin Panel (/admin)"]
     end
 
-    Sources --> Harvester --> Validator --> Normalizer
-    Normalizer --> RuleExtractor & BenefitExtractor & DocExtractor
-    RuleExtractor & BenefitExtractor & DocExtractor --> Firestore
-    Firestore -.-> LocalCatalog
-    Firestore --> CatalogUI & DetailUI & EngineUI & CompareUI
-    EngineUI --> PrintDossier
-    AdminUI --> Firestore
+    subgraph Actors [5. Citizens & Kiosks]
+        Citizen["Indian Citizens / Students / Farmers"]
+        CSCOperator["CSC / Setu Kiosk Operator"]
+        Admin["Welfare Department Administrator"]
+    end
+
+    Sources --> Harvester --> Validator --> Normalizer --> Extractors --> Firestore
+    Firestore -.-> OfflineFallback
+    Firestore --> AppLayer
+    Citizen --> CatalogPage & DetailPage & EnginePage & ComparePage
+    EnginePage -->|Generates A4 Dossier| CSCOperator
+    Admin --> AdminDashboard --> Firestore
 ```
+
+The system uses Next.js 16 App Router on Turbopack with React Server Components, server actions, and route-isolated loading states to ensure sub-second navigation across all citizen touchpoints.
 
 ---
 
-## 📊 Scheme Coverage & Benefits
+## 🔄 Data Intelligence Pipeline
 
-DigitalWelfare indexes active government welfare programs across central and state departments:
+The ingestion engine processes raw government announcements into structured, machine-evaluable schemes through an automated pipeline:
 
-| Department | Highlight Schemes | Target Audience | Key Benefit |
-| :--- | :--- | :--- | :--- |
-| **Higher & Technical Education** | Rajarshi Shahu Maharaj Fee Waiver, Panjabrao Deshmukh Hostel Allowance | College & Engineering Students | 50% Tuition Waiver + up to ₹30,000/yr Hostel Aid |
-| **Social Justice & Assistance** | SC Post-Matric Scholarship, SC Freeship, Swadhar Yojana, Sanjay Gandhi Niradhar | SC Students, Seniors, Destitute | 100% Tuition Fees + ₹51,000/yr Hostel DBT + Pensions |
-| **Tribal Development (TDD)** | ST Post-Matric Scholarship, Swayam Yojana, Birsa Munda Krishi Kranti | Scheduled Tribes (ST) | 100% Tuition Waiver + ₹51,000/yr DBT + Farm Subsidies |
-| **OBC, VJNT & SBC Welfare** | Post-Matric Scholarship, Savitribai Phule Aadhaar, Modi Awas Gharkul | OBC, VJNT, SBC Citizens | Tuition Reimbursement + ₹60,000/yr Hostel + Housing |
-| **Agriculture & Farmers** | Namo Shetkari Samman Nidhi, Baliraja Free Power, Magel Tyala Solar Pump | Farmers & Landowners | ₹6,000/yr State DBT + 100% Free Farm Power + Solar Pumps |
-| **Youth & Employment** | CM Yuva Karya Prashikshan Yojana, MAPS Apprenticeships, Annasaheb Patil Loans | Youth & Job Seekers | ₹6,000–₹10,000/mo Internship Stipend + Interest-Free Loans |
-| **Public Health** | Mahatma Jyotirao Phule Jan Arogya Yojana (Universal MJPJAY / PM-JAY) | All Citizens | ₹5,00,000/year Cashless Hospital Care across 1,000+ Hospitals |
-| **Labour & Construction (BOCW)** | Bandhkam Kamgar Welfare, Education & Marriage Grants, Atal Aahar | Construction Workers | Safety Kits + ₹5k–₹1L Grants + ₹5 Hot Meals |
-| **Divyang & Senior Welfare** | Motorized Tricycles, Laptop Kits, CM Vayoshree Yojana | PwD & Seniors (65+) | Free Assistive Devices + ₹3,000 Direct Aid |
+```text
+1. RAW HARVESTING    ──► Scrapes HTML tables & JSON feeds from MahaDBT, MP-SIMS & Central Gazettes.
+2. SANITIZATION      ──► Discards placeholder headers, malformed titles, and discontinued schemes.
+3. NORMALIZATION     ──► Translates Devanagari text and standardizes departmental taxonomy (DHE, DTE, TDD).
+4. RULE EXTRACTION   ──► Extracts numeric age bounds, income ceilings, caste quotas, and gender targeting.
+5. BENEFIT VALUATION ──► Computes quantifiable DBT cash transfer values, fee waivers, and health cover amounts.
+6. DOC GENERATION    ──► Builds verified document checklists (7/12 land records, income certificates, caste proofs).
+7. TIMELINE PARSING  ──► Extracts official deadlines or dynamically derives current academic / seasonal cycles.
+8. FIRESTORE SYNC    ──► Deduplicates against existing slugs and performs batch writes to Cloud Firestore.
+```
 
 ---
 
@@ -147,104 +264,228 @@ DigitalWelfare indexes active government welfare programs across central and sta
 
 | Layer | Technology | Version | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Core Framework** | [Next.js (App Router)](https://nextjs.org/) | `16.3.1` | React Server Components, Route Groups, API Routes, Streaming |
-| **Frontend Runtime** | [React](https://react.dev/) | `19.2.8` | Modern concurrent primitives, Suspense boundaries, hooks |
-| **Styling Engine** | [Tailwind CSS](https://tailwindcss.com/) | `v4.x` | Modern CSS layer architecture, responsive styles, print media rules |
-| **Database** | [Cloud NoSQL Datastore (Firestore)](https://cloud.google.com/) | `12.x` | Real-time cloud NoSQL document store with indexed queries |
-| **Server Admin** | Cloud Server Admin SDK | `13.x` | Privileged batch writes and secure backend operations |
-| **Web Scraping** | [Cheerio](https://cheerio.js.org/) | `1.0.0` | Server-side parsing of government HTML bulletins and portals |
-| **Vector Icons** | [Lucide React](https://lucide.dev/) | `^1.16.0` | Accessible iconography for accessibility and responsive layouts |
-| **PWA & Offline** | Web App Manifest & Service Workers | Native | Mobile home screen installation and zero-downtime offline cache |
-| **Language** | [TypeScript](https://www.typescriptlang.org/) | `5.x` | Strict type definitions and safe data transformations |
+| **Framework** | [Next.js (App Router)](https://nextjs.org/) | `16.3.1` | Turbopack compilation, React Server Components, Route Groups |
+| **UI Library** | [React](https://react.dev/) | `19.2.8` | Concurrent rendering, form actions, and client hooks |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) | `v4.x` | Modern styling engine with dedicated `@media print` A4 rules |
+| **Type Safety** | [TypeScript](https://www.typescriptlang.org/) | `5.x` | End-to-end interface contracts and compile-time verification |
+| **Database** | [Google Cloud Firestore](https://firebase.google.com/) | `12.x` | Cloud NoSQL document store with composite indexing |
+| **Admin Operations**| [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup) | `14.x` | Privileged batch writes and secure server mutations |
+| **HTML Parsing** | [Cheerio](https://cheerio.js.org/) | `1.0.0` | Scraping government portal tables and circular notices |
+| **Iconography** | [Lucide React](https://lucide.dev/) | `^1.31.0` | Clean, accessible SVG iconography |
+| **Testing** | Node.js Test Runner / `tsx` | Native | Automated unit tests covering eligibility and timeline logic |
+| **Hosting & CDN** | [Vercel](https://vercel.com/) | Edge | Serverless functions, Edge routing, and automatic static optimization |
+
+---
+
+## 📊 Scheme Coverage & Benefits
+
+DigitalWelfare indexes welfare programs across Central and Maharashtra State departments:
+
+| Department / Category | Featured Schemes | Target Beneficiary | Key Monetary Entitlement |
+| :--- | :--- | :--- | :--- |
+| **Higher & Technical Education** | Rajarshi Shahu Maharaj Tuition Waiver, Panjabrao Deshmukh Hostel Aid | College, Engineering & Medical Students | 50%–100% Tuition Fee Waiver + up to ₹30,000/yr Hostel Aid |
+| **Social Justice & Assistance** | SC Post-Matric Scholarship, SC Freeship, Swadhar Yojana, Sanjay Gandhi Niradhar | Scheduled Castes (SC), Seniors, Destitute | 100% Tuition Waiver + ₹51,000/yr Hostel DBT + Pensions |
+| **Tribal Development (TDD)** | ST Post-Matric Scholarship, Swayam Yojana, Birsa Munda Krishi Kranti | Scheduled Tribes (ST) | 100% Tuition Waiver + ₹51,000/yr DBT + Farm Subsidies |
+| **OBC, VJNT & SBC Welfare** | Post-Matric Scholarship, Savitribai Phule Aadhaar, Modi Awas Gharkul | OBC, VJNT, SBC Families | Tuition Reimbursement + ₹60,000/yr Hostel + Housing |
+| **Agriculture & Farming** | Namo Shetkari Samman Nidhi, Baliraja Free Power, Magel Tyala Solar Pump | Farmers & Landholders | ₹6,000/yr State DBT + 100% Free Power + Solar Pumps |
+| **Women Empowerment** | Mukhyamantri Majhi Ladki Bahin Yojana, Lek Ladki Yojana | Women & Girl Children | ₹1,500/month (₹18,000/yr Direct DBT) + ₹1.01L at age 18 |
+| **Youth & Employment** | CM Yuva Karya Prashikshan Yojana, MAPS Apprenticeships | Job Seekers & Graduates | ₹6,000–₹10,000/month Internship Stipend + Interest-Free Loans |
+| **Public Healthcare** | Mahatma Jyotirao Phule Jan Arogya Yojana (Universal MJPJAY / PM-JAY) | All Eligible Citizens | ₹5,00,000/year Cashless Hospitalization across 1,000+ Hospitals |
+| **Labour & Construction** | Maharashtra Bandhkam Kamgar Welfare (BOCW), Atal Aahar | Construction & Daily Wage Workers | Safety Kits + ₹5k–₹1L Welfare Grants + ₹5 Hot Meal Scheme |
+| **Divyang & Senior Care** | Motorized Tricycles, Laptop Assistance, CM Vayoshree Yojana | PwD Citizens & Seniors (65+) | Free Assistive Devices + ₹3,000 Direct Cash Aid |
+
+---
+
+## 🔐 Security Architecture
+
+### Security at a Glance
+The application implements practical defense-in-depth across the application and API layers:
+
+| Security Domain | Applied Mechanism | Protection Value |
+| :--- | :--- | :--- |
+| **Admin Authentication** | Constant-time `crypto.timingSafeEqual` comparison | Prevents timing attacks on master access keys |
+| **Session Expiry** | Automatic 2-hour client session timeout | Protects shared workstations and CSC kiosks |
+| **Rate Limiting** | Sliding-window in-memory limiter | Mitigates brute-force attacks on authentication and alert routes |
+| **Input Sanitization** | Regex sanitization & control character stripping | Blocks injection attacks and drops malformed payloads |
+| **XSS Defense** | React 19 automatic JSX output escaping | Prevents cross-site scripting without unsafe innerHTML |
+| **HTTP Security Headers** | `DENY` framing, `nosniff`, `HSTS`, strict CSP | Defends against clickjacking, MIME sniffing, and MITM |
+| **Zero PII Storage** | No Aadhaar numbers or biometrics persisted | Aligns with the Digital Personal Data Protection (DPDP) Act 2023 |
+
+<details>
+<summary><strong>🔍 Click to expand the 20-Point Technical Security Audit Checklist</strong></summary>
+
+<br/>
+
+| # | Security Control | Codebase Implementation |
+| :- | :--- | :--- |
+| **1** | **Hide API Keys** | Privileged credentials (`FIREBASE_PRIVATE_KEY`, `ADMIN_SECRET`) reside exclusively in server environments without `NEXT_PUBLIC_` prefixes. |
+| **2** | **Validate Environment Variables** | Server helpers check required variables on boot and fail closed if missing. |
+| **3** | **Protect Admin Routes** | `/admin` enforces cryptographic key verification before rendering dashboard controls. |
+| **4** | **Constant-Time Crypto** | `lib/admin-auth.ts` verifies passcodes using `crypto.timingSafeEqual`. |
+| **5** | **Role Authorization** | Unauthenticated clients have read-only access; mutations require verified tokens. |
+| **6** | **Input Sanitization** | Ingestion pipeline (`lib/pipeline/validator.ts`) cleans HTML entities and truncates oversized strings. |
+| **7** | **XSS Prevention** | React 19 JSX output escaping is enforced universally. |
+| **8** | **Rate Limiting** | Sliding-window limiter (`lib/rate-limiter.ts`) restricts sensitive endpoints. |
+| **9** | **Protected API Mutations** | Mutating endpoints (`/api/schemes`, `/api/sync-schemes`) verify `x-admin-key` server-side. |
+| **10** | **CORS Enforcement** | Next.js API routes default to same-origin execution. |
+| **11** | **Security Headers** | `next.config.ts` injects `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and `HSTS`. |
+| **12** | **Disable Debug Information** | Stack traces are stripped from production responses; `poweredByHeader` is disabled. |
+| **13** | **Dependency Auditing** | Maintained zero audit vulnerabilities across dependencies. |
+| **14** | **Minimal Surface Area** | Codebase imports only essential packages, eliminating unused dependencies. |
+| **15** | **Exposed Files Check** | `.env*` files are strictly registered in `.gitignore`. |
+| **16** | **Declarative Firestore Rules** | `firestore.rules` enforces read-only public access and admin-token-only writes. |
+| **17** | **Buffer-Based Comparison** | Secret comparisons operate over fixed-length memory buffers. |
+| **18** | **Clean Git History** | Git trees are clean of personal credentials or secret keys. |
+| **19** | **Continuous Automated Testing** | Automated test suite verifies eligibility logic and timeline parsing on every change. |
+| **20** | **Fail-Closed Operations** | In the absence of admin secrets, all write operations fail closed immediately. |
+
+</details>
+
+---
+
+## 🛡️ Admin Control Center
+
+The Admin Control Center (`/admin`) allows welfare coordinators to manage schemes, trigger scrapers, and inspect subscriptions.
+
+```text
+┌────────────────────────────────────────────────────────┐
+│               DigitalWelfare Admin Gateway              │
+├────────────────────────────────────────────────────────┤
+│ [ 🔒 Master Admin Security Key: ••••••••••• ]          │
+│                                                        │
+│ [ Unlock Admin Operations ]                            │
+│                                                        │
+│ 🛡️ Protected Gateway: Authenticate with ADMIN_SECRET.   │
+│    Sessions expire automatically after 2 hours.        │
+└────────────────────────────────────────────────────────┘
+```
+
+### Administrative Capabilities
+| Subsystem | Primary Action | Functional Scope |
+| :--- | :--- | :--- |
+| **System Overview** | Metrics & Telemetry | Live counts of catalog schemes, central vs state distribution, and subscriber counts. |
+| **Scheme Inventory** | Search, Inspect & Delete | Search schemes by keyword or category, inspect details, or execute bulk deletions. |
+| **Scheme Authoring** | Ingest & Publish | Multi-step form to publish new schemes with criteria, benefit values, and checklists. |
+| **Live Sync Pipeline**| Run Ingestion Engine | Executes the 10-stage harvester syncing real-time data from government portals into Firestore. |
+| **Citizen Alerts** | Subscriber Management | Review citizens registered for WhatsApp, SMS, or Email alerts filtered by state and category. |
 
 ---
 
 ## 📂 Project Directory Structure
 
-```
+```text
 digital-welfare/
-├── app/
-│   ├── (public)/                       # Public routes
-│   │   ├── compare/                    # 3-Way scheme comparison matrix
-│   │   ├── eligibility-check/          # Eligibility calculator & CSC printable dossier
-│   │   ├── login/                      # Citizen login / sign-in screen
-│   │   └── page.tsx                    # Landing hero, scheme directory highlights
-│   ├── admin/                          # Secure Admin Control Center
-│   │   └── page.tsx                    # Dashboard, Scheme Editor, Pipeline Trigger, Subscriber List
-│   ├── api/                            # Backend API Endpoints (Protected & Public)
-│   │   ├── admin/auth/                 # Rate-limited timing-safe admin verification
-│   │   ├── schemes/                    # Scheme retrieval, creation, and bulk deletion
-│   │   ├── subscribe-alerts/           # Scheme alert subscription management
-│   │   └── sync-schemes/               # 10-stage automated pipeline sync
-│   ├── schemes/
-│   │   ├── (catalog)/                  # Route group for schemes directory with isolated skeleton
-│   │   │   ├── loading.tsx             # Directory-specific grid skeleton
-│   │   │   └── page.tsx                # Filterable schemes catalog
-│   │   └── [id]/                       # Individual scheme detail page
-│   │       ├── loading.tsx             # Detail-specific article skeleton
-│   │       └── page.tsx                # Comprehensive scheme breakdown & application guide
-│   ├── globals.css                     # Tailwind v4 setup & @media print A4 dimensions
-│   └── layout.tsx                      # Root layout, Navbar, and PWA registration
+├── app/                                # Next.js 16 App Router Routes
+│   ├── admin/                          # Protected Admin Dashboard & Subcomponents
+│   ├── api/                            # Server Endpoints (schemes, sync, alerts, auth)
+│   ├── compare/                        # 3-Way Scheme Comparison Matrix
+│   ├── eligibility-check/              # Eligibility Evaluator & Controller
+│   ├── schemes/                        # Schemes Directory & Dynamic Detail Routes
+│   ├── globals.css                     # Tailwind v4 Styles & Print A4 Media Rules
+│   └── layout.tsx                      # Root Layout, Navbar & PWA Initializer
 │
 ├── components/                         # Modular React Components
-│   ├── Navbar.tsx                      # Responsive top header & navigation
-│   ├── PWARegister.tsx                 # Service worker initializer & install prompt
-│   ├── SchemeAlertModal.tsx            # Alert modal for citizen notifications
-│   ├── SchemeCard.tsx                  # Standard scheme card with benefit badges
-│   ├── SchemeDetailView.tsx            # Detail view with government seals & document checklist
-│   ├── SchemeList.tsx                  # Client search, category filter, pagination, bookmarking
-│   └── SchemeSkeleton.tsx              # Pulse skeleton placeholders
+│   ├── admin/                          # Decomposed Admin Tabs (Overview, Schemes, Create, etc.)
+│   ├── eligibility/                    # Eligibility Form, Results & A4 Print Dossier
+│   ├── Navbar.tsx                      # Navigation Header with Mobile Drawer
+│   ├── SchemeCard.tsx                  # Scheme Catalog Card with Dynamic Timeline Badge
+│   └── SchemeDetailView.tsx            # Complete Scheme Breakdown with Official Seals
 │
-├── lib/                                # Core Services & Security Helpers
-│   ├── admin-auth.ts                   # Constant-time crypto verification for admin keys
-│   ├── client-store.ts                 # Synced external stores with 2-hour session expiry
-│   ├── fallback-schemes.ts             # 25+ curated schemes for zero-downtime offline fallback
-│   ├── firebase.ts                     # Client Firebase initialization
-│   ├── firebase-admin.ts               # Privileged server-side Cloud Server Admin SDK helper
-│   ├── rate-limiter.ts                 # Sliding-window rate-limiter for endpoints
-│   ├── schemes-service.ts              # SWR scheme fetching and caching service
-│   └── pipeline/                       # 10-Stage Data Processing Pipeline
+├── lib/                                # Core Business Logic & Pipelines
+│   ├── eligibility-engine.ts           # Pure 6-Parameter Welfare Scoring Engine
+│   ├── pipeline/                       # 10-Stage Scraper, Normalizer, and Extractors
+│   ├── fallback-schemes.ts             # Curated 25+ Scheme Offline Fallback Catalog
+│   ├── firebase.ts                     # Client-Side Firebase Initialization
+│   ├── firebase-admin.ts               # Server-Side Privileged Cloud Datastore Helper
+│   └── rate-limiter.ts                 # Sliding-Window Memory Rate Limiter
+│
+├── tests/                              # Automated Unit Test Suites
+│   ├── eligibility-engine.test.ts      # 8 Unit Tests for Eligibility Rules
+│   └── timeline-extractor.test.ts      # 5 Unit Tests for Dynamic Date Parsing
+│
+├── public/                             # Public Static Assets & Service Worker
+│   ├── manifest.json                   # Web App Manifest for PWA Installation
+│   └── sw.js                           # Offline Caching Service Worker
+│
+├── firestore.rules                     # Declarative Database Security Rules
+├── next.config.ts                      # Next.js Build Configuration & HTTP Headers
+└── package.json                        # Dependencies, Operational Scripts & Metadata
+```
+
+<details>
+<summary><strong>📁 Click to expand detailed file-level architectural breakdown</strong></summary>
+
+<br/>
+
+```text
+digital-welfare/
+├── app/
+│   ├── admin/page.tsx                  # Lightweight Admin Controller (< 300 lines)
+│   ├── api/
+│   │   ├── admin/auth/route.ts         # Rate-limited timing-safe admin verification
+│   │   ├── schemes/route.ts            # GET/POST/DELETE scheme endpoints
+│   │   ├── subscribe-alerts/route.ts   # Citizen alert intake endpoint
+│   │   └── sync-schemes/route.ts       # Automated ingestion pipeline trigger
+│   ├── compare/page.tsx                # Scheme comparison matrix page
+│   ├── eligibility-check/page.tsx      # Clean coordinator page (< 150 lines)
+│   └── schemes/
+│       ├── page.tsx                    # Scheme catalog directory
+│       └── [id]/page.tsx               # Dynamic scheme detail page
+│
+├── components/
+│   ├── admin/
+│   │   ├── admin-types.ts              # Shared admin interfaces & subscriber types
+│   │   ├── CreateSchemeTab.tsx         # Multi-field scheme authoring form
+│   │   ├── DiagnosticsTab.tsx          # 10-stage pipeline health & live scraper logs
+│   │   ├── OverviewTab.tsx             # Metric cards, quick actions & ingestion log
+│   │   ├── SchemeInventoryTab.tsx      # Paginated inventory table with bulk delete
+│   │   └── SubscribersTab.tsx          # Citizen notification subscribers table
+│   └── eligibility/
+│       ├── EligibilityForm.tsx         # Profile inputs & quick-income selectors
+│       ├── EligibilityResults.tsx      # Entitlement cards & WhatsApp sharing
+│       └── PrintDossier.tsx            # Multi-page A4 printable CSC record
+│
+├── lib/
+│   ├── admin-auth.ts                   # Constant-time crypto verification
+│   ├── client-store.ts                 # Synced external stores with 2-hour timeout
+│   └── pipeline/
 │       ├── benefit-extractor.ts        # Computes monetary benefit amounts
 │       ├── doc-extractor.ts            # Builds mandatory document checklists
-│       ├── mahadbt-catalog.ts          # Catalog entries for state portals
 │       ├── normalizer.ts               # Devanagari translation & category classification
 │       ├── pipeline.ts                 # Pipeline orchestrator
 │       ├── rule-extractor.ts           # Dynamic age, income, category rule parser
+│       ├── timeline-extractor.ts       # Dynamic date & deadline parser
 │       └── validator.ts                # Sanitizes input strings and drops duplicates
-│
-├── public/                             # Static Assets
-│   ├── manifest.json                   # Web app manifest
-│   ├── sw.js                           # Offline service worker
-│   └── icons/                          # Application icon assets
-│
-├── firestore.indexes.json              # Composite index declarations
-├── firestore.rules                     # Declarative database security rules
-├── next.config.ts                      # Security headers & Next.js configuration
-└── package.json                        # Project dependencies and operational scripts
 ```
+
+</details>
 
 ---
 
 ## 🚀 Getting Started & Local Setup
 
-### 1. Prerequisites
-- **Node.js**: `v18.17.0+` or `v20.x+` ([Download Node.js](https://nodejs.org/))
-- **NPM**: `v9.x+` or `v10.x+`
-- **Cloud Database Project**: An active cloud project with **Firestore** and Authentication enabled.
+### Prerequisites
+* **Node.js**: `v18.17.0+` or `v20.x+` ([Download Node.js](https://nodejs.org/))
+* **NPM**: `v9.x+` or `v10.x+`
+* **Google Cloud / Firebase Project**: An active project with **Firestore** enabled.
 
-### 2. Clone & Install
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/PrashantJaybhaye/Digital-Welfare.git
 cd Digital-Welfare
+```
+
+### 2. Install Dependencies
+```bash
 npm install
 ```
 
 ### 3. Configure Environment Variables
-Create `.env.local` in the project root:
+Create a `.env.local` file in the project root:
 
 ```env
 # -------------------------------------------------------------
-# Cloud Client SDK Configuration (Safe for Browser)
+# Client-Side Variables (Browser Accessible)
 # -------------------------------------------------------------
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
@@ -254,18 +495,15 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
 # -------------------------------------------------------------
-# Admin Master Passcode (Server Only - Never prefix with NEXT_PUBLIC_)
+# Server-Only Secrets (Privileged Runtimes - Never expose in browser)
 # -------------------------------------------------------------
 ADMIN_SECRET=your_custom_strong_admin_passcode
-
-# -------------------------------------------------------------
-# Cloud Admin SDK Credentials (Privileged Server Runtimes)
-# -------------------------------------------------------------
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your_project.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_HERE\n-----END PRIVATE KEY-----\n"
 ```
 
-> **Zero-Configuration Offline Mode:** If cloud credentials are not immediately configured, the application automatically mounts its curated offline catalog (`lib/fallback-schemes.ts`), enabling instant local UI testing.
+> [!TIP]
+> **Zero-Configuration Offline Mode:** If cloud credentials are not immediately configured, the application automatically mounts its curated offline catalog (`lib/fallback-schemes.ts`), allowing instant local UI development and testing.
 
 ### 4. Run Development Server
 ```bash
@@ -273,97 +511,49 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
-
-## 🛡️ Admin Panel Management & Operational Guide
-
-The Admin Control Center (`/admin`) provides full lifecycle management of the welfare scheme repository, synchronization pipelines, and citizen alert subscriptions.
-
-### Accessing the Admin Panel
-1. Navigate to [http://localhost:3000/admin](http://localhost:3000/admin).
-2. Enter the secret access key configured in your `ADMIN_SECRET` environment variable.
-3. Upon successful constant-time authentication:
-   - An active administrative session is stored in `sessionStorage`.
-   - The session **automatically expires after 2 hours** to protect shared workstations.
-   - All subsequent mutating requests send the verified `x-admin-key` header to privileged API routes.
-
-```
-┌────────────────────────────────────────────────────────┐
-│               DigitalWelfare Admin Gateway              │
-├────────────────────────────────────────────────────────┤
-│ [ 🔒 Enter Master Admin Access Key ]                   │
-│                                                        │
-│ [ Unlock Admin Operations ]                            │
-│                                                        │
-│ 🛡️ Protected Gateway: Authenticate with ADMIN_SECRET.   │
-│    Sessions expire automatically after 2 hours.        │
-└────────────────────────────────────────────────────────┘
+### 5. Run Automated Unit Tests
+```bash
+npm test
 ```
 
-### Core Administrative Capabilities
-| Section | Action | Description |
-| :--- | :--- | :--- |
-| **System Overview** | Health & Metric Monitoring | Real-time counts of total schemes, categories, and registered notification subscribers. |
-| **Scheme Manager** | Search, Inspect & Delete | Search active database entries, inspect criteria, or perform bulk deletions with single-click confirmation. |
-| **Scheme Authoring** | Create & Publish Scheme | Add new central or state schemes with guided inputs for eligibility, benefits, and required documents. |
-| **Live Sync Pipeline** | Trigger Harvester | Trigger the 10-stage automated ingestion pipeline that re-scrapes government portals, standardizes data, and updates Firestore. |
-| **Subscriber Manager**| Review Alerts | Inspect citizen alert subscriptions segmented by state, interest category, and channel (WhatsApp, SMS, Email). |
+---
 
-### Security Architecture of the Admin Panel
-- **Blind Credential Input:** Passcode fields enforce blind masking without client-side helper hints.
-- **Timing-Attack Resistance:** Passcode validation uses `crypto.timingSafeEqual` in `lib/admin-auth.ts`, preventing timing attacks.
-- **Sliding-Window Rate Limiting:** Login route (`/api/admin/auth`) restricts attempts to a maximum of 5 requests per 15-minute window per IP.
-- **Strict Server Verification:** Mutating endpoints (`POST/DELETE /api/schemes`, `POST /api/sync-schemes`, `GET/DELETE /api/subscribe-alerts`) independently verify `x-admin-key` on every request.
+## 🔑 Environment Variables
+
+| Variable | Scope | Required | Description |
+| :--- | :--- | :---: | :--- |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Client / Browser | Yes | Firebase Web API Key |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Client / Browser | Yes | Firebase Auth Domain URL |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Client / Browser | Yes | Cloud Datastore Project ID |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`| Client / Browser | Yes | Firebase Storage Bucket |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`| Client / Browser | Yes | Messaging Sender ID |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Client / Browser | Yes | Firebase Web Application ID |
+| `ADMIN_SECRET` | **Server Only** | Yes | Master security key for unlocking `/admin` |
+| `FIREBASE_CLIENT_EMAIL` | **Server Only** | Optional | Service Account Email for Admin SDK |
+| `FIREBASE_PRIVATE_KEY` | **Server Only** | Optional | Service Account Private Key for Admin SDK |
+
+> [!CAUTION]
+> **Security Notice:** Never commit `.env.local`, Firebase service account credentials, private keys, or admin secrets to Git.
 
 ---
 
-## 🔒 20-Point Security & Hardening Architecture
+## 🌐 Deployment Guide
 
-The platform adheres to an enterprise security checklist across all layers:
-
-| # | Security Control | Implementation in Codebase |
-| :- | :--- | :--- |
-| **1** | **Hide API Keys** | Privileged service account credentials (`FIREBASE_PRIVATE_KEY`, `ADMIN_SECRET`) reside exclusively in server environments and are never prefixed with `NEXT_PUBLIC_`. |
-| **2** | **Validate Environment Variables** | Server helpers check for environment variables before execution and fail closed if unconfigured. |
-| **3** | **Protect Admin Routes** | `/admin` requires cryptographic key authentication. Unauthenticated requests are blocked from loading dashboard controls. |
-| **4** | **Proper Authentication** | Constant-time cryptographic comparison via `crypto.timingSafeEqual` prevents timing-based credential brute-forcing. |
-| **5** | **Check User Access** | Role-based authorization ensures regular users have read-only access while writes require admin verification. |
-| **6** | **Sanitize Form Inputs** | Ingestion pipeline (`lib/pipeline/validator.ts`) strips control characters, HTML tags, and truncates malformed strings. |
-| **7** | **Protect Against XSS** | React 19 automatic JSX output escaping is enforced across all dynamic content. Direct HTML injection (`dangerouslySetInnerHTML`) is avoided. |
-| **8** | **Rate Limiting** | Sliding-window in-memory rate limiter (`lib/rate-limiter.ts`) restricts brute-force attempts on sensitive endpoints. |
-| **9** | **Secure API Endpoints** | Mutating endpoints (`/api/schemes`, `/api/sync-schemes`, `/api/subscribe-alerts`) enforce `verifyAdminRequest()` server-side. |
-| **10** | **Enforce Strict CORS** | Next.js API routes restrict cross-origin access and default to same-origin execution. |
-| **11** | **HTTP Security Headers** | `next.config.ts` injects `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `HSTS`. |
-| **12** | **Disable Debug Information** | Stack traces and raw internal error objects are stripped from production API responses; `poweredByHeader` is set to `false`. |
-| **13** | **Dependency Audit** | `npm audit fix` resolves vulnerable dependencies, maintaining modern Next.js 16 and React 19 packages. |
-| **14** | **Remove Unused Packages** | Codebase imports only essential dependencies, eliminating unused modules. |
-| **15** | **Check for Exposed Files** | Sensitive environment files (`.env`, `.env.local`, `.env.*`) and credentials are explicitly protected in `.gitignore`. |
-| **16** | **Secure Firestore Rules** | `firestore.rules` grants public read access while restricting create, update, and delete operations to verified admin tokens. |
-| **17** | **Hash Credentials Properly** | Passcodes are compared via cryptographic memory buffers rather than plaintext comparisons. |
-| **18** | **Clean Git History** | Git trees and configurations are scrubbed of personal identifiers and accidental credentials. |
-| **19** | **Full Security Audit** | Routine `npm run lint` and build validations verify zero compilation or lint errors. |
-| **20** | **Zero Mistake Fail-Closed Design** | If the admin secret is omitted or mismatched in production, all administrative mutations fail closed immediately. |
-
----
-
-## 🌐 Deployment Guide (Vercel & Cloud)
+```text
+GitHub (main branch) ──► Vercel (Edge CDN Build) ──► Next.js 16 Application ──► Cloud Firestore
+```
 
 ### Deploying to Vercel
-1. Push your repository to GitHub:
+1. Push your changes to GitHub:
    ```bash
    git push origin main
    ```
-2. Import the project into the [Vercel Dashboard](https://vercel.com/new).
-3. Under **Project Settings > Environment Variables**, configure:
-   - `ADMIN_SECRET`: Set a secure master passcode (e.g. 24+ alphanumeric string).
-   - `FIREBASE_PROJECT_ID`: Your cloud database project ID.
-   - `FIREBASE_CLIENT_EMAIL`: Your service account email.
-   - `FIREBASE_PRIVATE_KEY`: Your full multi-line service account private key (including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`).
-   - `NEXT_PUBLIC_FIREBASE_*`: Your client cloud database credentials.
+2. Import the repository into the [Vercel Dashboard](https://vercel.com/new).
+3. Under **Project Settings > Environment Variables**, add the variables listed above.
 4. Click **Deploy**. Vercel will build the Next.js 16 App Router application and deploy it globally on edge networks.
 
-### Configuring Firestore Rules
-Deploy the included declarative database rules via the Cloud Database CLI:
+### Deploying Firestore Rules
+Deploy declarative security rules and composite indexes:
 ```bash
 npx firebase-tools deploy --only firestore:rules,firestore:indexes
 ```
@@ -374,42 +564,58 @@ npx firebase-tools deploy --only firestore:rules,firestore:indexes
 
 | Command | Action |
 | :--- | :--- |
-| `npm run dev` | Starts local Next.js development server at `http://localhost:3000` |
-| `npm run build` | Compiles the production build, runs type checks, and optimizes pages |
+| `npm run dev` | Boots local Next.js development server at `http://localhost:3000` |
+| `npm run build` | Compiles production build, verifies TypeScript, and optimizes static pages |
 | `npm run start` | Boots the optimized production server |
 | `npm run lint` | Runs ESLint analysis across all files |
-| `npm run push:schemes` | Executes CLI data harvester to seed and update Firestore with curated schemes |
-| `npm run db:seed` | Alias for `npm run push:schemes` |
+| `npm test` | Executes unit test suite for eligibility engine and dynamic timeline extractor |
+| `npm run db:seed` | Seeds and updates Firestore with curated Maharashtra & Central welfare schemes |
 
 ---
 
-## 🤝 Contributing & Feedback
+## 🗺️ Project Roadmap
 
-Contributions, corrections to scheme guidelines, and feature improvements are warmly welcome!
-
-1. Fork the Project Repository.
-2. Create your Feature Branch (`git checkout -b feature/NewSchemeModule`).
-3. Commit your Changes (`git commit -m "feat: Add new state scholarship pipeline"`).
-4. Push to the Branch (`git push origin feature/NewSchemeModule`).
-5. Open a Pull Request on GitHub.
+- [x] Multi-parameter dynamic citizen eligibility evaluation
+- [x] Standardized A4 printable CSC / Setu Kiosk facilitation dossier
+- [x] SWR cached scheme catalog with instant category filtering
+- [x] 3-way side-by-side welfare scheme comparison matrix
+- [x] Dynamic timeline and application deadline extraction
+- [x] PWA offline caching and zero-downtime curated catalog fallback
+- [x] Decomposed modular admin control panel with bulk operations
+- [x] 10-stage automated GovTech ingestion pipeline
+- [x] Comprehensive unit test suite with 13 passing tests
+- [ ] Direct DigiLocker document sync integration
+- [ ] Automated SMS notification delivery via Indian SMS gateways
+- [ ] Expansion to additional state databases (Gujarat, Karnataka, Tamil Nadu)
 
 ---
 
-## 👥 Team & Hackathon Submission
+## 🏆 Hackathon Submission & Team
 
-Built for **Hack for Social Cause (HSC)** under the **Government and Civic Technology** theme.
+Developed for **Hack for Social Cause (HSC)** under the **Government and Civic Technology** track.
 
 * **Team Name:** AlphaCoders
 * **Team ID:** `HSC | MH | 00284`
 * **State / UT:** Maharashtra
-* **Live Prototype:** [digitalwelfare.vercel.app](https://digitalwelfare.vercel.app)
+* **Live Deployment:** [digitalwelfare.vercel.app](https://digitalwelfare.vercel.app)
+* **GitHub Repository:** [github.com/PrashantJaybhaye/Digital-Welfare](https://github.com/PrashantJaybhaye/Digital-Welfare)
 
-### Team Composition & Roles:
-| Member | Role | Contribution Focus |
+### Team Composition & Roles
+| Member | Role | Core Contribution Focus |
 | :--- | :--- | :--- |
-| **Prashant Jaybhaye** | Frontend & UI | Next.js 16 App Router, Tailwind CSS, Responsive UI & Print Dossiers |
-| **Vaibhavi Mendre** | Backend & Data | Scheme Data Ingestion, Firestore Backend & APIs |
-| **Swayam Bana** | Testing & Research | Scheme Rule Verification, Criteria Validation & Quality Assurance |
+| **Prashant Jaybhaye** | Frontend & UI Lead | Next.js 16 App Router, Tailwind CSS, Responsive UI & Print Dossiers |
+| **Vaibhavi Mendre** | Backend & Data Lead | Scheme Data Ingestion, Firestore Backend & APIs |
+| **Swayam Bana** | QA & Research Lead | Scheme Rule Verification, Criteria Validation & Quality Assurance |
+
+### Official Government Portals Referenced
+| Portal Name | Department / Ministry | Official Website |
+| :--- | :--- | :--- |
+| **MahaDBT 2.0 (Aaple Sarkar)** | Government of Maharashtra | [mahadbt2.maharashtra.gov.in](https://mahadbt2.maharashtra.gov.in) |
+| **myScheme Portal** | Ministry of Electronics & IT (MeitY) | [myscheme.gov.in](https://www.myscheme.gov.in) |
+| **National Scholarship Portal (NSP)** | Government of India | [scholarships.gov.in](https://scholarships.gov.in) |
+| **DBT Bharat** | Cabinet Secretariat, GoI | [dbtbharat.gov.in](https://dbtbharat.gov.in) |
+| **PM-KISAN Samman Nidhi** | Ministry of Agriculture & Farmers Welfare | [pmkisan.gov.in](https://pmkisan.gov.in) |
+| **Ayushman Bharat (PM-JAY)** | National Health Authority (NHA) | [pmjay.gov.in](https://pmjay.gov.in) |
 
 ---
 
@@ -417,11 +623,13 @@ Built for **Hack for Social Cause (HSC)** under the **Government and Civic Techn
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-Copyright (c) 2026 **AlphaCoders** (Prashant Jaybhaye, Vaibhavi Mendre, Swayam Bana)  
-*Open-source Digital Public Good created for Hack for Social Cause.*
+```text
+Copyright (c) 2026 AlphaCoders (Prashant Jaybhaye, Vaibhavi Mendre, Swayam Bana)
+Open-source Digital Public Good created for Hack for Social Cause (HSC).
+```
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ to empower Indian citizens • Digital India & Public Welfare Initiative</sub>
+  <sub>Built to empower Indian citizens • Digital India & Public Welfare Initiative</sub>
 </div>
