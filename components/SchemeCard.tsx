@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { 
   Scheme, 
   formatCategoryName, 
-  getEstimatedBenefit 
+  getEstimatedBenefit,
+  getSchemeTimeline 
 } from '@/types/scheme';
 import { 
   ChevronRight, 
@@ -20,7 +21,8 @@ import {
   Layers,
   Copy,
   Check,
-  CheckCircle2
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 
 interface SchemeCardProps {
@@ -40,6 +42,7 @@ export default function SchemeCard({
   const [isNavigating, setIsNavigating] = useState(false);
   const benefit = getEstimatedBenefit(scheme);
   const categoryLabel = formatCategoryName(scheme.category);
+  const timeline = getSchemeTimeline(scheme);
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -127,9 +130,23 @@ export default function SchemeCard({
           </h3>
         </Link>
 
-        <p className="text-slate-500 text-[11.5px] leading-relaxed line-clamp-2 mb-2.5" title={scheme.description}>
+        <p className="text-slate-500 text-[11.5px] leading-relaxed line-clamp-2 mb-2" title={scheme.description}>
           {scheme.description}
         </p>
+
+        {/* Application Timeline / Dates Badge */}
+        <div className="flex items-center gap-1.5 mb-2.5">
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-tight ${
+            timeline.badgeColor === 'amber'
+              ? 'bg-amber-50 text-amber-900 border border-amber-200/90'
+              : timeline.badgeColor === 'blue'
+              ? 'bg-sky-50 text-sky-900 border border-sky-200/90'
+              : 'bg-emerald-50 text-emerald-900 border border-emerald-200/90'
+          }`}>
+            <Clock className="w-2.5 h-2.5 shrink-0 opacity-70" />
+            <span className="truncate">{timeline.datesText}</span>
+          </span>
+        </div>
 
         <div className="bg-slate-50/90 border border-slate-100 rounded-xl p-2.5 space-y-2 mb-2.5">
           <div className="flex items-center justify-between gap-1.5">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Scheme, formatCategoryName, getSchemeDocuments, getSchemeApplicationSteps, getEstimatedBenefit } from '@/types/scheme';
+import { Scheme, formatCategoryName, getSchemeDocuments, getSchemeApplicationSteps, getEstimatedBenefit, getSchemeTimeline } from '@/types/scheme';
 import { useSavedSchemes, toggleSavedScheme } from '@/lib/client-store';
 import Link from 'next/link';
 import {
@@ -15,6 +15,7 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
   const documents = getSchemeDocuments(scheme);
   const steps = getSchemeApplicationSteps(scheme);
   const benefit = getEstimatedBenefit(scheme);
+  const timeline = getSchemeTimeline(scheme);
 
   const [checkedDocs, setCheckedDocs] = useState<Record<number, boolean>>({});
   const savedSchemes = useSavedSchemes();
@@ -154,6 +155,10 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-50 text-slate-600 border border-slate-200/60">
               <MapPin className="w-3 h-3 mr-1 text-slate-400" /> {scheme.state || 'All India'}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#7eed9e]/25 text-slate-950 border border-[#7eed9e]/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+              {timeline.datesText}
             </span>
           </div>
 
@@ -343,6 +348,47 @@ export default function SchemeDetailView({ scheme }: { scheme: Scheme }) {
                   </span>
                 </li>
               </ul>
+            </div>
+
+            {/* Application Window & Schedule Box */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
+              <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-100">
+                <h3 className="font-bold text-slate-950 text-xs flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                  Application Schedule
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7eed9e]/25 text-slate-950 border border-[#7eed9e]/60">
+                  {timeline.status}
+                </span>
+              </div>
+
+              <ul className="space-y-2 text-xs">
+                <li className="flex justify-between items-center text-slate-600">
+                  <span className="font-medium text-[11px]">Start Date:</span>
+                  <span className="font-bold text-slate-950 text-right text-[11px]">
+                    {timeline.startDate || 'Open'}
+                  </span>
+                </li>
+
+                <li className="flex justify-between items-center text-slate-600">
+                  <span className="font-medium text-[11px]">Standard Cutoff:</span>
+                  <span className="font-bold text-slate-950 text-right text-[11px]">
+                    {timeline.endDate || 'No Cutoff (Continuous)'}
+                  </span>
+                </li>
+
+                <li className="flex justify-between items-center text-slate-600">
+                  <span className="font-medium text-[11px]">Extension Status:</span>
+                  <span className={`font-bold text-right text-[11px] ${timeline.isExtended ? 'text-amber-800' : 'text-slate-950'}`}>
+                    {timeline.extendedDate || 'Standard Window Active'}
+                  </span>
+                </li>
+              </ul>
+
+              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-start gap-1.5 text-[10.5px] text-slate-500 leading-relaxed">
+                <span className="font-bold text-slate-400 mt-0.5 shrink-0">ℹ</span>
+                <span>{timeline.officialNotice}</span>
+              </div>
             </div>
 
             <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 text-[11px] text-slate-500 space-y-1">

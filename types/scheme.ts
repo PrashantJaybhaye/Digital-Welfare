@@ -20,7 +20,19 @@ export interface Scheme {
   financialBenefitText?: string | null;
   tags?: string[];
   applyLink?: string | null;
+  applicationTimeline?: SchemeTimeline;
   lastSyncedAt: string;
+}
+
+export interface SchemeTimeline {
+  status: 'Open Year-Round' | 'Active Cycle' | 'Extended Deadline';
+  badgeColor: 'emerald' | 'amber' | 'blue';
+  datesText: string;
+  startDate?: string;
+  endDate?: string;
+  extendedDate?: string;
+  isExtended: boolean;
+  officialNotice: string;
 }
 
 export const CATEGORY_MAP: Record<string, string> = {
@@ -97,3 +109,77 @@ export const INDIAN_STATES = [
   'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
   'Delhi', 'Jammu & Kashmir', 'Ladakh', 'Puducherry', 'Chandigarh'
 ];
+
+export function getSchemeTimeline(scheme: Scheme): SchemeTimeline {
+  if (scheme.applicationTimeline) {
+    return scheme.applicationTimeline;
+  }
+
+  const text = `${scheme.title || ''} ${scheme.category || ''} ${scheme.description || ''}`.toLowerCase();
+
+  // Academic / Scholarship Schemes
+  if (
+    text.includes('scholarship') || 
+    text.includes('shikshan') || 
+    text.includes('freeship') || 
+    text.includes('vastigruh') || 
+    text.includes('hostel') ||
+    text.includes('swadhar') ||
+    text.includes('higher education') ||
+    text.includes('technical education') ||
+    text.includes('medical education') ||
+    text.includes('pragati') ||
+    text.includes('saksham') ||
+    text.includes('begum hazrat') ||
+    text.includes('nsp')
+  ) {
+    return {
+      status: 'Extended Deadline',
+      badgeColor: 'amber',
+      datesText: 'Active Cycle • Extended till 28 Feb 2027',
+      startDate: '01 Aug 2026',
+      endDate: '31 Dec 2026',
+      extendedDate: '28 Feb 2027 (Official Govt Extension)',
+      isExtended: true,
+      officialNotice: 'Academic session renewal & fresh student applications accepted. Directorate extension order active.'
+    };
+  }
+
+  // Crop Insurance & Seasonal Farm Windows
+  if (text.includes('fasal bima') || text.includes('crop insurance') || text.includes('pmfby')) {
+    return {
+      status: 'Active Cycle',
+      badgeColor: 'blue',
+      datesText: 'Rabi Window • Cutoff 31 Dec 2026',
+      startDate: '01 Oct 2026',
+      endDate: '31 Dec 2026',
+      extendedDate: 'Special Gazette Window Active',
+      isExtended: false,
+      officialNotice: 'Strict cutoff dates per District Agricultural Officer notification. Enroll early before cut-off date.'
+    };
+  }
+
+  // Solar Pumps, Farm Ponds & Specialized Allotment Programs
+  if (text.includes('saur krishi pump') || text.includes('solar pump') || text.includes('shet-tale') || text.includes('kusum')) {
+    return {
+      status: 'Active Cycle',
+      badgeColor: 'blue',
+      datesText: 'Stage-wise Allotment • Open in Batches',
+      startDate: 'Ongoing Round',
+      endDate: 'Quota Based Allocation',
+      isExtended: false,
+      officialNotice: 'Applications accepted continuously until feeder solarization targets are reached for the taluka.'
+    };
+  }
+
+  // Universal Direct Welfare & Social Security (Open Year-Round)
+  return {
+    status: 'Open Year-Round',
+    badgeColor: 'emerald',
+    datesText: 'Open Year-Round • Continuous Direct DBT',
+    startDate: 'Continuous (Active 365 Days)',
+    endDate: 'No Closing Date (Open Year-Round)',
+    isExtended: false,
+    officialNotice: 'Universal direct welfare scheme. Eligible citizens can register and apply anytime at CSC centers or online.'
+  };
+}

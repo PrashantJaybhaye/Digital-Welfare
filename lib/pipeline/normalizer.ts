@@ -42,7 +42,8 @@ export async function translateDevanagariToEnglish(text: string): Promise<string
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(clean)}`;
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: AbortSignal.timeout(2000)
     });
 
     if (res.ok) {

@@ -18,14 +18,16 @@ export async function POST(req: Request) {
     }, { status: 401 });
   }
 
-  // Rate limit: max 2 sync attempts per 10 minutes per IP
+  // Rate limit: max 10 sync attempts per 10 minutes per IP for admin operations
   const clientIp = getClientIp(req);
-  const limiter = rateLimit(`sync-schemes-${clientIp}`, 2, 10 * 60 * 1000);
+  const limiter = rateLimit(`sync-schemes-${clientIp}`, 10, 10 * 60 * 1000);
   if (!limiter.success) {
     const minutesLeft = Math.ceil(limiter.resetMs / 60000);
+    const msg = `Sync rate limit reached. Please wait ${minutesLeft} minute(s) before syncing again.`;
     return NextResponse.json({
       success: false,
-      error: `Sync rate limit reached. Please wait ${minutesLeft} minute(s) before syncing again.`
+      error: msg,
+      message: msg
     }, { status: 429 });
   }
 
@@ -78,7 +80,8 @@ export async function POST(req: Request) {
     const message = error instanceof Error ? error.message : 'Internal server error during pipeline sync';
     return NextResponse.json({
       success: false,
-      error: message
+      error: message,
+      message: message
     }, { status: 500 });
   }
 }

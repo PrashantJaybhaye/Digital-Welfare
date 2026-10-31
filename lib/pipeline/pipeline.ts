@@ -74,7 +74,8 @@ export class GovTechSchemePipeline {
       for (const route of mahadbt2Routes) {
         const res = await fetch(route.url, {
           headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-          cache: 'no-store'
+          cache: 'no-store',
+          signal: AbortSignal.timeout(3500)
         });
 
         if (res.ok) {
@@ -116,7 +117,8 @@ export class GovTechSchemePipeline {
       this.log('Harvesting live tables from National Schemes directory...');
       const wikiRes = await fetch('https://en.wikipedia.org/wiki/List_of_government_schemes_in_India', {
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-        cache: 'no-store'
+        cache: 'no-store',
+        signal: AbortSignal.timeout(3500)
       });
 
       if (wikiRes.ok) {

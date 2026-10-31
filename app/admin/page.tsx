@@ -294,14 +294,19 @@ export default function AdminDashboard() {
       const data = await response.json();
       
       setSyncResult({
-        success: data.success,
-        message: data.message || (data.success ? 'Successfully ingested schemes into database' : 'Sync completed with warnings')
+        success: Boolean(data.success),
+        message: data.message || data.error || (data.success ? 'Successfully ingested schemes into database' : 'Sync completed with notice.')
       });
       
       if (data.stages) setPipelineStages(data.stages);
       if (data.logs) setPipelineLogs(data.logs);
       
       if (data.success) fetchSchemes();
+
+      // Auto-dismiss sync success message after 8 seconds
+      setTimeout(() => {
+        setSyncResult(null);
+      }, 8000);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'An unexpected network error occurred.';
       setSyncResult({ success: false, message });
@@ -676,20 +681,29 @@ export default function AdminDashboard() {
 
       {/* Sync Status Notification */}
       {syncResult && (
-        <div className={`p-4 rounded-2xl border mb-6 flex items-start gap-3 animate-fade-in ${
+        <div className={`p-4 rounded-2xl border mb-6 flex items-start justify-between gap-3 animate-fade-in ${
           syncResult.success 
             ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950' 
             : 'bg-rose-50/80 border-rose-200 text-rose-950'
         }`}>
-          {syncResult.success ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
-          ) : (
-            <ServerCrash className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
-          )}
-          <div className="text-xs">
-            <h4 className="font-bold">{syncResult.success ? 'Sync Successful' : 'Sync Notice'}</h4>
-            <p className="opacity-90 mt-0.5">{syncResult.message}</p>
+          <div className="flex items-start gap-3">
+            {syncResult.success ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+            ) : (
+              <ServerCrash className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+            )}
+            <div className="text-xs">
+              <h4 className="font-bold">{syncResult.success ? 'Sync Successful' : 'Sync Notice'}</h4>
+              <p className="opacity-90 mt-0.5">{syncResult.message}</p>
+            </div>
           </div>
+          <button
+            onClick={() => setSyncResult(null)}
+            className="p-1 rounded-lg hover:bg-black/5 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+            title="Dismiss notification"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
